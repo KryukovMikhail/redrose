@@ -33,6 +33,13 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:
 .bar{width:110px;height:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
 .bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#7a2e0c,var(--ember));transition:width .3s}
 .bar.low i{background:linear-gradient(90deg,#5a0c0c,#c2351c)}
+.inv{display:flex;gap:10px;align-items:center;font-size:12px;font-variant-numeric:tabular-nums}
+.inv span{display:flex;align-items:center;gap:2px;opacity:.3;transition:opacity .3s}
+.inv span.has{opacity:1}
+.inv svg{width:18px;height:18px}
+.inv b{font-weight:400;color:var(--ash)}
+.inv .keyc b{color:#e8c070}
+#bCraft{border-color:#8a6a2a;color:#f0d79a;background:rgba(40,28,8,.75)}
 #mini{width:132px;height:132px;border:1px solid rgba(201,189,168,.18);background:rgba(5,4,8,.55);border-radius:50%}
 .ibtn{pointer-events:auto;font-family:var(--f-body);font-size:13px;color:var(--ash);background:rgba(10,8,12,.6);
   border:1px solid rgba(201,189,168,.25);padding:6px 10px;cursor:pointer;min-height:32px}
@@ -81,6 +88,13 @@ h2{font-family:var(--f-title);font-weight:400;font-size:clamp(40px,10vw,64px);ma
   <div class="tl">
     <div class="petals" id="petals"></div>
     <div class="fuel">Факел <div class="bar" id="fuelbar"><i></i></div></div>
+    <div class="inv" aria-label="Части ключа">
+      <span id="p0" title="Кольцо ключа"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="none" stroke="#b9a37a" stroke-width="2.4"/></svg><b>0</b></span>
+      <span id="p1" title="Стержень ключа"><svg viewBox="0 0 20 20"><rect x="3" y="8.5" width="14" height="3" fill="#b9a37a"/></svg><b>0</b></span>
+      <span id="p2" title="Бородка ключа"><svg viewBox="0 0 20 20"><path d="M4 7h12v3h-3v4h-3v-2H7v3H4z" fill="#b9a37a"/></svg><b>0</b></span>
+      <span id="keyc" class="keyc" title="Ключи"><svg viewBox="0 0 20 20"><circle cx="5.5" cy="10" r="3.5" fill="none" stroke="#e8c070" stroke-width="2"/><path d="M9 9h9v2h-2v3h-2v-3h-2v2h-2v-2H9z" fill="#e8c070"/></svg><b>0</b></span>
+    </div>
+    <button class="ibtn" id="bCraft" hidden>Собрать ключ</button>
   </div>
   <div id="compass"><svg viewBox="0 0 32 32"><path d="M16 2 L24 26 L16 21 L8 26 Z" fill="#d42a40" stroke="#ffb3bd" stroke-width="1"/></svg><span id="cdist"></span></div>
   <div class="tr">
@@ -92,18 +106,18 @@ h2{font-family:var(--f-title);font-weight:400;font-size:clamp(40px,10vw,64px);ma
 </div>
 
 <div class="screen on" id="menu">
-  <div class="build">R001.001</div>
+  <div class="build">R001.002</div>
   <div class="panel">
     <h1>Red Rose</h1>
     <p class="sub">Лабиринт замка Розенхолл</p>
-    <p class="lore">Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она расцветёт там, где кончается лабиринт.</p>
+    <p class="lore">Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она расцветёт там, где кончается лабиринт. Держись ближе к огню: в темноте бродит Тень.</p>
     <div class="btns">
       <button class="btn" id="bResume" hidden>Вернуться в замок</button>
       <button class="btn" id="bCont" hidden>Продолжить</button>
       <button class="btn" id="bNew">Войти в замок</button>
     </div>
-    <div class="help desk">WASD — идти · мышь или ← → — поворот · M — карта · Esc — пауза<br>Щёлкни по экрану, чтобы захватить мышь</div>
-    <div class="help touch">Левый палец — идти · правый палец — оглядываться</div>
+    <div class="help desk">WASD — идти · мышь — оглядываться · ← → — поворот · R / F — вверх и вниз<br>C — собрать ключ · M — карта · Esc — пауза · щёлкни по экрану, чтобы захватить мышь</div>
+    <div class="help touch">Левый палец — идти · правый палец — оглядываться во все стороны</div>
   </div>
 </div>
 
@@ -193,6 +207,12 @@ function genChunk(cx, cy) {
     const v = r();
     g[k] = v < 0.6 ? 1 : v < 0.83 ? 2 : v < 0.92 ? 4 : 3;
   }
+  // 5b) запертые решётки во внутренних стенах между двумя клетками — короткие пути
+  for (let y = 1; y < S - 1; y++) for (let x = 1; x < S - 1; x++) {
+    if (!g[y * S + x]) continue;
+    const edge = (x % 2 === 0 && y % 2 === 1) || (y % 2 === 0 && x % 2 === 1);
+    if (edge && r() < 0.07) g[y * S + x] = 5;
+  }
   // 6) предметы: лепестки и масло в тупиках, кости и свечи для атмосферы
   const items = [];
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
@@ -205,9 +225,9 @@ function genChunk(cx, cy) {
     if (y + 1 < S && !g[(y + 1) * S + x]) open++;
     const wx = cx * S + x, wy = cy * S + y, v = r();
     let t = null;
-    if (open === 1) t = v < 0.14 ? 'petal' : v < 0.36 ? 'oil' : v < 0.5 ? 'bones' : null;
+    if (open === 1) t = v < 0.14 ? 'petal' : v < 0.25 ? 'keypart' : v < 0.43 ? 'oil' : v < 0.55 ? 'bones' : null;
     else t = v < 0.035 ? 'bones' : v < 0.05 ? 'oil' : v < 0.065 ? 'candle' : null;
-    if (t) items.push({ x: wx + 0.5, y: wy + 0.5, t, id: wx + ',' + wy });
+    if (t) items.push({ x: wx + 0.5, y: wy + 0.5, t, id: wx + ',' + wy, k: h32(wx, wy, 21) % 3 });
   }
   if (hall) {
     for (let n = 0; n < 3; n++) {
@@ -221,7 +241,12 @@ function genChunk(cx, cy) {
 function getChunk(cx, cy) {
   const k = cx + ',' + cy;
   let c = chunks.get(k);
-  if (!c) { c = genChunk(cx, cy); chunks.set(k, c); }
+  if (!c) {
+    c = genChunk(cx, cy);
+    if (opened.size) for (let i = 0; i < S * S; i++)
+      if (c.g[i] === 5 && opened.has((cx * S + (i & 15)) + ',' + (cy * S + (i >> 4)))) c.g[i] = 0;
+    chunks.set(k, c);
+  }
   return c;
 }
 let lcx = 1e9, lcy = 1e9, lc = null;
@@ -284,6 +309,22 @@ TEX[4] = mk((x, y) => {
   const outer = (y >= 24 && Math.abs(dx) <= 18) || (y < 24 && dx * dx + (y - 26) * (y - 26) <= 324 && y >= 8);
   if (outer) return pack(c[0] * 1.15, c[1] * 1.12, c[2] * 1.1);
   return pack(c[0], c[1], c[2]);
+});
+TEX[5] = mk((x, y) => {   // запертая решётка с замком
+  if (y < 3 || y > 61) return pack(70, 48, 36);
+  if (x >= 25 && x <= 39 && y >= 26 && y <= 40) {
+    if ((x === 32 || x === 31) && y >= 30 && y <= 36) return pack(8, 6, 4);
+    if (x >= 30 && x <= 33 && y >= 29 && y <= 31) return pack(8, 6, 4);
+    const k = x === 25 || y === 26 ? 1.25 : x === 39 || y === 40 ? 0.7 : 1;
+    return pack(150 * k, 112 * k, 46 * k);
+  }
+  const bar = x % 9;
+  if (bar === 4 || bar === 5 || y === 12 || y === 13 || y === 52 || y === 53) {
+    const rust = nz(x, y, 12) * 30;
+    const hi = bar === 4 || y === 12 || y === 52 ? 1.2 : 0.85;
+    return pack((92 + rust) * hi, (60 + rust * 0.4) * hi, 44 * hi);
+  }
+  return pack(6 + nz(x, y, 13) * 6, 5, 6);
 });
 const TF = mk((x, y) => {
   const sx = x >> 5, sy = y >> 5, lx = x & 31, ly = y & 31;
@@ -358,7 +399,27 @@ const SPR = {
     g.fillStyle = '#ff6d80'; g.fillRect(13, 5, 2, 1);
   })
 };
+function keyGlow(g) { glow(g, 16, 22, 11, 'rgba(255,200,110,0.35)'); g.fillStyle = '#c7a35a'; g.strokeStyle = '#c7a35a'; }
+SPR.key0 = sprite(g => { keyGlow(g); g.lineWidth = 3; g.beginPath(); g.arc(16, 22, 6, 0, 7); g.stroke(); g.fillStyle = '#f2dca0'; g.fillRect(12, 16, 3, 1.5); });
+SPR.key1 = sprite(g => { keyGlow(g); g.save(); g.translate(16, 22); g.rotate(-0.4); g.fillRect(-11, -1.6, 22, 3.2); g.fillStyle = '#f2dca0'; g.fillRect(-11, -1.6, 22, 1); g.restore(); });
+SPR.key2 = sprite(g => { keyGlow(g); g.fillRect(9, 18, 14, 4); g.fillRect(17, 22, 4, 6); g.fillRect(11, 22, 3, 4); g.fillStyle = '#f2dca0'; g.fillRect(9, 18, 14, 1); });
+SPR.shadow = sprite(g => {
+  const gr = g.createLinearGradient(0, 0, 0, 32);
+  gr.addColorStop(0, 'rgba(0,0,0,0.95)'); gr.addColorStop(0.75, 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr;
+  g.beginPath(); g.ellipse(16, 8, 5, 6, 0, 0, 7); g.fill();
+  g.beginPath(); g.moveTo(10, 12); g.quadraticCurveTo(4, 20, 6, 32); g.lineTo(9, 28); g.lineTo(12, 32); g.lineTo(16, 27);
+  g.lineTo(20, 32); g.lineTo(23, 28); g.lineTo(26, 32); g.quadraticCurveTo(28, 20, 22, 12); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(9, 14); g.lineTo(2, 24); g.lineTo(5, 25); g.lineTo(11, 18); g.fill();
+  g.beginPath(); g.moveTo(23, 14); g.lineTo(30, 24); g.lineTo(27, 25); g.lineTo(21, 18); g.fill();
+  g.fillStyle = '#ff2030'; g.fillRect(12, 7, 3, 2); g.fillRect(17, 7, 3, 2);
+  g.fillStyle = '#ffb0b0'; g.fillRect(13, 7, 1, 1); g.fillRect(18, 7, 1, 1);
+});
 const DEF = {
+  key0: { sz: 0.34, lift: 0.04, emit: 0.4 },
+  key1: { sz: 0.34, lift: 0.04, emit: 0.4 },
+  key2: { sz: 0.34, lift: 0.04, emit: 0.4 },
+  shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
   petal: { sz: 0.42, lift: 0.22, emit: 0.75, bob: 1 },
   oil: { sz: 0.38, lift: 0, emit: 0 },
   bones: { sz: 0.48, lift: 0, emit: 0 },
@@ -427,30 +488,55 @@ const Snd = {
   glug() { for (let i = 0; i < 3; i++) this.tone(260 - i * 30, 120, 'triangle', 0.14, 0.12, 0.2, i * 0.13); },
   heart() { this.tone(62, 40, 'sine', 0.55, 0.16, 0); this.tone(58, 38, 'sine', 0.4, 0.16, 0, 0.2); },
   toll() { [110, 164.8, 220, 277].forEach((f, i) => this.tone(f, f * 0.995, 'sawtooth', 0.035, 3.2, 0.7, i * 0.12)); },
-  win() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 2.2, 0.6, i * 0.18)); }
+  win() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 2.2, 0.6, i * 0.18)); },
+  gust() {
+    if (!this.c) return;
+    const c = this.c, t = c.currentTime, s = c.createBufferSource(); s.buffer = this.nb; s.loop = true;
+    const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.8;
+    f.frequency.setValueAtTime(180, t); f.frequency.exponentialRampToValueAtTime(1300, t + 1.2); f.frequency.exponentialRampToValueAtTime(260, t + 2.6);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32, t + 1.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+    s.connect(f); f.connect(g); this.route(g, 0.4); s.start(t); s.stop(t + 3);
+  },
+  sputter() { for (let i = 0; i < 5; i++) setTimeout(() => this.crackle(), i * 60 + Math.random() * 40); this.tone(90, 50, 'sine', 0.2, 0.3, 0.3); },
+  relight() { this.noise(900, 0.6, 0.18, 0.35, 0.2, 'lowpass'); },
+  whisper(v) { this.noise(1100 + Math.random() * 900, 7, 0.12 + v * 0.4, 0.45, 0.8); this.noise(2200 + Math.random() * 700, 9, v * 0.2, 0.3, 0.8); },
+  scream() { this.tone(900, 110, 'sawtooth', 0.12, 1.1, 0.9); this.tone(640, 80, 'square', 0.05, 1.0, 0.9); this.noise(500, 0.5, 0.3, 0.6, 0.6, 'lowpass'); },
+  hiss() { this.noise(3200, 0.7, 0.16, 0.5, 0.6, 'highpass'); },
+  clank() { this.tone(190, 90, 'square', 0.09, 0.16, 0.5); this.noise(1800, 3, 0.3, 0.2, 0.6); this.tone(72, 52, 'sawtooth', 0.06, 1.4, 0.5, 0.15); },
+  forge() { this.tone(1320, 1320, 'triangle', 0.08, 0.35, 0.5); this.tone(1760, 1760, 'triangle', 0.06, 0.4, 0.5, 0.09); }
 };
 
 /* ================= Состояние ================= */
-const P = { x: 1.5, y: 1.5, a: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0 };
-let collected = new Set(), exit = null, seen = new Map();
+const P = { x: 1.5, y: 1.5, a: 0, pitch: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0 };
+let collected = new Set(), exit = null, seen = new Map(), opened = new Set();
+const inv = { parts: [0, 0, 0], keys: 0 };
+const PART_NAMES = ['кольцо ключа', 'стержень ключа', 'бородка ключа'];
+let blackT = 45, blackDur = 0, preWarn = false, gateMsg = '';
+const SH = { on: false, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, life: 0, spawnT: 25, whisT: 2, seenMsg: false };
+function resetShadow() { Object.assign(SH, { on: false, spawnT: 25, whisT: 2, seenMsg: false }); }
 let state = 'menu'; // menu | play | pause | win | lose
 let flick = 1, LR = 6, bobPh = 0, bobY = 0, stepAcc = 0, dripT = 5, crackT = 0.3, heartT = 0, saveT = 5, darkWarned = false, lowWarned = false;
 
 function newGame() {
   SEED = (Math.random() * 1e9) | 0;
   chunks.clear(); lcx = lcy = 1e9;
-  Object.assign(P, { x: 1.5, y: 1.5, a: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0 });
+  Object.assign(P, { x: 1.5, y: 1.5, a: 0, pitch: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0 });
+  collected = new Set(); exit = null; seen = new Map(); opened = new Set(); darkWarned = lowWarned = false;
+  inv.parts = [0, 0, 0]; inv.keys = 0; blackT = 45; blackDur = 0; preWarn = false; gateMsg = ''; resetShadow();
   // смотрим в открытую сторону
   if (!solid(2.5, 1.5)) P.a = 0; else if (!solid(1.5, 2.5)) P.a = Math.PI / 2;
-  collected = new Set(); exit = null; seen = new Map(); darkWarned = lowWarned = false;
 }
 function serialize() {
-  return { seed: SEED, x: P.x, y: P.y, a: P.a, fuel: P.fuel, petals: P.petals, time: P.time, dist: P.dist, collected: [...collected], exit };
+  return { seed: SEED, x: P.x, y: P.y, a: P.a, fuel: P.fuel, petals: P.petals, time: P.time, dist: P.dist, collected: [...collected], exit,
+    parts: inv.parts, keys: inv.keys, opened: [...opened] };
 }
 function restore(s) {
   SEED = s.seed; chunks.clear(); lcx = lcy = 1e9;
-  Object.assign(P, { x: s.x, y: s.y, a: s.a, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
+  opened = new Set(s.opened || []);
+  Object.assign(P, { x: s.x, y: s.y, a: s.a, pitch: 0, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
   collected = new Set(s.collected || []); exit = s.exit || null; seen = new Map();
+  inv.parts = (s.parts || [0, 0, 0]).slice(); inv.keys = s.keys || 0;
+  blackT = 45; blackDur = 0; preWarn = false; gateMsg = ''; resetShadow();
   darkWarned = P.fuel <= 0; lowWarned = P.fuel < 20;
 }
 const SAVE_KEY = 'redrose_save_v1';
@@ -493,7 +579,7 @@ function light(d) {
 function render(t) {
   const dirX = Math.cos(P.a), dirY = Math.sin(P.a), p = W / (2 * F);
   const plX = -dirY * p, plY = dirX * p;
-  const hz = Math.round(H / 2 + bobY);
+  const hz = Math.round(H / 2 + P.pitch * H + bobY);
   const rx0 = dirX - plX, ry0 = dirY - plY, rx1 = dirX + plX, ry1 = dirY + plY;
   const BLACK = 0xff000000;
 
@@ -559,11 +645,13 @@ function render(t) {
     for (const it of getChunk(cx, cy).items) {
       if (collected.has(it.id)) continue;
       const dx = it.x - P.x, dy = it.y - P.y, d2 = dx * dx + dy * dy;
-      const maxD = DEF[it.t].emit ? 20 : LR + 1;
-      if (d2 < maxD * maxD) list.push({ x: it.x, y: it.y, t: it.t, d2 });
+      const name = it.t === 'keypart' ? 'key' + it.k : it.t;
+      const maxD = DEF[name].emit ? 20 : LR + 1;
+      if (d2 < maxD * maxD) list.push({ x: it.x, y: it.y, t: name, d2 });
     }
   }
   if (exit) { const dx = exit.x - P.x, dy = exit.y - P.y; list.push({ x: exit.x, y: exit.y, t: 'rose', d2: dx * dx + dy * dy }); }
+  if (SH.on) { const dx = SH.x - P.x, dy = SH.y - P.y, d2 = dx * dx + dy * dy; if (d2 < 400) list.push({ x: SH.x, y: SH.y, t: 'shadow', d2 }); }
   list.sort((a, b) => b.d2 - a.d2);
   const inv = 1 / (plX * dirY - dirX * plY);
   const pulse = 0.8 + 0.2 * Math.sin(t * 3);
@@ -578,7 +666,7 @@ function render(t) {
     const x0 = Math.floor(scrX - size / 2), x1 = Math.floor(scrX + size / 2);
     const s = light(tY), em = def.emit, sAll = Math.max(s, em);
     const sr = sAll, sg = em ? sAll : sAll * 0.84, sb = em ? sAll : sAll * 0.62;
-    if (sAll < 0.012) continue;
+    if (sAll < 0.012 && !def.dark) continue;
     const gk = em * pulse / 255;
     for (let x = Math.max(0, x0); x <= Math.min(W - 1, x1); x++) {
       if (tY >= zbuf[x]) continue;
@@ -588,6 +676,15 @@ function render(t) {
         const i = (v * 32 + u) * 4, a = d[i + 3];
         if (a < 10) continue;
         const o = y * W + x;
+        if (def.dark) {
+          if (d[i] > 150 && d[i + 1] < 200 && a > 200) {   // горящие глаза видны и в полной темноте
+            buf[o] = 0xff000000 | (d[i + 2] << 16) | (d[i + 1] << 8) | d[i];
+          } else {
+            const k = 1 - a / 255 * 0.94, c = buf[o];
+            buf[o] = 0xff000000 | (((((c >> 16) & 255) * k) | 0) << 16) | (((((c >> 8) & 255) * k) | 0) << 8) | (((c & 255) * k) | 0);
+          }
+          continue;
+        }
         if (a >= 245 || (!em && a > 120)) {
           buf[o] = 0xff000000 | (cl(d[i + 2] * sb) << 16) | (cl(d[i + 1] * sg) << 8) | cl(d[i] * sr);
         } else if (em) {
@@ -604,7 +701,7 @@ function render(t) {
 function drawTorch(t) {
   const s = Math.min(H, W * 0.75) / 200;
   const bx = W * 0.8 + Math.sin(bobPh * 0.5) * 3 * s, by = H + 8 * s + Math.abs(Math.cos(bobPh * 0.5)) * 4 * s;
-  const lit = P.fuel > 0;
+  const lit = P.fuel > 0 && blackDur <= 0;
   ctx.save(); ctx.translate(bx, by); ctx.rotate(-0.26);
   ctx.fillStyle = lit ? '#3e2717' : '#1e140c'; ctx.fillRect(-4 * s, -72 * s, 8 * s, 84 * s);
   ctx.fillStyle = lit ? '#25160c' : '#120b06'; ctx.fillRect(-4 * s, -72 * s, 3 * s, 84 * s);
@@ -627,6 +724,7 @@ function drawTorch(t) {
     }
     ctx.globalCompositeOperation = 'source-over';
   } else {
+    if (P.fuel > 0) { ctx.fillStyle = 'rgba(255,90,30,' + (0.5 + 0.3 * Math.sin(t * 20)) + ')'; ctx.beginPath(); ctx.arc(0, -82 * s, 2 * s, 0, 7); ctx.fill(); }
     ctx.strokeStyle = 'rgba(120,120,120,0.25)'; ctx.lineWidth = 1.5 * s; ctx.beginPath();
     ctx.moveTo(0, -84 * s);
     for (let i = 1; i < 6; i++) ctx.lineTo(Math.sin(t * 2 + i) * 4 * s, (-84 - i * 8) * s);
@@ -657,16 +755,17 @@ function drawMini(t) {
   for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) {
     const wx = px + x, wy = py + y;
     if (!isSeen(wx, wy)) continue;
-    mctx.fillStyle = tile(wx, wy) ? '#4a3f3a' : '#16121a';
+    const tt = tile(wx, wy);
+    mctx.fillStyle = tt === 5 ? '#a0602e' : tt ? '#4a3f3a' : '#16121a';
     mctx.fillRect(ox + x * c - c / 2, oy + y * c - c / 2, c, c);
   }
   const pcx = px >> 4, pcy = py >> 4;
   for (let cy = pcy - 1; cy <= pcy + 1; cy++) for (let cx = pcx - 1; cx <= pcx + 1; cx++) {
     for (const it of getChunk(cx, cy).items) {
-      if ((it.t !== 'petal' && it.t !== 'oil') || collected.has(it.id)) continue;
+      if ((it.t !== 'petal' && it.t !== 'oil' && it.t !== 'keypart') || collected.has(it.id)) continue;
       const ix = Math.floor(it.x), iy = Math.floor(it.y);
       if (!isSeen(ix, iy)) continue;
-      mctx.fillStyle = it.t === 'petal' ? '#ff3550' : '#e39a3c';
+      mctx.fillStyle = it.t === 'petal' ? '#ff3550' : it.t === 'oil' ? '#e39a3c' : '#e8d08a';
       mctx.beginPath(); mctx.arc(66 + (it.x - P.x) * c, 66 + (it.y - P.y) * c, 2, 0, 7); mctx.fill();
     }
   }
@@ -691,7 +790,10 @@ function updHud() {
   const ps = $('petals').children;
   for (let i = 0; i < NEED; i++) ps[i].classList.toggle('got', i < P.petals);
   const fb = $('fuelbar'); fb.firstElementChild.style.width = P.fuel + '%'; fb.classList.toggle('low', P.fuel < 20);
-  $('fear').style.opacity = (P.fear / 100) * 0.95;
+  $('fear').style.opacity = (Math.min(100, P.fear) / 100) * 0.95;
+  for (let k = 0; k < 3; k++) { const el = $('p' + k); el.classList.toggle('has', inv.parts[k] > 0); el.lastElementChild.textContent = inv.parts[k]; }
+  const kc = $('keyc'); kc.classList.toggle('has', inv.keys > 0); kc.lastElementChild.textContent = inv.keys;
+  $('bCraft').hidden = !canCraft();
   const cp = $('compass');
   if (exit) {
     cp.classList.add('on');
@@ -703,9 +805,10 @@ function updHud() {
 
 /* ================= Ввод ================= */
 const keys = {};
-let lookDX = 0, joy = null, look = null, mouseDrag = false;
+let lookDX = 0, lookDY = 0, joy = null, look = null, mouseDrag = false;
 addEventListener('keydown', e => {
   keys[e.code] = true;
+  if (e.code === 'KeyC' && state === 'play') craft();
   if (e.code === 'Escape' && state === 'play') pause();
   if (e.code === 'KeyM' && state === 'play') toggleMap();
   if (state === 'play' && e.code.startsWith('Arrow')) e.preventDefault();
@@ -721,7 +824,7 @@ cv.addEventListener('mousedown', e => {
 addEventListener('mouseup', () => { mouseDrag = false; });
 addEventListener('mousemove', e => {
   if (state !== 'play') return;
-  if (document.pointerLockElement === cv || mouseDrag) lookDX += e.movementX * 0.0024;
+  if (document.pointerLockElement === cv || mouseDrag) { lookDX += e.movementX * 0.0024; lookDY += e.movementY * 0.0016; }
 });
 document.addEventListener('pointerlockchange', () => {
   if (!document.pointerLockElement && state === 'play' && !isTouch) mouseDrag = false;
@@ -734,7 +837,7 @@ cv.addEventListener('touchstart', e => {
       joy = { id: t.identifier, ox: t.clientX, oy: t.clientY, x: 0, y: 0 };
       joyEl.style.left = t.clientX + 'px'; joyEl.style.top = t.clientY + 'px'; joyEl.style.display = 'block';
       joyEl.firstElementChild.style.transform = '';
-    } else if (!look) look = { id: t.identifier, lx: t.clientX };
+    } else if (!look) look = { id: t.identifier, lx: t.clientX, ly: t.clientY };
   }
 }, { passive: false });
 cv.addEventListener('touchmove', e => {
@@ -745,7 +848,10 @@ cv.addEventListener('touchmove', e => {
       if (l > 1) { dx /= l; dy /= l; }
       joy.x = dx; joy.y = dy;
       joyEl.firstElementChild.style.transform = 'translate(' + dx * 33 + 'px,' + dy * 33 + 'px)';
-    } else if (look && t.identifier === look.id) { lookDX += (t.clientX - look.lx) * 0.0075; look.lx = t.clientX; }
+    } else if (look && t.identifier === look.id) {
+      lookDX += (t.clientX - look.lx) * 0.0075; look.lx = t.clientX;
+      lookDY += (t.clientY - look.ly) / innerHeight * 1.1; look.ly = t.clientY;
+    }
   }
 }, { passive: false });
 function endTouch(e) {
@@ -773,6 +879,10 @@ function update(dt, t) {
   if (keys.ArrowRight || keys.KeyE) turn += 1;
   if (joy) { f -= joy.y; s += joy.x; }
   P.a += turn * 2.3 * dt + lookDX; lookDX = 0;
+  let pv = 0;
+  if (keys.KeyR || keys.PageUp) pv += 1;
+  if (keys.KeyF || keys.PageDown) pv -= 1;
+  P.pitch = Math.max(-0.45, Math.min(0.45, P.pitch + pv * 0.9 * dt - lookDY)); lookDY = 0;
   const len = Math.hypot(f, s); if (len > 1) { f /= len; s /= len; }
   const sp = 2.6 * dt, ca = Math.cos(P.a), sa = Math.sin(P.a);
   const ox = P.x, oy = P.y;
@@ -782,27 +892,55 @@ function update(dt, t) {
   if (moved > 0.0005) { bobPh += moved * 7.5; stepAcc += moved; if (stepAcc > 0.7) { stepAcc = 0; Snd.step(); } }
   bobY = Math.sin(bobPh) * Math.max(1, H / 150);
 
+  // решётки: упёрся в решётку — открываем ключом
+  if (f > 0.3) {
+    const gx = Math.floor(P.x + ca * 0.75), gy = Math.floor(P.y + sa * 0.75);
+    if (tile(gx, gy) === 5) {
+      const id = gx + ',' + gy;
+      if (inv.keys > 0) {
+        inv.keys--; opened.add(id);
+        getChunk(gx >> 4, gy >> 4).g[((gy & 15) << 4) | (gx & 15)] = 0;
+        Snd.clank(); toast('Ключ повернулся. Решётка поднялась.', 2.5); save();
+      } else if (gateMsg !== id) {
+        gateMsg = id;
+        toast(canCraft() ? 'Решётка заперта. Собери ключ из частей (кнопка «Собрать ключ» или C).' : 'Решётка заперта. Нужен ключ: кольцо, стержень и бородка.', 3.5);
+      }
+    }
+  }
+
   // факел
   if (P.fuel > 0) {
     P.fuel = Math.max(0, P.fuel - dt * 0.42);
     if (P.fuel < 20 && !lowWarned) { lowWarned = true; toast('Факел слабеет. Ищи склянки с маслом в тупиках.'); }
     if (P.fuel === 0 && !darkWarned) { darkWarned = true; toast('Факел погас. Тьма подбирается ближе.', 5); }
-    P.fear = Math.max(0, P.fear - dt * 6);
-    crackT -= dt; if (crackT < 0) { crackT = 0.15 + Math.random() * 0.6; Snd.crackle(); }
-  } else {
-    P.fear += dt * 1.6;
-    heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); }
-    if (P.fear >= 100) return lose();
+    if (blackDur <= 0) { crackT -= dt; if (crackT < 0) { crackT = 0.15 + Math.random() * 0.6; Snd.crackle(); } }
   }
+  // внезапная полная темнота
+  if (blackDur > 0) {
+    blackDur -= dt;
+    if (blackDur <= 0) { blackT = 40 + Math.random() * 45; if (P.fuel > 0) { Snd.relight(); toast('Пламя снова занялось.', 2); } }
+  } else {
+    blackT -= dt;
+    if (blackT < 1.4 && !preWarn) { preWarn = true; Snd.gust(); }
+    if (blackT <= 0) { preWarn = false; blackDur = 3 + Math.random() * 3; Snd.sputter(); if (P.fuel > 0) toast('Ледяной сквозняк задул пламя…', 3); }
+  }
+  const dark = P.fuel <= 0 || blackDur > 0;
+  if (P.fuel <= 0) P.fear += dt * 1.6;
+  else if (blackDur > 0) P.fear += dt * 2;
+  else P.fear = Math.max(0, P.fear - dt * 2.5);
+  if (dark) { heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); } }
   flick = 0.9 + 0.06 * Math.sin(t * 13) + 0.04 * Math.sin(t * 29 + 1) + (Math.random() - 0.5) * 0.04;
-  LR = P.fuel > 0 ? 2.4 + 5.4 * Math.sqrt(P.fuel / 100) : 1.35;
+  if (preWarn) flick *= 0.4 + Math.random() * 0.6;
+  LR = blackDur > 0 ? 0.8 : P.fuel > 0 ? 2.4 + 5.4 * Math.sqrt(P.fuel / 100) : 1.35;
+  updShadow(dt, dark);
+  if (P.fear >= 100) return lose();
   dripT -= dt; if (dripT < 0) { dripT = 3 + Math.random() * 7; Snd.drip(); }
 
   // подбор предметов
   const pcx = Math.floor(P.x) >> 4, pcy = Math.floor(P.y) >> 4;
   for (let cy = pcy - 1; cy <= pcy + 1; cy++) for (let cx = pcx - 1; cx <= pcx + 1; cx++) {
     for (const it of getChunk(cx, cy).items) {
-      if (collected.has(it.id) || (it.t !== 'petal' && it.t !== 'oil')) continue;
+      if (collected.has(it.id) || (it.t !== 'petal' && it.t !== 'oil' && it.t !== 'keypart')) continue;
       if (Math.hypot(it.x - P.x, it.y - P.y) > 0.6) continue;
       if (it.t === 'oil' && P.fuel >= 98) continue;
       collected.add(it.id);
@@ -810,6 +948,10 @@ function update(dt, t) {
         P.petals++; Snd.chime();
         if (P.petals < NEED) toast('Лепесток Красной Розы. Осталось ' + (NEED - P.petals) + '.');
         else if (!exit) spawnExit();
+      } else if (it.t === 'keypart') {
+        inv.parts[it.k]++; Snd.forge();
+        const nm = PART_NAMES[it.k];
+        toast('Найдено: ' + nm + '.' + (canCraft() ? ' Можно собрать ключ.' : ''), 3);
       } else {
         P.fuel = Math.min(100, P.fuel + 38); Snd.glug(); lowWarned = P.fuel < 20; darkWarned = false;
         toast('Масло. Факел разгорается ярче.', 2.5);
@@ -823,6 +965,83 @@ function update(dt, t) {
   saveT -= dt; if (saveT < 0) { saveT = 5; save(); }
   if (chunks.size > 120) for (const [k, c] of chunks) if (Math.abs(c.cx - pcx) > 3 || Math.abs(c.cy - pcy) > 3) chunks.delete(k);
   if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('toast').classList.remove('on'); }
+}
+
+/* ================= Крафт ================= */
+function canCraft() { return inv.parts[0] > 0 && inv.parts[1] > 0 && inv.parts[2] > 0; }
+function craft() {
+  if (!canCraft()) return;
+  for (let k = 0; k < 3; k++) inv.parts[k]--;
+  inv.keys++; Snd.forge(); setTimeout(() => Snd.clank(), 250);
+  toast('Ключ собран. Он откроет одну решётку в стене — так можно срезать путь.', 3.5);
+  save();
+}
+
+/* ================= Тень ================= */
+const RW = 22, WD = 2 * RW + 1, field = new Int16Array(WD * WD), fq = new Int32Array(WD * WD);
+let fox = 0, foy = 0, fieldT = 0;
+function shPass(x, y) { const t = tile(x, y); return t === 0 || t === 5; }   // Тень проходит сквозь решётки
+function buildField() {
+  const px = Math.floor(P.x), py = Math.floor(P.y);
+  fox = px - RW; foy = py - RW; field.fill(-1);
+  let h = 0, tl = 0; const c0 = RW * WD + RW; field[c0] = 0; fq[tl++] = c0;
+  while (h < tl) {
+    const i = fq[h++], x = i % WD, y = (i / WD) | 0, d = field[i] + 1;
+    if (x > 0 && field[i - 1] < 0 && shPass(fox + x - 1, foy + y)) { field[i - 1] = d; fq[tl++] = i - 1; }
+    if (x < WD - 1 && field[i + 1] < 0 && shPass(fox + x + 1, foy + y)) { field[i + 1] = d; fq[tl++] = i + 1; }
+    if (y > 0 && field[i - WD] < 0 && shPass(fox + x, foy + y - 1)) { field[i - WD] = d; fq[tl++] = i - WD; }
+    if (y < WD - 1 && field[i + WD] < 0 && shPass(fox + x, foy + y + 1)) { field[i + WD] = d; fq[tl++] = i + WD; }
+  }
+}
+function fieldAt(x, y) { const lx = x - fox, ly = y - foy; return (lx < 0 || ly < 0 || lx >= WD || ly >= WD) ? -1 : field[ly * WD + lx]; }
+function spawnShadow() {
+  const cand = [];
+  for (let i = 0; i < WD * WD; i++) {
+    const d = field[i]; if (d < 16 || d > 34) continue;
+    const x = fox + i % WD, y = foy + ((i / WD) | 0);
+    if ((x & 1) && (y & 1)) cand.push(x, y);
+  }
+  if (!cand.length) return false;
+  const k = ((Math.random() * cand.length / 2) | 0) * 2;
+  SH.cx = SH.tx = cand[k]; SH.cy = SH.ty = cand[k + 1]; SH.x = SH.cx + 0.5; SH.y = SH.cy + 0.5;
+  SH.on = true; SH.life = 30 + Math.random() * 25;
+  return true;
+}
+function updShadow(dt, dark) {
+  fieldT -= dt; if (fieldT <= 0) { fieldT = 0.3; buildField(); }
+  if (!SH.on) { SH.spawnT -= dt * (dark ? 3 : 1); if (SH.spawnT <= 0 && !spawnShadow()) SH.spawnT = 3; return; }
+  SH.life -= dt;
+  const pd = fieldAt(SH.cx, SH.cy);
+  if (pd < 0 || (SH.life <= 0 && !dark)) { SH.on = false; SH.spawnT = 15 + Math.random() * 25; return; }
+  if (!dark && pd < LR * 0.5) {   // свет обжигает Тень
+    SH.on = false; SH.spawnT = 12 + Math.random() * 10; Snd.hiss(); toast('Тень зашипела и растаяла в свете факела.', 2.5); return;
+  }
+  const edge = LR + 1.5;
+  const mode = dark ? 1 : pd > edge + 2 ? 1 : pd < edge ? -1 : 0;   // охота / отступить / караулить у края света
+  const speed = dark ? 2.2 : mode < 0 ? 2.4 : 1.1;
+  const gx = SH.tx + 0.5, gy = SH.ty + 0.5, dx = gx - SH.x, dy = gy - SH.y, dl = Math.hypot(dx, dy);
+  if (dl < 0.04) {
+    SH.cx = SH.tx; SH.cy = SH.ty;
+    if (mode !== 0) {
+      let bd = pd, best = null;
+      for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const n = fieldAt(SH.cx + ox, SH.cy + oy); if (n < 0) continue;
+        if (mode > 0 ? n < bd : n > bd) { bd = n; best = [SH.cx + ox, SH.cy + oy]; }
+      }
+      if (best) { SH.tx = best[0]; SH.ty = best[1]; }
+    }
+  } else { const st = Math.min(dl, speed * dt); SH.x += dx / dl * st; SH.y += dy / dl * st; }
+
+  const ed = Math.hypot(SH.x - P.x, SH.y - P.y);
+  if (ed < 0.55) {
+    P.fear += 40; if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
+    Snd.scream(); toast('Тень прошла сквозь тебя. Холод сжал сердце.', 3.5);
+    SH.on = false; SH.spawnT = 18 + Math.random() * 15; return;
+  }
+  if (ed < 3) P.fear += dt * 4;
+  SH.whisT -= dt;
+  if (ed < 10 && SH.whisT <= 0) { SH.whisT = 1 + Math.random() * 1.8; Snd.whisper((1 - ed / 10) * (dark ? 1 : 0.5)); }
+  if (dark && ed < 9 && !SH.seenMsg) { SH.seenMsg = true; toast('Что-то движется в темноте…', 3); }
 }
 
 /* ================= Экраны ================= */
@@ -856,6 +1075,7 @@ $('bCont').onclick = () => { const s = loadSave(); if (s) { restore(s); play(); 
 $('bPause').onclick = pause;
 function toggleMap() { showMap = !showMap; mini.style.display = showMap ? '' : 'none'; }
 $('bMap').onclick = toggleMap;
+$('bCraft').onclick = craft;
 
 /* ================= Цикл ================= */
 let last = performance.now();
