@@ -1,9 +1,23 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#07060a">
+<meta name="description" content="Бесконечный мрачный лабиринт замка Розенхолл от первого лица">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Red Rose">
 <title>Red Rose</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Kurale&family=Marck+Script&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Layout: full-screen raycast canvas, HUD pinned to safe-area corners, menus as candle-lit parchment-dark panels */
+/* Layout: full-screen raycast canvas; HUD pinned to safe-area corners; action bar bottom-right; menus are candle-lit dark panels, notes are parchment */
 :root{
   --void:#07060a;
   --stone:#1b171f;
@@ -12,10 +26,15 @@
   --blood:#8e0f22;
   --rose:#d42a40;
   --ember:#e2913f;
+  --parch:#cdb98f;
+  --ink:#2b1c10;
   --f-title:'UnifrakturMaguntia','Old English Text MT',serif;
+  --f-head:'Kurale','Old Standard TT',Georgia,serif;
+  --f-hand:'Marck Script','Segoe Script','Comic Sans MS',cursive;
   --f-body:'Old Standard TT',Georgia,'Times New Roman',serif;
   color-scheme:dark;
 }
+[hidden]{display:none!important}
 html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:hidden;
   font-family:var(--f-body);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges;background:var(--void)}
@@ -24,8 +43,10 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:
 
 #hud{position:fixed;inset:0;pointer-events:none;display:none}
 #hud.on{display:block}
-.tl{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:8px}
+.tl{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:7px}
 .tr{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));display:flex;gap:8px;align-items:flex-start}
+.flr{font-family:var(--f-head);font-size:14px;color:var(--ash);text-shadow:0 0 6px #000}
+.flr small{color:var(--dim);font-size:12px}
 .petals{display:flex;gap:4px}
 .petals svg{width:20px;height:20px;opacity:.28;filter:grayscale(1)}
 .petals svg.got{opacity:1;filter:drop-shadow(0 0 4px rgba(230,40,60,.8))}
@@ -39,53 +60,102 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:
 .inv svg{width:18px;height:18px}
 .inv b{font-weight:400;color:var(--ash)}
 .inv .keyc b{color:#e8c070}
-#bCraft{border-color:#8a6a2a;color:#f0d79a;background:rgba(40,28,8,.75)}
 #mini{width:132px;height:132px;border:1px solid rgba(201,189,168,.18);background:rgba(5,4,8,.55);border-radius:50%}
-.ibtn{pointer-events:auto;font-family:var(--f-body);font-size:13px;color:var(--ash);background:rgba(10,8,12,.6);
-  border:1px solid rgba(201,189,168,.25);padding:6px 10px;cursor:pointer;min-height:32px}
+.ibtn{pointer-events:auto;font-family:var(--f-body);font-size:14px;color:var(--ash);background:rgba(10,8,12,.66);
+  border:1px solid rgba(201,189,168,.25);padding:6px 11px;cursor:pointer;min-height:36px;font-variant-numeric:tabular-nums}
 .ibtn:focus-visible,.btn:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.ibtn.ready{border-color:#b08a3a;color:#f0d79a;background:rgba(48,32,8,.8);box-shadow:0 0 10px rgba(226,145,63,.35)}
+.ibtn.hide{border-color:#4d5c80;color:#c6d2f0;background:rgba(12,16,30,.78)}
 #compass{position:absolute;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);
   display:none;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:#f0b7b7;text-shadow:0 0 6px #000}
 #compass.on{display:flex}
 #compass svg{width:34px;height:34px;filter:drop-shadow(0 0 6px rgba(220,30,50,.9))}
-#toast{position:absolute;left:50%;bottom:calc(18% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
-  max-width:min(80vw,520px);text-align:center;font-size:17px;font-style:italic;line-height:1.4;color:var(--ash);
+#toast{position:absolute;left:50%;bottom:calc(26% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  width:max-content;max-width:min(78vw,520px);text-align:center;font-size:17px;font-style:italic;line-height:1.4;color:var(--ash);
   text-shadow:0 0 8px #000,0 0 2px #000;opacity:0;transition:opacity .6s}
 #toast.on{opacity:1}
+#fcard{position:absolute;left:50%;top:28%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1.2s;
+  display:flex;flex-direction:column;gap:4px;width:max-content;max-width:90vw}
+#fcard.on{opacity:1}
+#fcard b{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,54px);color:var(--rose);text-shadow:0 0 18px rgba(212,42,64,.5),0 2px 0 #000}
+#fcard span{font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:var(--ash);text-shadow:0 0 6px #000}
+.act{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-wrap:wrap-reverse;justify-content:flex-end;gap:6px;max-width:min(56vw,420px)}
+#chalkPal{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;gap:6px}
+#chalkPal .ibtn{min-width:44px;min-height:44px;font-size:20px;color:#efe9da}
 #joy{position:fixed;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:1px solid rgba(201,189,168,.25);
   background:rgba(255,255,255,.03);pointer-events:none;display:none}
 #joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(201,189,168,.22)}
 
 .screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px 16px;
-  background:radial-gradient(ellipse at 50% 40%,rgba(30,8,14,.55),rgba(4,3,6,.92) 70%);overflow:auto}
+  background:radial-gradient(ellipse at 50% 40%,rgba(30,8,14,.55),rgba(4,3,6,.92) 70%);overflow:auto;touch-action:pan-y}
 .screen.on{display:flex}
-.panel{max-width:520px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.panel{max-width:520px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;margin:auto}
+.panel.wide{max-width:620px}
 .build{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;color:var(--dim)}
 h1{font-family:var(--f-title);font-weight:400;font-size:clamp(64px,17vw,124px);line-height:.9;margin:0;color:var(--rose);
   text-shadow:0 0 28px rgba(212,42,64,.45),0 2px 0 #2a0008;text-wrap:balance}
-h2{font-family:var(--f-title);font-weight:400;font-size:clamp(40px,10vw,64px);margin:0;color:var(--rose);text-shadow:0 0 20px rgba(212,42,64,.4);text-wrap:balance}
+h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line-height:1.05;margin:0;color:var(--rose);text-shadow:0 0 20px rgba(212,42,64,.4);text-wrap:balance}
 .sub{margin:0;font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
 .lore{margin:4px 0 6px;font-size:17px;line-height:1.55;font-style:italic;max-width:34em;text-wrap:pretty}
-.btns{display:flex;flex-direction:column;gap:10px;width:min(280px,100%)}
+.best{margin:0;font-size:14px;color:var(--ember);font-variant-numeric:tabular-nums}
+.btns{display:flex;flex-direction:column;gap:10px;width:min(290px,100%)}
 .btn{font-family:var(--f-body);font-size:18px;color:#f3e6d2;background:linear-gradient(#3a0d16,#22070d);
   border:1px solid #6e1a27;padding:12px 18px;cursor:pointer;letter-spacing:.04em}
 .btn:hover{background:linear-gradient(#4c1220,#2c0911)}
 .btn.ghost{background:transparent;border-color:rgba(201,189,168,.25);color:var(--ash)}
-.help{font-size:13px;color:var(--dim);line-height:1.6}
+.btn.small{font-size:15px;padding:8px 14px}
+.btn:disabled{opacity:.35;cursor:default}
+.help{font-size:13px;color:var(--dim);line-height:1.65}
 .help.touch{display:none}
 @media (pointer:coarse){.help.desk{display:none}.help.touch{display:block}}
-.stats{display:grid;grid-template-columns:auto auto;gap:4px 18px;font-size:15px;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:auto auto;gap:4px 18px;font-size:15px;font-variant-numeric:tabular-nums;margin:0}
 .stats dt{color:var(--dim);text-align:right}.stats dd{margin:0;text-align:left}
-@media (prefers-reduced-motion:reduce){#toast,.bar i,#fear{transition:none}}
+
+/* ремесло */
+.invgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:100%}
+.chip{font-size:14px;padding:5px 10px;border:1px solid rgba(201,189,168,.18);background:rgba(255,255,255,.03);font-variant-numeric:tabular-nums}
+.chip b{color:#f0d79a;font-weight:400;margin-left:4px}
+.chip.zero{opacity:.35}
+.recipes{display:flex;flex-direction:column;gap:8px;width:100%}
+.rec{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;text-align:left;padding:12px 14px;
+  border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6)}
+.rec h3{margin:0;font-family:var(--f-head);font-weight:400;font-size:20px;color:#f0d79a}
+.rec p{margin:0;font-size:14px;line-height:1.45;color:var(--ash);min-width:0}
+.rec .need{grid-column:1;font-size:13px;color:var(--dim)}
+.rec .need .ok{color:#9fc48a}.rec .need .no{color:#c87a6a}
+.rec .btn{grid-column:2;grid-row:1 / span 3}
+
+/* записки */
+.parch{background:
+  radial-gradient(ellipse at 30% 20%,rgba(255,250,230,.35),transparent 60%),
+  radial-gradient(ellipse at 80% 90%,rgba(90,60,20,.35),transparent 55%),
+  linear-gradient(170deg,#d8c59c,var(--parch) 45%,#b49c6c);
+  color:var(--ink);padding:28px 26px 22px;max-width:440px;width:100%;text-align:left;
+  box-shadow:0 0 0 1px rgba(60,40,20,.5),0 18px 50px rgba(0,0,0,.7);transform:rotate(-.8deg)}
+.ntext{font-family:var(--f-hand);font-size:23px;line-height:1.35;margin:0 0 14px;text-wrap:pretty}
+.nby{font-family:var(--f-hand);font-size:20px;text-align:right;margin:0;color:#5a3a1e}
+.nnum{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#6d5636;margin:12px 0 0}
+.jlist{display:flex;flex-direction:column;gap:6px;width:100%;max-height:55vh;overflow:auto}
+.jlist button{font-family:var(--f-body);font-size:15px;text-align:left;color:var(--ash);background:rgba(255,255,255,.03);
+  border:1px solid rgba(201,189,168,.14);padding:10px 12px;cursor:pointer;line-height:1.35}
+.jlist button i{color:var(--dim);font-style:normal;margin-right:8px;font-variant-numeric:tabular-nums}
+#iosSw{position:fixed;left:-200px;top:0;opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){#toast,.bar i,#fear,#fcard{transition:none}.parch{transform:none}}
 </style>
+</head>
+<body>
+
 
 <canvas id="game" aria-label="Игровое поле"></canvas>
 <div id="vign"></div>
 <div id="fear"></div>
 <div id="joy"><i></i></div>
+<label id="iosSw" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 
 <div id="hud">
   <div class="tl">
+    <div class="flr" id="flr"></div>
     <div class="petals" id="petals"></div>
     <div class="fuel">Факел <div class="bar" id="fuelbar"><i></i></div></div>
     <div class="inv" aria-label="Части ключа">
@@ -94,7 +164,6 @@ h2{font-family:var(--f-title);font-weight:400;font-size:clamp(40px,10vw,64px);ma
       <span id="p2" title="Бородка ключа"><svg viewBox="0 0 20 20"><path d="M4 7h12v3h-3v4h-3v-2H7v3H4z" fill="#b9a37a"/></svg><b>0</b></span>
       <span id="keyc" class="keyc" title="Ключи"><svg viewBox="0 0 20 20"><circle cx="5.5" cy="10" r="3.5" fill="none" stroke="#e8c070" stroke-width="2"/><path d="M9 9h9v2h-2v3h-2v-3h-2v2h-2v-2H9z" fill="#e8c070"/></svg><b>0</b></span>
     </div>
-    <button class="ibtn" id="bCraft" hidden>Собрать ключ</button>
   </div>
   <div id="compass"><svg viewBox="0 0 32 32"><path d="M16 2 L24 26 L16 21 L8 26 Z" fill="#d42a40" stroke="#ffb3bd" stroke-width="1"/></svg><span id="cdist"></span></div>
   <div class="tr">
@@ -102,31 +171,51 @@ h2{font-family:var(--f-title);font-weight:400;font-size:clamp(40px,10vw,64px);ma
     <canvas id="mini" width="132" height="132"></canvas>
     <button class="ibtn" id="bPause" aria-label="Пауза">Пауза</button>
   </div>
+  <div id="fcard"><b id="fcN"></b><span id="fcT"></span></div>
   <div id="toast"></div>
+  <div class="act">
+    <div id="chalkPal" hidden>
+      <button class="ibtn" data-s="0" aria-label="Стрелка влево">←</button>
+      <button class="ibtn" data-s="1" aria-label="Стрелка вправо">→</button>
+      <button class="ibtn" data-s="2" aria-label="Крест">✕</button>
+      <button class="ibtn" data-s="3" aria-label="Число">№</button>
+    </div>
+    <button class="ibtn" id="bTorch" hidden></button>
+    <button class="ibtn" id="bCandle" hidden></button>
+    <button class="ibtn" id="bBomb" hidden></button>
+    <button class="ibtn" id="bOil" hidden></button>
+    <button class="ibtn hide" id="bHide" hidden>Спрятаться</button>
+    <button class="ibtn" id="bChalk">Мел</button>
+    <button class="ibtn" id="bCraft">Ремесло</button>
+  </div>
 </div>
 
 <div class="screen on" id="menu">
-  <div class="build">R001.002</div>
+  <div class="build" id="buildN"></div>
   <div class="panel">
     <h1>Red Rose</h1>
     <p class="sub">Лабиринт замка Розенхолл</p>
-    <p class="lore">Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она расцветёт там, где кончается лабиринт. Держись ближе к огню: в темноте бродит Тень.</p>
+    <p class="lore">Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она откроет путь глубже. Держись ближе к огню: в темноте бродит Тень.</p>
+    <p class="best" id="best" hidden></p>
     <div class="btns">
       <button class="btn" id="bResume" hidden>Вернуться в замок</button>
       <button class="btn" id="bCont" hidden>Продолжить</button>
       <button class="btn" id="bNew">Войти в замок</button>
+      <button class="btn ghost small" id="bJournal" hidden>Записки узников</button>
+      <button class="btn ghost small" id="bVib">Вибрация: вкл</button>
+      <button class="btn ghost small" id="bInstall" hidden>Установить на устройство</button>
     </div>
-    <div class="help desk">WASD — идти · мышь — оглядываться · ← → — поворот · R / F — вверх и вниз<br>C — собрать ключ · M — карта · Esc — пауза · щёлкни по экрану, чтобы захватить мышь</div>
-    <div class="help touch">Левый палец — идти · правый палец — оглядываться во все стороны</div>
+    <div class="help desk">WASD — идти · мышь — оглядываться · R / F — вверх и вниз · ← → — поворот<br>C — ремесло · H — спрятаться в нише · 1–4 — мел · O масло · B бомба · V свеча · T факел<br>M — карта · Esc — пауза · щёлкни по экрану, чтобы захватить мышь</div>
+    <div class="help touch">Левый палец — идти · правый палец — оглядываться<br>Кнопки справа внизу — мел, ремесло и предметы</div>
   </div>
 </div>
 
-<div class="screen" id="win">
+<div class="screen" id="descend">
   <div class="panel">
-    <h2>Роза твоя</h2>
-    <p class="lore">Стебель уколол ладонь, и стены расступились. Впереди ночной воздух, позади замок, который уже перестраивает свои коридоры для следующего гостя.</p>
-    <dl class="stats" id="winStats"></dl>
-    <div class="btns"><button class="btn" id="bAgainW">Новый замок</button></div>
+    <h2 id="dTitle"></h2>
+    <p class="lore" id="dLore"></p>
+    <dl class="stats" id="dStats"></dl>
+    <div class="btns"><button class="btn" id="bDescend">Спуститься</button></div>
   </div>
 </div>
 
@@ -139,12 +228,37 @@ h2{font-family:var(--f-title);font-weight:400;font-size:clamp(40px,10vw,64px);ma
   </div>
 </div>
 
+<div class="screen" id="craftS">
+  <div class="panel wide">
+    <h2>Ремесло</h2>
+    <div class="invgrid" id="invGrid"></div>
+    <div class="recipes" id="recList"></div>
+    <div class="btns"><button class="btn ghost" id="bCraftClose">Вернуться</button></div>
+  </div>
+</div>
+
+<div class="screen" id="noteS">
+  <div class="panel">
+    <div class="parch"><p class="ntext" id="nText"></p><p class="nby" id="nBy"></p><p class="nnum" id="nNum"></p></div>
+    <div class="btns"><button class="btn ghost" id="bNoteClose">Дальше</button></div>
+  </div>
+</div>
+
+<div class="screen" id="journalS">
+  <div class="panel">
+    <h2>Записки узников</h2>
+    <p class="sub" id="jCount"></p>
+    <div class="jlist" id="jList"></div>
+    <div class="btns"><button class="btn ghost" id="bJClose">Назад</button></div>
+  </div>
+</div>
+
 <script>
 'use strict';
+const BUILD = 'R001.003';
 /* ================= Константы и хеш ================= */
-const S = 16, N = 8;          // тайлов в чанке, клеток лабиринта в чанке
-const NEED = 5;               // сколько лепестков нужно
-let SEED = 1;
+const S = 16, N = 8, NEED = 5;
+let BASE = 1, SEED = 1, FLOOR = 1, TH = null;
 
 function h32(a, b, c) {
   let h = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1442695041) ^ Math.imul(SEED | 0, 0x27d4eb2d);
@@ -152,17 +266,302 @@ function h32(a, b, c) {
   h = Math.imul(h ^ (h >>> 12), 0x297a2d39);
   return (h ^ (h >>> 15)) >>> 0;
 }
+function floorSeed(base, f) {
+  if (f === 1) return base >>> 0;
+  let h = Math.imul((base ^ 0x9e3779b9) | 0, 0x85ebca6b) ^ Math.imul(f, 0xc2b2ae35);
+  h ^= h >>> 16; h = Math.imul(h, 0x27d4eb2d);
+  return (h ^ (h >>> 15)) >>> 0;
+}
 function rng(a) {
   return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
+function roman(n) {
+  const v = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+  let s = ''; for (const [k, r] of v) while (n >= k) { s += r; n -= k; } return s;
+}
+
+/* ================= Текстуры ================= */
+function cl(v) { return v < 0 ? 0 : v > 255 ? 255 : v | 0; }
+function pack(r, g, b) { return 0xff000000 | (cl(b) << 16) | (cl(g) << 8) | cl(r); }
+function nz(x, y, s) { let h = Math.imul(x * 73856093 ^ y * 19349663 ^ s * 83492791, 0x45d9f3b); h ^= h >>> 13; h = Math.imul(h, 0x45d9f3b); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+function mk(fn) { const t = new Uint32Array(4096); for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) t[y * 64 + x] = fn(x, y); return t; }
+function stoneRGB(x, y, sd) {
+  sd = sd || 0;
+  const row = y >> 4, off = (row & 1) * 16, bx = ((x + off) & 63) >> 5;
+  const ly = y & 15, lx = (x + off) & 31;
+  if (ly === 0 || lx === 0) return [24, 21, 22];
+  const base = 62 + nz(bx, row, 1 + sd) * 34, n = (nz(x, y, 2 + sd) - 0.5) * 18;
+  let k = base + n;
+  if (ly === 1 || lx === 1) k += 12;
+  if (ly === 15 || lx === 31) k -= 16;
+  if (nz(x >> 1, y >> 1, 9 + sd) > 0.93) k -= 22;
+  return [k, k * 0.93, k * 0.88];
+}
+function T(c, m) { return pack(c[0] * m[0], c[1] * m[1], c[2] * m[2]); }
+function flagK(x, y, sd) {
+  sd = sd || 0;
+  const sx = x >> 5, sy = y >> 5, lx = x & 31, ly = y & 31;
+  if (lx === 0 || ly === 0) return 14;
+  let k = 44 + nz(sx, sy, 7 + sd) * 20 + (nz(x, y, 8 + sd) - 0.5) * 14;
+  if (lx === 1 || ly === 1) k += 8;
+  if (Math.abs((lx - ly) + (nz(sx, sy, 3 + sd) * 20 - 10)) < 0.8 && nz(sx, sy, 4 + sd) > 0.6) k -= 18;
+  return k;
+}
+function rootsAt(x, y, sd, horiz) {
+  let best = 0;
+  for (let i = 0; i < 4; i++) {
+    const ph = nz(i, sd, 31) * 6.28, f = 0.08 + nz(i, sd, 32) * 0.12, A = 3 + nz(i, sd, 33) * 7, c = 8 + i * 16 + nz(i, sd, 34) * 6, w = 1.3 + nz(i, sd, 35) * 2.2;
+    const u = horiz ? y : x, v = horiz ? x : y;
+    const d = Math.abs(u - (c + Math.sin(v * f + ph) * A));
+    if (d < w) best = Math.max(best, 1 - d / w);
+  }
+  return best;
+}
+function rootCol(base, rt) {
+  if (rt <= 0) return base;
+  const k = 0.55 + rt * 0.6;
+  return [base[0] * (1 - rt) + 96 * k * rt, base[1] * (1 - rt) + 46 * k * rt, base[2] * (1 - rt) + 30 * k * rt];
+}
+// --- общие стены
+const TEX_STONE = mk((x, y) => T(stoneRGB(x, y), [1, 1, 1]));
+const mossFn = (x, y, m) => {
+  const c = stoneRGB(x, y);
+  const v = nz(x >> 2, y >> 2, 4) * 0.6 + nz(x, y, 5) * 0.4 + y / 140;
+  if (v > 0.72) { const k = 0.5 + nz(x, y, 6) * 0.5; return pack((38 * k + 10) * m[0], (64 * k + 10) * m[1], (30 * k + 6) * m[2]); }
+  return pack(c[0] * 0.92 * m[0], c[1] * 0.97 * m[1], c[2] * 0.9 * m[2]);
+};
+const TEX_BANNER = mk((x, y) => {
+  const c = stoneRGB(x, y);
+  if (y >= 2 && y <= 4 && x >= 14 && x <= 50) return pack(70, 46, 28);
+  const edge = 50 + (14 - Math.abs(x - 32)) * 0.6;
+  if (x >= 18 && x <= 46 && y >= 4 && y < edge) {
+    if (x <= 19 || x >= 45 || y >= edge - 2) return pack(150, 108, 40);
+    const fold = 0.8 + 0.2 * Math.sin(x * 0.7);
+    const dx = x - 32, dy = y - 25, d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 7.5) { const sw = Math.sin(Math.atan2(dy, dx) * 2 + d * 1.1); return sw > 0.2 ? pack(205 * fold, 40, 55) : pack(120 * fold, 10, 22); }
+    if (y > 32 && y < 44 && Math.abs(x - 32) < 1.5) return pack(40, 80, 30);
+    return pack(118 * fold, 12 * fold, 22 * fold);
+  }
+  return pack(c[0], c[1], c[2]);
+});
+const TEX_CELL = mk((x, y) => {
+  const c = stoneRGB(x, y, 2);
+  const dx = x - 32, inArch = (y >= 26 && Math.abs(dx) <= 15) || (y < 26 && dx * dx + (y - 26) * (y - 26) <= 225 && y >= 11);
+  if (inArch) {
+    if (x % 8 === 4 || x % 8 === 5) { const hi = x % 8 === 4 ? 88 : 56; return pack(hi, hi, hi + 6); }
+    if (y === 34 || y === 35) return pack(62, 60, 64);
+    return pack(9 + nz(x, y, 3) * 6, 7, 8);
+  }
+  const outer = (y >= 24 && Math.abs(dx) <= 18) || (y < 24 && dx * dx + (y - 26) * (y - 26) <= 324 && y >= 8);
+  if (outer) return pack(c[0] * 1.15, c[1] * 1.12, c[2] * 1.1);
+  return pack(c[0] * 0.85, c[1] * 0.85, c[2] * 0.85);
+});
+const TEX_GATE = mk((x, y) => {
+  if (y < 3 || y > 61) return pack(70, 48, 36);
+  if (x >= 25 && x <= 39 && y >= 26 && y <= 40) {
+    if ((x === 32 || x === 31) && y >= 30 && y <= 36) return pack(8, 6, 4);
+    if (x >= 30 && x <= 33 && y >= 29 && y <= 31) return pack(8, 6, 4);
+    const k = x === 25 || y === 26 ? 1.25 : x === 39 || y === 40 ? 0.7 : 1;
+    return pack(150 * k, 112 * k, 46 * k);
+  }
+  const bar = x % 9;
+  if (bar === 4 || bar === 5 || y === 12 || y === 13 || y === 52 || y === 53) {
+    const rust = nz(x, y, 12) * 30, hi = bar === 4 || y === 12 || y === 52 ? 1.2 : 0.85;
+    return pack((92 + rust) * hi, (60 + rust * 0.4) * hi, 44 * hi);
+  }
+  return pack(6 + nz(x, y, 13) * 6, 5, 6);
+});
+const TEX_NICHE = mk((x, y) => {
+  const c = stoneRGB(x, y, 3), dx = x - 32;
+  const inA = (y >= 24 && y <= 58 && Math.abs(dx) <= 14) || (y < 24 && y >= 10 && dx * dx + (y - 24) * (y - 24) <= 196);
+  const rim = (y >= 22 && y <= 61 && Math.abs(dx) <= 17) || (y < 22 && y >= 7 && dx * dx + (y - 24) * (y - 24) <= 289);
+  if (inA) {
+    if (y >= 55) { const k = 34 + nz(x, y, 41) * 8; return pack(k, k * 0.93, k * 0.88); }
+    const sy = y - 49, sk = dx * dx / 26 + sy * sy / 18;
+    if (sk < 1) {
+      if ((Math.abs(dx + 2.2) < 1.3 || Math.abs(dx - 2.2) < 1.3) && Math.abs(sy + 0.5) < 1.2) return pack(10, 8, 7);
+      return pack(96, 88, 72);
+    }
+    const k = 8 + (y - 10) * 0.18 + nz(x, y, 40) * 5;
+    return pack(k, k * 0.92, k * 0.95);
+  }
+  if (rim) return pack(c[0] * 1.2, c[1] * 1.16, c[2] * 1.1);
+  return pack(c[0], c[1], c[2]);
+});
+// --- I. Покои
+const TEX_WAINSCOT = mk((x, y) => {
+  if (y >= 34 && y <= 36) return pack(52, 32, 18);
+  if (y > 36) {
+    const lx = x & 15, ly = y - 37;
+    let k = 0.75 + 0.15 * Math.sin(y * 1.3 + nz(x >> 4, 0, 5) * 9) + nz(x, y, 6) * 0.12;
+    if (lx === 0 || ly === 0 || y === 63) k = 0.4; else if (lx === 1 || ly === 1) k = 1.15; else if (lx >= 3 && lx <= 12 && ly >= 4 && ly <= 22) k *= 0.85;
+    return pack(92 * k, 56 * k, 30 * k);
+  }
+  let k = 110 + nz(x >> 1, y >> 1, 7) * 20 + (nz(x, y, 8) - 0.5) * 12 - y * 0.6;
+  if (nz(x >> 2, y >> 3, 9) > 0.9) k -= 30;
+  return pack(k, k * 0.92, k * 0.8);
+});
+const TEX_TAPESTRY = mk((x, y) => {
+  const c = stoneRGB(x, y);
+  if (x < 6 || x > 57 || y < 3) return pack(c[0], c[1], c[2]);
+  if (y === 3 || y === 4) return pack(70, 46, 28);
+  if (y > 58) return (x & 1) ? pack(150, 108, 40) : pack(c[0], c[1], c[2]);
+  if (x < 9 || x > 54 || y < 8 || y > 55) return pack(140 * (0.8 + nz(x, y, 3) * 0.3), 100, 36);
+  const u = ((x - 9) % 12) - 6, v = ((y - 8) % 12) - 6, d = Math.abs(u) + Math.abs(v);
+  const w = 0.82 + 0.18 * ((x + y) & 1);
+  if (d === 5 || d === 6) return pack(160 * w, 118 * w, 44 * w);
+  if (d < 3) return pack(30 * w, 62 * w, 40 * w);
+  return pack(104 * w, 14 * w, 24 * w);
+});
+const FL_WOOD = mk((x, y) => {
+  const row = y >> 3, off = nz(row, 0, 14) * 64 | 0, lx = (x + off) & 31, ly = y & 7;
+  if (ly === 0 || lx === 0) return pack(20, 12, 7);
+  const g = 0.8 + 0.12 * Math.sin((x + off) * 0.25 + Math.sin(y * 0.9) * 2) + nz(row, (x + off) >> 5, 15) * 0.25;
+  return pack(78 * g, 48 * g, 27 * g);
+});
+const CE_BEAMS = mk((x, y) => {
+  if ((x & 31) < 7) { const k = 26 + nz(x, y, 1) * 8; return pack(k, k * 0.7, k * 0.5); }
+  if ((y & 15) === 0) return pack(10, 7, 5);
+  const grain = Math.sin(y * 0.9 + nz(x >> 3, y >> 4, 2) * 6) * 6, k = 38 + grain + nz(x, y, 5) * 8;
+  return pack(k, k * 0.68, k * 0.46);
+});
+// --- II. Темницы
+const TEX_ROUGH = mk((x, y) => { const c = stoneRGB(x, y, 5); const cr = nz(x >> 1, y, 21) > 0.95 ? 0.55 : 1; return T(c, [0.8 * cr, 0.78 * cr, 0.76 * cr]); });
+const TEX_MOSS = mk((x, y) => mossFn(x, y, [1, 1, 1]));
+const TEX_CHAINS = mk((x, y) => {
+  for (const cx of [18, 44]) {
+    const dx = x - cx;
+    if (y < 46 && Math.abs(dx) <= 2) {
+      const ph = y % 8;
+      if (ph < 5) { if (Math.abs(dx) === 2 || ph === 0 || ph === 4) return pack(78 + nz(x, y, 2) * 20, 70, 66); }
+      else if (dx === 0) return pack(92, 84, 80);
+    }
+    const ry = y - 51, rr = dx * dx + ry * ry;
+    if (rr >= 16 && rr <= 30) return pack(88, 76, 66);
+  }
+  return T(stoneRGB(x, y, 6), [0.7, 0.68, 0.66]);
+});
+const FL_STRAW = mk((x, y) => {
+  const k = flagK(x, y, 2) * 0.8;
+  if (nz(x >> 1, y, 22) > 0.965) return pack(120, 96, 40);
+  return pack(k * 1.02, k * 0.95, k * 0.86);
+});
+const CE_VAULT = mk((x, y) => { const k = flagK(x, y, 5) * 0.7; return pack(k, k * 0.95, k * 0.92); });
+// --- III. Склепы
+const WET = [0.74, 0.86, 0.9];
+const TEX_WET = mk((x, y) => {
+  const c = stoneRGB(x, y, 8);
+  let m = 1;
+  if (nz(x, 0, 23) > 0.72) m = 0.68 + (y / 64) * 0.2;
+  if (nz(x, y, 24) > 0.985) m = 1.6;
+  return T(c, [WET[0] * m, WET[1] * m, WET[2] * m]);
+});
+const TEX_OSSUARY = mk((x, y) => {
+  const row = y >> 4, lx = x & 15, ly = y & 15, bone = 0.75 + nz(x >> 4, row, 25) * 0.35;
+  if (row % 2 === 0) {
+    const dx = lx - 8, dy = ly - 7, sk = dx * dx / 36 + dy * dy / 30;
+    if (sk < 1) {
+      if (((dx + 2.6) * (dx + 2.6) + (dy) * (dy) < 3.2) || ((dx - 2.6) * (dx - 2.6) + dy * dy < 3.2)) return pack(12, 10, 9);
+      if (Math.abs(dx) < 1 && dy > 2 && dy < 4) return pack(30, 26, 22);
+      return pack(178 * bone, 168 * bone, 140 * bone);
+    }
+    if (ly >= 12 && ly <= 14 && lx >= 5 && lx <= 11) return (lx & 1) ? pack(150 * bone, 140 * bone, 114 * bone) : pack(20, 16, 14);
+    return pack(14, 12, 12);
+  }
+  for (const by of [4, 11]) {
+    if (Math.abs(ly - by) <= 1) return pack(164 * bone, 154 * bone, 126 * bone);
+    if ((lx < 2 || lx > 13) && Math.abs(ly - by) <= 2) return pack(176 * bone, 166 * bone, 136 * bone);
+  }
+  return pack(14, 12, 12);
+});
+const TEX_PLAQUE = mk((x, y) => {
+  const c = stoneRGB(x, y, 9);
+  if (x >= 10 && x <= 54 && y >= 6 && y <= 58) {
+    if (x === 10 || y === 6) return pack(150, 150, 146);
+    if (x === 54 || y === 58) return pack(40, 40, 42);
+    let k = 104 + nz(x >> 2, y >> 2, 26) * 14 + (nz(x, y, 27) - 0.5) * 8;
+    const cx = x - 32, cy = y - 15;
+    if ((Math.abs(cx) <= 1 && cy >= -6 && cy <= 6) || (Math.abs(cy + 2) <= 1 && Math.abs(cx) <= 4)) k = 42;
+    if (y > 26 && y < 56 && x > 13 && x < 51) {
+      const lineY = (y - 27) % 5;
+      if (lineY === 0 && nz(x >> 1, (y / 5) | 0, 28) > 0.3) k = 48;
+      if (nz(x, y, 29) > 0.93) k -= 30;
+    }
+    return pack(k * 0.92, k * 0.95, k);
+  }
+  return T(c, WET);
+});
+const TEX_WETMOSS = mk((x, y) => mossFn(x, y, [0.8, 0.95, 1]));
+const FL_WATER = mk((x, y) => {
+  const v = Math.sin(x * 0.39 + Math.sin(y * 0.21) * 2.2) * Math.sin(y * 0.33 + Math.sin(x * 0.17) * 1.7);
+  const fl = flagK(x, y, 3) * 0.35;
+  let r = 18 + fl * 0.3, g = 34 + fl * 0.55, b = 40 + fl * 0.6;
+  if (v > 0.82) { r += 46; g += 62; b += 64; } else if (v > 0.6) { r += 16; g += 24; b += 26; }
+  return pack(r, g, b);
+});
+const CE_WET = mk((x, y) => { const k = flagK(x, y, 6) * 0.72; return pack(k * 0.8, k * 0.92, k * 0.98); });
+// --- IV. Корни
+const TEX_EARTH = mk((x, y) => {
+  const k = 0.75 + nz(x >> 1, y >> 1, 30) * 0.3 + (nz(x, y, 31) - 0.5) * 0.15;
+  const base = [52 * k, 36 * k, 26 * k];
+  const c = rootCol(base, Math.max(rootsAt(x, y, 1, false), rootsAt(x, y, 2, true) * 0.8));
+  return pack(c[0], c[1], c[2]);
+});
+const TEX_ROOTSTONE = mk((x, y) => {
+  const s = stoneRGB(x, y, 11), c = rootCol([s[0] * 0.7, s[1] * 0.66, s[2] * 0.62], rootsAt(x, y, 3, false));
+  return pack(c[0], c[1], c[2]);
+});
+const TEX_VEINS = mk((x, y) => {
+  const v = Math.abs(Math.sin(x * 0.21 + Math.sin(y * 0.13) * 3) + Math.sin(y * 0.19 + Math.sin(x * 0.11) * 3));
+  const k = 0.8 + nz(x, y, 32) * 0.3;
+  if (v < 0.1) return pack(170 * k, 34 * k, 34 * k);
+  if (v < 0.25) return pack(110 * k, 22 * k, 24 * k);
+  return pack(58 * k, 16 * k, 18 * k);
+});
+const TEX_DENSE = mk((x, y) => {
+  const r = Math.max(rootsAt(x, y, 4, false), rootsAt(x, y, 5, false), rootsAt(x, y, 6, true));
+  const c = rootCol([28, 18, 14], Math.min(1, r * 1.2));
+  return pack(c[0], c[1], c[2]);
+});
+const FL_EARTH = mk((x, y) => {
+  const k = 0.7 + nz(x >> 1, y >> 1, 33) * 0.3;
+  const c = rootCol([44 * k, 30 * k, 22 * k], rootsAt(x, y, 7, true) * 0.9);
+  return pack(c[0], c[1], c[2]);
+});
+const CE_ROOTS = mk((x, y) => {
+  const c = rootCol([24, 16, 12], Math.max(rootsAt(x, y, 8, false), rootsAt(x, y, 9, true) * 0.7));
+  return pack(c[0], c[1], c[2]);
+});
+
+/* ================= Этажи (темы) ================= */
+const THEMES = [
+  { name: 'Покои графа', tint: [1, 0.84, 0.62], w: [0.6, 0.8, 0.9], gate: 0.06, oil: 1, bone: 0.6,
+    tex: [0, TEX_STONE, TEX_WAINSCOT, TEX_BANNER, TEX_TAPESTRY], floor: FL_WOOD, ceil: CE_BEAMS,
+    enter: 'Лестница выводит в знакомые покои. Но гобелены другие, и Роза на них темнее.' },
+  { name: 'Темницы', tint: [1, 0.8, 0.56], w: [0.5, 0.72, 0.88], gate: 0.13, oil: 0.55, bone: 1.3,
+    tex: [0, TEX_ROUGH, TEX_MOSS, TEX_CHAINS, TEX_CELL], floor: FL_STRAW, ceil: CE_VAULT,
+    enter: 'Внизу звякают цепи. Здесь держали узников графа, когда замок ещё был просто замком. Решёток больше, масла меньше.' },
+  { name: 'Затопленные склепы', tint: [0.88, 0.86, 0.8], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.9, bone: 1.6, hear: 1, water: 1,
+    tex: [0, TEX_WET, TEX_OSSUARY, TEX_PLAQUE, TEX_WETMOSS], floor: FL_WATER, ceil: CE_WET,
+    enter: 'Ступени уходят в чёрную воду. Каждый шаг здесь слышно далеко, и Тень приходит на звук.' },
+  { name: 'Корни', tint: [1, 0.72, 0.58], w: [0.5, 0.75, 0.9], gate: 0.07, oil: 0.8, bone: 1, erase: 1,
+    tex: [0, TEX_EARTH, TEX_ROOTSTONE, TEX_VEINS, TEX_DENSE], floor: FL_EARTH, ceil: CE_ROOTS,
+    enter: 'Стены теплеют, сквозь камень лезут корни. Метки мелом здесь долго не живут. Внизу бьётся что-то большое.' }
+];
+for (const th of THEMES) {
+  const w = [['petal', 0.13], ['keypart', 0.09], ['oil', 0.13 * th.oil], ['rag', 0.08], ['bone', 0.06 * th.bone],
+    ['wax', 0.05], ['wick', 0.05], ['chalk', 0.04], ['note', 0.05]];
+  let acc = 0; th.dead = w.map(([t, p]) => [t, acc += p]);
+  th.corr = [['bone', acc = 0.025 * th.bone], ['oil', acc += 0.015 * th.oil], ['candle', acc += 0.015]];
+}
 
 /* ================= Генерация бесконечного лабиринта ================= */
-// Тайлы: 0 пол, 1 камень, 2 мох, 3 знамя с розой, 4 решётка темницы
+// Тайлы: 0 пол, 1–4 стены темы, 5 запертая решётка
 const chunks = new Map();
+let opened = new Set(), marks = new Map();
 function genChunk(cx, cy) {
-  const g = new Uint8Array(S * S).fill(1);
+  const g = new Uint8Array(S * S).fill(1), nic = new Uint8Array(S * S);
   const r = rng(h32(cx, cy, 7));
-  // 1) рекурсивный бэктрекинг внутри чанка
   const vis = new Uint8Array(N * N), st = [];
   let i0 = (r() * N) | 0, j0 = (r() * N) | 0;
   vis[j0 * N + i0] = 1; st.push(i0, j0); g[(2 * j0 + 1) * S + 2 * i0 + 1] = 0;
@@ -180,13 +579,11 @@ function genChunk(cx, cy) {
     g[(2 * nj + 1) * S + 2 * ni + 1] = 0;
     st.push(ni, nj);
   }
-  // 2) немного петель, чтобы лабиринт не был деревом
   for (let y = 1; y < S; y++) for (let x = 1; x < S; x++) {
     if (g[y * S + x] !== 1) continue;
     const wall = (x % 2 === 0 && y % 2 === 1) || (y % 2 === 0 && x % 2 === 1);
     if (wall && r() < 0.08) g[y * S + x] = 0;
   }
-  // 3) иногда зал с колоннами
   let hall = null;
   if (r() < 0.3 && !(cx === 0 && cy === 0)) {
     const hi = (r() * (N - 2)) | 0, hj = (r() * (N - 2)) | 0;
@@ -196,24 +593,21 @@ function genChunk(cx, cy) {
     }
     hall = { x: 2 * hi + 1, y: 2 * hj + 1 };
   }
-  // 4) проходы в соседние чанки: западная колонка и северная строка принадлежат этому чанку
   const hw = h32(cx, cy, 11), hn = h32(cx, cy, 13);
   g[(2 * (hw % N) + 1) * S] = 0;
   if ((hw >>> 8) % 3) g[(2 * ((hw >>> 12) % N) + 1) * S] = 0;
   g[2 * (hn % N) + 1] = 0;
   if ((hn >>> 8) % 3) g[2 * ((hn >>> 12) % N) + 1] = 0;
-  // 5) виды стен
+  const tw = TH.w;
   for (let k = 0; k < S * S; k++) if (g[k]) {
     const v = r();
-    g[k] = v < 0.6 ? 1 : v < 0.83 ? 2 : v < 0.92 ? 4 : 3;
+    g[k] = v < tw[0] ? 1 : v < tw[1] ? 2 : v < tw[2] ? 4 : 3;
   }
-  // 5b) запертые решётки во внутренних стенах между двумя клетками — короткие пути
   for (let y = 1; y < S - 1; y++) for (let x = 1; x < S - 1; x++) {
     if (!g[y * S + x]) continue;
     const edge = (x % 2 === 0 && y % 2 === 1) || (y % 2 === 0 && x % 2 === 1);
-    if (edge && r() < 0.07) g[y * S + x] = 5;
+    if (edge && r() < TH.gate) g[y * S + x] = 5;
   }
-  // 6) предметы: лепестки и масло в тупиках, кости и свечи для атмосферы
   const items = [];
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const x = 2 * i + 1, y = 2 * j + 1;
@@ -223,11 +617,12 @@ function genChunk(cx, cy) {
     if (x + 1 < S && !g[y * S + x + 1]) open++;
     if (!g[(y - 1) * S + x]) open++;
     if (y + 1 < S && !g[(y + 1) * S + x]) open++;
-    const wx = cx * S + x, wy = cy * S + y, v = r();
+    const wx = cx * S + x, wy = cy * S + y, v = r(), v2 = r();
     let t = null;
-    if (open === 1) t = v < 0.14 ? 'petal' : v < 0.25 ? 'keypart' : v < 0.43 ? 'oil' : v < 0.55 ? 'bones' : null;
-    else t = v < 0.035 ? 'bones' : v < 0.05 ? 'oil' : v < 0.065 ? 'candle' : null;
+    const tbl = open === 1 ? TH.dead : TH.corr;
+    for (const [n, c] of tbl) if (v < c) { t = n; break; }
     if (t) items.push({ x: wx + 0.5, y: wy + 0.5, t, id: wx + ',' + wy, k: h32(wx, wy, 21) % 3 });
+    else if (open === 1 && v2 < 0.5) nic[y * S + x] = 1;
   }
   if (hall) {
     for (let n = 0; n < 3; n++) {
@@ -236,111 +631,85 @@ function genChunk(cx, cy) {
       if (!items.some(it => it.id === id)) items.push({ x: wx + 0.5, y: wy + 0.5, t: 'candle', id });
     }
   }
-  return { g, items, cx, cy };
+  return { g, nic, items, cx, cy, marks: new Map() };
 }
 function getChunk(cx, cy) {
-  const k = cx + ',' + cy;
-  let c = chunks.get(k);
+  const key = cx + ',' + cy;
+  let c = chunks.get(key);
   if (!c) {
     c = genChunk(cx, cy);
     if (opened.size) for (let i = 0; i < S * S; i++)
       if (c.g[i] === 5 && opened.has((cx * S + (i & 15)) + ',' + (cy * S + (i >> 4)))) c.g[i] = 0;
-    chunks.set(k, c);
+    for (const m of marks.values()) if ((m.x >> 4) === cx && (m.y >> 4) === cy) c.marks.set(((((m.y & 15) << 4) | (m.x & 15)) << 2) | m.f, maskFor(m.s, m.n));
+    chunks.set(key, c);
   }
   return c;
 }
 let lcx = 1e9, lcy = 1e9, lc = null;
-function tile(x, y) {
+function chunkAt(x, y) {
   const cx = x >> 4, cy = y >> 4;
   if (cx !== lcx || cy !== lcy) { lc = getChunk(cx, cy); lcx = cx; lcy = cy; }
-  return lc.g[((y & 15) << 4) | (x & 15)];
+  return lc;
 }
+function tile(x, y) { return chunkAt(x, y).g[((y & 15) << 4) | (x & 15)]; }
+function nicheAt(x, y) { return chunkAt(x, y).nic[((y & 15) << 4) | (x & 15)]; }
 function solid(x, y) { return tile(Math.floor(x), Math.floor(y)) > 0; }
 
-/* ================= Текстуры ================= */
-function cl(v) { return v < 0 ? 0 : v > 255 ? 255 : v | 0; }
-function pack(r, g, b) { return 0xff000000 | (cl(b) << 16) | (cl(g) << 8) | cl(r); }
-function nz(x, y, s) { let h = Math.imul(x * 73856093 ^ y * 19349663 ^ s * 83492791, 0x45d9f3b); h ^= h >>> 13; h = Math.imul(h, 0x45d9f3b); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
-function mk(fn) { const t = new Uint32Array(4096); for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) t[y * 64 + x] = fn(x, y); return t; }
-function stoneRGB(x, y) {
-  const row = y >> 4, off = (row & 1) * 16, bx = ((x + off) & 63) >> 5;
-  const ly = y & 15, lx = (x + off) & 31;
-  if (ly === 0 || lx === 0) return [24, 21, 22];
-  const base = 62 + nz(bx, row, 1) * 34, n = (nz(x, y, 2) - 0.5) * 18;
-  let k = base + n;
-  if (ly === 1 || lx === 1) k += 12;
-  if (ly === 15 || lx === 31) k -= 16;
-  if (nz(x >> 1, y >> 1, 9) > 0.93) k -= 22;
-  return [k, k * 0.93, k * 0.88];
+/* ================= Мел ================= */
+const maskCache = new Map();
+function maskFor(s, n) {
+  const key = s === 3 ? 'n' + n : 's' + s;
+  let m = maskCache.get(key); if (m) return m;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  g.strokeStyle = g.fillStyle = '#fff'; g.lineWidth = 4.5; g.lineCap = 'round'; g.lineJoin = 'round';
+  g.beginPath();
+  if (s === 0) { g.moveTo(48, 30); g.lineTo(16, 32); g.moveTo(27, 21); g.lineTo(15, 32); g.lineTo(27, 43); }
+  else if (s === 1) { g.moveTo(16, 30); g.lineTo(48, 32); g.moveTo(37, 21); g.lineTo(49, 32); g.lineTo(37, 43); }
+  else if (s === 2) { g.moveTo(20, 18); g.lineTo(44, 44); g.moveTo(45, 19); g.lineTo(19, 45); }
+  g.stroke();
+  if (s === 3) { g.font = 'bold 34px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 32, 34); }
+  const d = g.getImageData(0, 0, 64, 64).data;
+  m = new Uint8Array(4096);
+  for (let i = 0; i < 4096; i++) { const a = d[i * 4 + 3]; if (a) m[i] = a * (0.45 + 0.55 * nz(i & 63, i >> 6, 50)); }
+  maskCache.set(key, m);
+  return m;
 }
-const TEX = [];
-TEX[1] = mk((x, y) => { const c = stoneRGB(x, y); return pack(c[0], c[1], c[2]); });
-TEX[2] = mk((x, y) => {
-  const c = stoneRGB(x, y);
-  const m = nz(x >> 2, y >> 2, 4) * 0.6 + nz(x, y, 5) * 0.4 + y / 140;
-  if (m > 0.72) { const k = 0.5 + nz(x, y, 6) * 0.5; return pack(38 * k + 10, 64 * k + 10, 30 * k + 6); }
-  return pack(c[0] * 0.92, c[1] * 0.97, c[2] * 0.9);
-});
-TEX[3] = mk((x, y) => {
-  const c = stoneRGB(x, y);
-  if (y >= 2 && y <= 4 && x >= 14 && x <= 50) return pack(70, 46, 28);
-  const edge = 50 + (14 - Math.abs(x - 32)) * 0.6;
-  if (x >= 18 && x <= 46 && y >= 4 && y < edge) {
-    if (x <= 19 || x >= 45 || y >= edge - 2) return pack(150, 108, 40);
-    const fold = 0.8 + 0.2 * Math.sin(x * 0.7);
-    const dx = x - 32, dy = y - 25, d = Math.sqrt(dx * dx + dy * dy);
-    if (d < 7.5) {
-      const sw = Math.sin(Math.atan2(dy, dx) * 2 + d * 1.1);
-      return sw > 0.2 ? pack(205 * fold, 40, 55) : pack(120 * fold, 10, 22);
-    }
-    if (y > 32 && y < 44 && Math.abs(x - 32) < 1.5) return pack(40, 80, 30);
-    return pack(118 * fold, 12 * fold, 22 * fold);
+let markN = 0;
+function castFace(maxD) {
+  const rdx = Math.cos(P.a), rdy = Math.sin(P.a);
+  let mx = Math.floor(P.x), my = Math.floor(P.y);
+  const ddx = Math.abs(1 / rdx), ddy = Math.abs(1 / rdy);
+  let stepX, stepY, sdx, sdy, side = 0;
+  if (rdx < 0) { stepX = -1; sdx = (P.x - mx) * ddx; } else { stepX = 1; sdx = (mx + 1 - P.x) * ddx; }
+  if (rdy < 0) { stepY = -1; sdy = (P.y - my) * ddy; } else { stepY = 1; sdy = (my + 1 - P.y) * ddy; }
+  for (let i = 0; i < 8; i++) {
+    let d;
+    if (sdx < sdy) { d = sdx; sdx += ddx; mx += stepX; side = 0; } else { d = sdy; sdy += ddy; my += stepY; side = 1; }
+    if (d > maxD) return null;
+    const t = tile(mx, my);
+    if (t) return { x: mx, y: my, f: side === 0 ? (stepX > 0 ? 0 : 1) : (stepY > 0 ? 2 : 3), t };
   }
-  return pack(c[0], c[1], c[2]);
-});
-TEX[4] = mk((x, y) => {
-  const c = stoneRGB(x, y);
-  const dx = x - 32, inArch = (y >= 26 && Math.abs(dx) <= 15) || (y < 26 && dx * dx + (y - 26) * (y - 26) <= 225 && y >= 11);
-  if (inArch) {
-    if (x % 8 === 4 || x % 8 === 5) { const hi = x % 8 === 4 ? 88 : 56; return pack(hi, hi, hi + 6); }
-    if (y === 34 || y === 35) return pack(62, 60, 64);
-    return pack(9 + nz(x, y, 3) * 6, 7, 8);
-  }
-  const outer = (y >= 24 && Math.abs(dx) <= 18) || (y < 24 && dx * dx + (y - 26) * (y - 26) <= 324 && y >= 8);
-  if (outer) return pack(c[0] * 1.15, c[1] * 1.12, c[2] * 1.1);
-  return pack(c[0], c[1], c[2]);
-});
-TEX[5] = mk((x, y) => {   // запертая решётка с замком
-  if (y < 3 || y > 61) return pack(70, 48, 36);
-  if (x >= 25 && x <= 39 && y >= 26 && y <= 40) {
-    if ((x === 32 || x === 31) && y >= 30 && y <= 36) return pack(8, 6, 4);
-    if (x >= 30 && x <= 33 && y >= 29 && y <= 31) return pack(8, 6, 4);
-    const k = x === 25 || y === 26 ? 1.25 : x === 39 || y === 40 ? 0.7 : 1;
-    return pack(150 * k, 112 * k, 46 * k);
-  }
-  const bar = x % 9;
-  if (bar === 4 || bar === 5 || y === 12 || y === 13 || y === 52 || y === 53) {
-    const rust = nz(x, y, 12) * 30;
-    const hi = bar === 4 || y === 12 || y === 52 ? 1.2 : 0.85;
-    return pack((92 + rust) * hi, (60 + rust * 0.4) * hi, 44 * hi);
-  }
-  return pack(6 + nz(x, y, 13) * 6, 5, 6);
-});
-const TF = mk((x, y) => {
-  const sx = x >> 5, sy = y >> 5, lx = x & 31, ly = y & 31;
-  if (lx === 0 || ly === 0) return pack(14, 13, 13);
-  let k = 44 + nz(sx, sy, 7) * 20 + (nz(x, y, 8) - 0.5) * 14;
-  if (lx === 1 || ly === 1) k += 8;
-  if (Math.abs((lx - ly) + (nz(sx, sy, 3) * 20 - 10)) < 0.8 && nz(sx, sy, 4) > 0.6) k -= 18;
-  return pack(k, k * 0.95, k * 0.92);
-});
-const TC = mk((x, y) => {
-  if ((x & 31) < 7) { const k = 26 + nz(x, y, 1) * 8; return pack(k, k * 0.7, k * 0.5); }
-  if ((y & 15) === 0) return pack(10, 7, 5);
-  const grain = Math.sin(y * 0.9 + nz(x >> 3, y >> 4, 2) * 6) * 6;
-  const k = 38 + grain + nz(x, y, 5) * 8;
-  return pack(k, k * 0.68, k * 0.46);
-});
+  return null;
+}
+function placeMark(s) {
+  if (state !== 'play') return;
+  $('chalkPal').hidden = true;
+  if (inv.chalk <= 0) return toast('Мел кончился. Куски мела лежат в тупиках.', 2.5);
+  const h = castFace(1.9);
+  if (!h) return toast('Подойди ближе к стене.', 1.8);
+  const n = s === 3 ? ++markN : 0;
+  const key = h.x + ',' + h.y + ',' + h.f;
+  marks.set(key, { x: h.x, y: h.y, f: h.f, s, n });
+  getChunk(h.x >> 4, h.y >> 4).marks.set(((((h.y & 15) << 4) | (h.x & 15)) << 2) | h.f, maskFor(s, n));
+  inv.chalk--; Snd.chalk(); buzz(10); save();
+}
+function eraseMark(key) {
+  const m = marks.get(key); if (!m) return;
+  marks.delete(key);
+  const c = chunks.get((m.x >> 4) + ',' + (m.y >> 4));
+  if (c) c.marks.delete(((((m.y & 15) << 4) | (m.x & 15)) << 2) | m.f);
+}
 
 /* ================= Спрайты ================= */
 function sprite(draw) {
@@ -353,6 +722,7 @@ function glow(g, x, y, r, col) {
   gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)');
   g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
 }
+function keyGlow(g) { glow(g, 16, 22, 11, 'rgba(255,200,110,0.35)'); g.fillStyle = '#c7a35a'; g.strokeStyle = '#c7a35a'; }
 const SPR = {
   petal: sprite(g => {
     glow(g, 16, 16, 15, 'rgba(255,40,60,0.5)');
@@ -386,6 +756,14 @@ const SPR = {
     g.fillStyle = '#ffd27a'; g.beginPath(); g.ellipse(13, 12, 2, 3.5, 0, 0, 7); g.ellipse(21.5, 16.5, 1.7, 3, 0, 0, 7); g.fill();
     g.fillStyle = '#fff6dc'; g.beginPath(); g.arc(13, 13, 1, 0, 7); g.arc(21.5, 17.5, 0.9, 0, 7); g.fill();
   }),
+  beacon: sprite(g => {
+    glow(g, 16, 12, 15, 'rgba(255,190,90,0.6)');
+    g.fillStyle = '#3a2a1c'; g.beginPath(); g.ellipse(16, 30, 9, 2.5, 0, 0, 7); g.fill();
+    g.fillStyle = '#e6d6b2'; g.fillRect(13, 15, 6, 15);
+    g.fillStyle = '#fff3d6'; g.fillRect(13, 15, 2, 15);
+    g.fillStyle = '#ffd27a'; g.beginPath(); g.ellipse(16, 11, 2.4, 4, 0, 0, 7); g.fill();
+    g.fillStyle = '#fffbe8'; g.beginPath(); g.arc(16, 12, 1.2, 0, 7); g.fill();
+  }),
   rose: sprite(g => {
     glow(g, 16, 9, 16, 'rgba(255,30,55,0.6)');
     g.fillStyle = '#4a4248'; g.beginPath(); g.moveTo(8, 32); g.lineTo(24, 32); g.lineTo(21, 26); g.lineTo(11, 26); g.fill();
@@ -397,37 +775,84 @@ const SPR = {
     g.strokeStyle = '#5e0612'; g.lineWidth = 1; g.beginPath(); g.arc(16, 8.5, 3, 0.3, 5); g.stroke();
     g.beginPath(); g.arc(16.5, 8, 1.4, 2, 7); g.stroke();
     g.fillStyle = '#ff6d80'; g.fillRect(13, 5, 2, 1);
+  }),
+  key0: sprite(g => { keyGlow(g); g.lineWidth = 3; g.beginPath(); g.arc(16, 22, 6, 0, 7); g.stroke(); g.fillStyle = '#f2dca0'; g.fillRect(12, 16, 3, 1.5); }),
+  key1: sprite(g => { keyGlow(g); g.save(); g.translate(16, 22); g.rotate(-0.4); g.fillRect(-11, -1.6, 22, 3.2); g.fillStyle = '#f2dca0'; g.fillRect(-11, -1.6, 22, 1); g.restore(); }),
+  key2: sprite(g => { keyGlow(g); g.fillRect(9, 18, 14, 4); g.fillRect(17, 22, 4, 6); g.fillRect(11, 22, 3, 4); g.fillStyle = '#f2dca0'; g.fillRect(9, 18, 14, 1); }),
+  rag: sprite(g => {
+    g.fillStyle = '#6e6252'; g.beginPath(); g.moveTo(5, 30); g.lineTo(9, 21); g.lineTo(15, 24); g.lineTo(22, 19); g.lineTo(28, 27); g.lineTo(26, 31); g.closePath(); g.fill();
+    g.fillStyle = '#8c7e6a'; g.beginPath(); g.moveTo(9, 22); g.lineTo(15, 25); g.lineTo(21, 21); g.lineTo(19, 27); g.lineTo(11, 28); g.closePath(); g.fill();
+    g.strokeStyle = '#4a3f33'; g.lineWidth = 1; g.beginPath(); g.moveTo(10, 26); g.lineTo(24, 25); g.stroke();
+  }),
+  wax: sprite(g => {
+    g.fillStyle = '#c9b78a'; g.beginPath(); g.ellipse(16, 28, 8, 3, 0, 0, 7); g.fill();
+    g.fillStyle = '#e3d3a6'; g.fillRect(12, 18, 8, 10);
+    g.beginPath(); g.ellipse(16, 18, 4, 1.6, 0, 0, 7); g.fill();
+    g.fillStyle = '#f4e8c4'; g.fillRect(12, 19, 2, 9); g.fillRect(19, 22, 2, 5);
+    g.fillStyle = '#2a1e12'; g.fillRect(15.5, 15, 1, 3);
+  }),
+  wick: sprite(g => {
+    g.strokeStyle = '#d9cfb8'; g.lineWidth = 1.6;
+    for (let i = 0; i < 3; i++) { g.beginPath(); g.ellipse(16, 26 - i * 0.8, 7 - i * 1.6, 3 - i * 0.6, 0, 0, 7); g.stroke(); }
+    g.beginPath(); g.moveTo(22, 26); g.quadraticCurveTo(27, 22, 25, 17); g.stroke();
+  }),
+  chalk: sprite(g => {
+    g.save(); g.translate(16, 27); g.rotate(-0.35);
+    g.fillStyle = '#e9e5da'; g.fillRect(-8, -2.5, 16, 5);
+    g.fillStyle = '#ffffff'; g.fillRect(-8, -2.5, 16, 1.4);
+    g.fillStyle = '#b8b2a4'; g.fillRect(6, -2.5, 2, 5);
+    g.restore();
+  }),
+  note: sprite(g => {
+    glow(g, 16, 24, 12, 'rgba(255,230,170,0.25)');
+    g.save(); g.translate(16, 26); g.rotate(0.12);
+    g.fillStyle = '#cdb98f'; g.fillRect(-9, -6, 18, 11);
+    g.fillStyle = '#b09a6a'; g.beginPath(); g.moveTo(9, -6); g.lineTo(9, 1); g.lineTo(4, -6); g.fill();
+    g.fillStyle = '#4a3420'; for (let i = 0; i < 3; i++) g.fillRect(-7, -3 + i * 3, 11 - i * 2, 0.9);
+    g.restore();
+  }),
+  fire: sprite(g => {
+    glow(g, 16, 22, 16, 'rgba(255,110,30,0.55)');
+    glow(g, 16, 22, 9, 'rgba(255,190,80,0.7)');
+    g.fillStyle = '#ff8a2a';
+    g.beginPath(); g.moveTo(8, 31); g.quadraticCurveTo(6, 20, 12, 14); g.quadraticCurveTo(12, 22, 16, 9); g.quadraticCurveTo(20, 20, 21, 13); g.quadraticCurveTo(27, 22, 24, 31); g.closePath(); g.fill();
+    g.fillStyle = '#ffe08a';
+    g.beginPath(); g.moveTo(12, 31); g.quadraticCurveTo(11, 24, 15, 19); g.quadraticCurveTo(16, 25, 19, 21); g.quadraticCurveTo(22, 26, 20, 31); g.closePath(); g.fill();
+  }),
+  bombp: sprite(g => {
+    glow(g, 16, 16, 14, 'rgba(255,140,40,0.6)');
+    g.fillStyle = '#6a3a12'; g.beginPath(); g.arc(16, 18, 6, 0, 7); g.fill();
+    g.fillStyle = '#ffd27a'; g.beginPath(); g.ellipse(16, 9, 2.5, 4, 0, 0, 7); g.fill();
+  }),
+  shadow: sprite(g => {
+    const gr = g.createLinearGradient(0, 0, 0, 32);
+    gr.addColorStop(0, 'rgba(0,0,0,0.95)'); gr.addColorStop(0.75, 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr;
+    g.beginPath(); g.ellipse(16, 8, 5, 6, 0, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(10, 12); g.quadraticCurveTo(4, 20, 6, 32); g.lineTo(9, 28); g.lineTo(12, 32); g.lineTo(16, 27);
+    g.lineTo(20, 32); g.lineTo(23, 28); g.lineTo(26, 32); g.quadraticCurveTo(28, 20, 22, 12); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(9, 14); g.lineTo(2, 24); g.lineTo(5, 25); g.lineTo(11, 18); g.fill();
+    g.beginPath(); g.moveTo(23, 14); g.lineTo(30, 24); g.lineTo(27, 25); g.lineTo(21, 18); g.fill();
+    g.fillStyle = '#ff2030'; g.fillRect(12, 7, 3, 2); g.fillRect(17, 7, 3, 2);
+    g.fillStyle = '#ffb0b0'; g.fillRect(13, 7, 1, 1); g.fillRect(18, 7, 1, 1);
   })
 };
-function keyGlow(g) { glow(g, 16, 22, 11, 'rgba(255,200,110,0.35)'); g.fillStyle = '#c7a35a'; g.strokeStyle = '#c7a35a'; }
-SPR.key0 = sprite(g => { keyGlow(g); g.lineWidth = 3; g.beginPath(); g.arc(16, 22, 6, 0, 7); g.stroke(); g.fillStyle = '#f2dca0'; g.fillRect(12, 16, 3, 1.5); });
-SPR.key1 = sprite(g => { keyGlow(g); g.save(); g.translate(16, 22); g.rotate(-0.4); g.fillRect(-11, -1.6, 22, 3.2); g.fillStyle = '#f2dca0'; g.fillRect(-11, -1.6, 22, 1); g.restore(); });
-SPR.key2 = sprite(g => { keyGlow(g); g.fillRect(9, 18, 14, 4); g.fillRect(17, 22, 4, 6); g.fillRect(11, 22, 3, 4); g.fillStyle = '#f2dca0'; g.fillRect(9, 18, 14, 1); });
-SPR.shadow = sprite(g => {
-  const gr = g.createLinearGradient(0, 0, 0, 32);
-  gr.addColorStop(0, 'rgba(0,0,0,0.95)'); gr.addColorStop(0.75, 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-  g.fillStyle = gr;
-  g.beginPath(); g.ellipse(16, 8, 5, 6, 0, 0, 7); g.fill();
-  g.beginPath(); g.moveTo(10, 12); g.quadraticCurveTo(4, 20, 6, 32); g.lineTo(9, 28); g.lineTo(12, 32); g.lineTo(16, 27);
-  g.lineTo(20, 32); g.lineTo(23, 28); g.lineTo(26, 32); g.quadraticCurveTo(28, 20, 22, 12); g.closePath(); g.fill();
-  g.beginPath(); g.moveTo(9, 14); g.lineTo(2, 24); g.lineTo(5, 25); g.lineTo(11, 18); g.fill();
-  g.beginPath(); g.moveTo(23, 14); g.lineTo(30, 24); g.lineTo(27, 25); g.lineTo(21, 18); g.fill();
-  g.fillStyle = '#ff2030'; g.fillRect(12, 7, 3, 2); g.fillRect(17, 7, 3, 2);
-  g.fillStyle = '#ffb0b0'; g.fillRect(13, 7, 1, 1); g.fillRect(18, 7, 1, 1);
-});
 const DEF = {
-  key0: { sz: 0.34, lift: 0.04, emit: 0.4 },
-  key1: { sz: 0.34, lift: 0.04, emit: 0.4 },
-  key2: { sz: 0.34, lift: 0.04, emit: 0.4 },
-  shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
   petal: { sz: 0.42, lift: 0.22, emit: 0.75, bob: 1 },
   oil: { sz: 0.38, lift: 0, emit: 0 },
   bones: { sz: 0.48, lift: 0, emit: 0 },
   candle: { sz: 0.5, lift: 0, emit: 0.85 },
-  rose: { sz: 0.95, lift: 0, emit: 1 }
+  beacon: { sz: 0.45, lift: 0, emit: 1 },
+  rose: { sz: 0.95, lift: 0, emit: 1 },
+  key0: { sz: 0.34, lift: 0.04, emit: 0.4 }, key1: { sz: 0.34, lift: 0.04, emit: 0.4 }, key2: { sz: 0.34, lift: 0.04, emit: 0.4 },
+  rag: { sz: 0.38, lift: 0, emit: 0 }, wax: { sz: 0.32, lift: 0, emit: 0 }, wick: { sz: 0.32, lift: 0, emit: 0 },
+  chalk: { sz: 0.3, lift: 0, emit: 0.15 }, note: { sz: 0.36, lift: 0, emit: 0.3 },
+  fire: { sz: 0.85, lift: 0, emit: 1 }, bombp: { sz: 0.24, lift: 0.45, emit: 1 },
+  shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 }
 };
+function sprName(it) { return it.t === 'keypart' ? 'key' + it.k : it.t === 'bone' ? 'bones' : it.t; }
 
-/* ================= Звук ================= */
+/* ================= Звук (с направлением) ================= */
 const Snd = {
   c: null, m: null, verb: null, nb: null,
   init() {
@@ -448,9 +873,17 @@ const Snd = {
     for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
     this.ambient();
   },
-  route(node, wet) {
-    node.connect(this.m);
-    if (wet) { const g = this.c.createGain(); g.gain.value = wet; node.connect(g); g.connect(this.verb); }
+  // pos = {x,y}: громкость по расстоянию, панорама лево/право, глухость сзади
+  route(node, wet, pos) {
+    let out = node;
+    if (pos) {
+      const c = this.c, dx = pos.x - P.x, dy = pos.y - P.y, d = Math.hypot(dx, dy), rel = Math.atan2(dy, dx) - P.a;
+      const g = c.createGain(); g.gain.value = 1 / (1 + d * 0.2); out.connect(g); out = g;
+      if (Math.cos(rel) < -0.2) { const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 850; out.connect(f); out = f; }
+      if (c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = d < 0.4 ? 0 : Math.max(-1, Math.min(1, Math.sin(rel) * 0.95)); out.connect(p); out = p; }
+    }
+    out.connect(this.m);
+    if (wet) { const g = this.c.createGain(); g.gain.value = wet; out.connect(g); g.connect(this.verb); }
   },
   env(peak, a, d, t0) {
     const g = this.c.createGain(), t = t0 || this.c.currentTime;
@@ -459,8 +892,8 @@ const Snd = {
   },
   ambient() {
     const c = this.c;
-    const mk = (f, v) => { const o = c.createOscillator(); o.frequency.value = f; const g = c.createGain(); g.gain.value = v; o.connect(g); g.connect(this.m); o.start(); return g; };
-    mk(49, 0.05); const g2 = mk(73.6, 0.022);
+    const mkO = (f, v) => { const o = c.createOscillator(); o.frequency.value = f; const g = c.createGain(); g.gain.value = v; o.connect(g); g.connect(this.m); o.start(); return g; };
+    mkO(49, 0.05); const g2 = mkO(73.6, 0.022);
     const l = c.createOscillator(); l.frequency.value = 0.07; const lg = c.createGain(); lg.gain.value = 0.018; l.connect(lg); lg.connect(g2.gain); l.start();
     const n = c.createBufferSource(); n.buffer = this.nb; n.loop = true;
     const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 240;
@@ -468,75 +901,138 @@ const Snd = {
     const l2 = c.createOscillator(); l2.frequency.value = 0.11; const l2g = c.createGain(); l2g.gain.value = 0.06; l2.connect(l2g); l2g.connect(ng.gain); l2.start();
     n.connect(f); f.connect(ng); ng.connect(this.m); n.start();
   },
-  noise(freq, q, peak, dur, wet, type) {
+  noise(freq, q, peak, dur, wet, type, pos) {
     if (!this.c) return;
     const c = this.c, s = c.createBufferSource(); s.buffer = this.nb; s.playbackRate.value = 0.7 + Math.random() * 0.5;
     const f = c.createBiquadFilter(); f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = q;
     const g = this.env(peak, 0.005, dur);
-    s.connect(f); f.connect(g); this.route(g, wet); s.start(0, Math.random()); s.stop(c.currentTime + dur + 0.05);
+    s.connect(f); f.connect(g); this.route(g, wet, pos); s.start(0, Math.random()); s.stop(c.currentTime + dur + 0.05);
   },
-  tone(f0, f1, type, peak, dur, wet, delay) {
+  tone(f0, f1, type, peak, dur, wet, delay, pos) {
     if (!this.c) return;
     const c = this.c, t = c.currentTime + (delay || 0), o = c.createOscillator(); o.type = type;
     o.frequency.setValueAtTime(f0, t); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-    const g = this.env(peak, 0.01, dur, t); o.connect(g); this.route(g, wet); o.start(t); o.stop(t + dur + 0.05);
+    const g = this.env(peak, 0.01, dur, t); o.connect(g); this.route(g, wet, pos); o.start(t); o.stop(t + dur + 0.05);
   },
-  step() { this.noise(280 + Math.random() * 180, 1.2, 0.35, 0.09, 0.25); },
-  drip() { this.tone(1500 + Math.random() * 600, 480, 'sine', 0.07, 0.09, 0.9); },
-  crackle() { this.noise(2600, 0.8, 0.035, 0.02, 0, 'highpass'); },
+  step() {
+    if (TH.water) { this.noise(700 + Math.random() * 300, 0.7, 0.5, 0.16, 0.45, 'lowpass'); this.noise(2400, 2, 0.08, 0.1, 0.4); }
+    else this.noise(280 + Math.random() * 180, 1.2, 0.35, 0.09, 0.25);
+  },
+  drip(pos) { this.tone(1500 + Math.random() * 600, 480, 'sine', 0.09, 0.09, 0.9, 0, pos); },
+  crackle(pos) { this.noise(2600, 0.8, pos ? 0.08 : 0.035, 0.02, 0, 'highpass', pos); },
   chime() { [784, 1175, 1568].forEach((f, i) => this.tone(f, f, 'sine', 0.09, 1.3, 0.6, i * 0.07)); },
-  glug() { for (let i = 0; i < 3; i++) this.tone(260 - i * 30, 120, 'triangle', 0.14, 0.12, 0.2, i * 0.13); },
-  heart() { this.tone(62, 40, 'sine', 0.55, 0.16, 0); this.tone(58, 38, 'sine', 0.4, 0.16, 0, 0.2); },
+  pour() { for (let i = 0; i < 3; i++) this.tone(260 - i * 30, 120, 'triangle', 0.14, 0.12, 0.2, i * 0.13); },
+  heart(v) { v = v || 1; this.tone(62, 40, 'sine', 0.55 * v, 0.16, 0); this.tone(58, 38, 'sine', 0.4 * v, 0.16, 0, 0.2); },
   toll() { [110, 164.8, 220, 277].forEach((f, i) => this.tone(f, f * 0.995, 'sawtooth', 0.035, 3.2, 0.7, i * 0.12)); },
-  win() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 2.2, 0.6, i * 0.18)); },
+  descend() { [392, 330, 262, 196].forEach((f, i) => this.tone(f, f, 'sine', 0.09, 1.8, 0.7, i * 0.22)); },
+  roseHum(pos) { this.tone(523, 523, 'sine', 0.12, 1.4, 0.5, 0, pos); this.tone(784, 784, 'sine', 0.06, 1.2, 0.5, 0.12, pos); },
   gust() {
     if (!this.c) return;
     const c = this.c, t = c.currentTime, s = c.createBufferSource(); s.buffer = this.nb; s.loop = true;
     const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.8;
     f.frequency.setValueAtTime(180, t); f.frequency.exponentialRampToValueAtTime(1300, t + 1.2); f.frequency.exponentialRampToValueAtTime(260, t + 2.6);
-    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32, t + 1.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
-    s.connect(f); f.connect(g); this.route(g, 0.4); s.start(t); s.stop(t + 3);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 1.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+    const a = Math.random() * 6.28;
+    s.connect(f); f.connect(g); this.route(g, 0.4, { x: P.x + Math.cos(a) * 3, y: P.y + Math.sin(a) * 3 }); s.start(t); s.stop(t + 3);
   },
   sputter() { for (let i = 0; i < 5; i++) setTimeout(() => this.crackle(), i * 60 + Math.random() * 40); this.tone(90, 50, 'sine', 0.2, 0.3, 0.3); },
   relight() { this.noise(900, 0.6, 0.18, 0.35, 0.2, 'lowpass'); },
-  whisper(v) { this.noise(1100 + Math.random() * 900, 7, 0.12 + v * 0.4, 0.45, 0.8); this.noise(2200 + Math.random() * 700, 9, v * 0.2, 0.3, 0.8); },
+  whisper(v, pos) { this.noise(1100 + Math.random() * 900, 7, 0.2 + v * 0.5, 0.45, 0.8, 'bandpass', pos); this.noise(2200 + Math.random() * 700, 9, v * 0.3, 0.3, 0.8, 'bandpass', pos); },
+  slither(pos) { this.noise(380 + Math.random() * 200, 1.5, 0.35, 0.35, 0.5, 'bandpass', pos); },
   scream() { this.tone(900, 110, 'sawtooth', 0.12, 1.1, 0.9); this.tone(640, 80, 'square', 0.05, 1.0, 0.9); this.noise(500, 0.5, 0.3, 0.6, 0.6, 'lowpass'); },
-  hiss() { this.noise(3200, 0.7, 0.16, 0.5, 0.6, 'highpass'); },
+  hiss(pos) { this.noise(3200, 0.7, 0.3, 0.5, 0.6, 'highpass', pos); },
   clank() { this.tone(190, 90, 'square', 0.09, 0.16, 0.5); this.noise(1800, 3, 0.3, 0.2, 0.6); this.tone(72, 52, 'sawtooth', 0.06, 1.4, 0.5, 0.15); },
-  forge() { this.tone(1320, 1320, 'triangle', 0.08, 0.35, 0.5); this.tone(1760, 1760, 'triangle', 0.06, 0.4, 0.5, 0.09); }
+  forge() { this.tone(1320, 1320, 'triangle', 0.08, 0.35, 0.5); this.tone(1760, 1760, 'triangle', 0.06, 0.4, 0.5, 0.09); },
+  chalk() { for (let i = 0; i < 3; i++) setTimeout(() => this.noise(3800 + Math.random() * 1500, 3, 0.12, 0.07, 0.1), i * 80); },
+  page() { this.noise(1800, 0.6, 0.18, 0.25, 0.2, 'highpass'); },
+  whoosh() { this.noise(600, 0.8, 0.3, 0.3, 0.3, 'bandpass'); },
+  boom(pos) { this.noise(160, 0.6, 0.9, 0.6, 0.6, 'lowpass', pos); this.noise(1200, 0.5, 0.3, 0.8, 0.4, 'bandpass', pos); this.tone(70, 40, 'sine', 0.5, 0.5, 0.4, 0, pos); },
+  rootBeat() { this.tone(44, 32, 'sine', 0.35, 0.22, 0.3); this.tone(40, 30, 'sine', 0.25, 0.22, 0.3, 0.26); }
 };
+
+/* ================= Вибрация ================= */
+const iosSw = document.getElementById('iosSw');
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function buzz(p) {
+  if (!meta.vib) return;
+  try { if (navigator.vibrate && !isIOS) { navigator.vibrate(p); return; } } catch (e) {}
+  if (isIOS) { try { iosSw.click(); } catch (e) {} }
+}
+
+/* ================= Записки узников ================= */
+const NOTES = [
+  ['Третий день. Дверь, через которую я вошёл, исчезла. Не заперта, а исчезла: на её месте сухой холодный камень.', 'Мартин, подмастерье'],
+  ['Отец учил: держись за стену правой рукой и выйдешь из любого лабиринта. Здесь это не работает. Стены идут следом.', 'без подписи'],
+  ['Лепестки тёплые, будто их сорвали минуту назад. Я нашёл два и спал, сжимая их в кулаке. Тень в ту ночь не подошла.', 'Агнесса'],
+  ['Кто-то до меня рисовал мелом стрелки. Они ведут в тупик. Может, замок их передвинул. А может, он был таким же глупцом, как я.', 'Мартин'],
+  ['Кухарка рассказывала: граф Розенхолл посадил Розу для жены. Графиня угасала, а Роза цвела. Потом графиня умерла. Роза — нет.', 'Агнесса'],
+  ['Масло в склянках свежее. Кто его оставляет? Думаю, замку не нужны мёртвые у порога. Ему нужны идущие.', 'брат Ульрих'],
+  ['Она не любит огонь. Стоит там, где кончается свет, и ждёт. Я видел её глаза. Они не злые. Они голодные.', 'брат Ульрих'],
+  ['Когда сквозняк задул пламя, я забился в нишу и не дышал. Она прошла мимо. Почти всегда проходит мимо. Почти.', 'Агнесса'],
+  ['Нашёл кольцо от ключа у скелета. Он сжимал его так, что пришлось ломать пальцы. Прости, брат. Тебе оно уже не нужно.', 'Мартин'],
+  ['Масло и тряпка — и огонь можно бросить. Тень шипит и отступает, пока он горит. Жаль, что горит недолго.', 'Йохан, кузнец'],
+  ['Решётки старше стен. Их ставили для узников графа, когда замок был просто замком, а темницы — просто темницами.', 'Йохан, кузнец'],
+  ['Я собрал пять. Роза раскрылась, и пол ушёл вниз. Ступени. Пахнет водой. Значит, это не выход, а дверь глубже.', 'Мартин'],
+  ['В склепах каждый шаг слышно за сотню саженей. Иду медленно. Вода чёрная, и факел в ней не отражается.', 'брат Ульрих'],
+  ['Графиню звали Изольда. Её имя выцарапано на каждой плите склепа. Тысячи раз, разными руками. Нашими руками.', 'без подписи'],
+  ['Корни в стенах, под полом, над головой. Они тёплые. Мои метки исчезают, стоит отвернуться.', 'Агнесса'],
+  ['Я понял, кто она, Тень. Она тоже собирала лепестки. Слишком долго. Её огонь погас, и она осталась, чтобы не быть одной.', 'Мартин'],
+  ['Если ты читаешь это, не жди выхода. Роза ведёт только вниз. Но там, внизу, бьётся что-то большое. Может быть, сердце. Может, его можно остановить.', 'М.']
+];
+const META_KEY = 'redrose_meta_v1';
+let meta = { notes: [], best: 0, vib: true };
+try { const m = JSON.parse(localStorage.getItem(META_KEY) || 'null'); if (m) meta = Object.assign(meta, m); } catch (e) {}
+function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} }
 
 /* ================= Состояние ================= */
 const P = { x: 1.5, y: 1.5, a: 0, pitch: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0 };
-let collected = new Set(), exit = null, seen = new Map(), opened = new Set();
-const inv = { parts: [0, 0, 0], keys: 0 };
+let collected = new Set(), exit = null, seen = new Map();
+const INV0 = { parts: [0, 0, 0], keys: 0, oil: 0, rag: 0, bone: 0, wax: 0, wick: 0, chalk: 15, bomb: 0, candle: 0, torch: 0 };
+let inv = JSON.parse(JSON.stringify(INV0));
 const PART_NAMES = ['кольцо ключа', 'стержень ключа', 'бородка ключа'];
-let blackT = 45, blackDur = 0, preWarn = false, gateMsg = '';
-const SH = { on: false, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, life: 0, spawnT: 25, whisT: 2, seenMsg: false };
-function resetShadow() { Object.assign(SH, { on: false, spawnT: 25, whisT: 2, seenMsg: false }); }
-let state = 'menu'; // menu | play | pause | win | lose
-let flick = 1, LR = 6, bobPh = 0, bobY = 0, stepAcc = 0, dripT = 5, crackT = 0.3, heartT = 0, saveT = 5, darkWarned = false, lowWarned = false;
+let beacons = [], fires = [], proj = null;
+let hidden = false, blackT = 45, blackDur = 0, preWarn = false, gateMsg = '';
+const SH = { on: false, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, px: 0, py: 0, life: 0, spawnT: 25, whisT: 2, slT: 0, seenMsg: false, rolled: false, leaving: false };
+function resetShadow() { Object.assign(SH, { on: false, spawnT: 25, whisT: 2, slT: 0, seenMsg: false, rolled: false, leaving: false }); }
+let state = 'menu';
+let flick = 1, LR = 6, bobPh = 0, bobY = 0, stepAcc = 0, dripT = 5, crackT = 0.3, heartT = 0, saveT = 5, humT = 2, eraseT = 60, beatT = 2;
+let darkWarned = false, lowWarned = false, moving = false;
+let lights = [];
 
-function newGame() {
-  SEED = (Math.random() * 1e9) | 0;
+function blackInterval() { return (40 + Math.random() * 45) * Math.max(0.6, 1 - 0.06 * (FLOOR - 1)); }
+function setFloor(f) {
+  FLOOR = f; SEED = floorSeed(BASE, f); TH = THEMES[(f - 1) % THEMES.length];
   chunks.clear(); lcx = lcy = 1e9;
-  Object.assign(P, { x: 1.5, y: 1.5, a: 0, pitch: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0 });
-  collected = new Set(); exit = null; seen = new Map(); opened = new Set(); darkWarned = lowWarned = false;
-  inv.parts = [0, 0, 0]; inv.keys = 0; blackT = 45; blackDur = 0; preWarn = false; gateMsg = ''; resetShadow();
-  // смотрим в открытую сторону
+}
+function resetFloorState() {
+  Object.assign(P, { x: 1.5, y: 1.5, a: 0, pitch: 0, petals: 0, fear: 0 });
+  collected = new Set(); exit = null; seen = new Map(); opened = new Set(); marks = new Map(); markN = 0;
+  beacons = []; fires = []; proj = null; hidden = false;
+  blackT = blackInterval(); blackDur = 0; preWarn = false; gateMsg = ''; eraseT = 50 + Math.random() * 30; resetShadow();
   if (!solid(2.5, 1.5)) P.a = 0; else if (!solid(1.5, 2.5)) P.a = Math.PI / 2;
 }
+function newGame() {
+  BASE = (Math.random() * 1e9) | 0;
+  inv = JSON.parse(JSON.stringify(INV0));
+  P.fuel = 100; P.time = 0; P.dist = 0; darkWarned = lowWarned = false;
+  setFloor(1); resetFloorState();
+}
 function serialize() {
-  return { seed: SEED, x: P.x, y: P.y, a: P.a, fuel: P.fuel, petals: P.petals, time: P.time, dist: P.dist, collected: [...collected], exit,
-    parts: inv.parts, keys: inv.keys, opened: [...opened] };
+  return { v: 2, base: BASE, floor: FLOOR, x: P.x, y: P.y, a: P.a, fuel: P.fuel, petals: P.petals, time: P.time, dist: P.dist,
+    collected: [...collected], exit, opened: [...opened], inv, marks: [...marks.values()], markN,
+    beacons: beacons.map(b => ({ x: b.x, y: b.y, life: b.life })) };
 }
 function restore(s) {
-  SEED = s.seed; chunks.clear(); lcx = lcy = 1e9;
-  opened = new Set(s.opened || []);
+  if (!s.v) { s = { base: s.seed, floor: 1, x: s.x, y: s.y, a: s.a, fuel: s.fuel, petals: s.petals, time: s.time, dist: s.dist, collected: s.collected, exit: s.exit, opened: s.opened,
+    inv: Object.assign(JSON.parse(JSON.stringify(INV0)), { parts: s.parts || [0, 0, 0], keys: s.keys || 0 }) }; }
+  BASE = s.base; opened = new Set(s.opened || []); marks = new Map();
+  for (const m of (s.marks || [])) marks.set(m.x + ',' + m.y + ',' + m.f, m);
+  setFloor(s.floor || 1);
   Object.assign(P, { x: s.x, y: s.y, a: s.a, pitch: 0, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
   collected = new Set(s.collected || []); exit = s.exit || null; seen = new Map();
-  inv.parts = (s.parts || [0, 0, 0]).slice(); inv.keys = s.keys || 0;
-  blackT = 45; blackDur = 0; preWarn = false; gateMsg = ''; resetShadow();
+  inv = Object.assign(JSON.parse(JSON.stringify(INV0)), s.inv || {});
+  markN = s.markN || 0; beacons = (s.beacons || []).slice(); fires = []; proj = null; hidden = false;
+  blackT = blackInterval(); blackDur = 0; preWarn = false; gateMsg = ''; eraseT = 60; resetShadow();
   darkWarned = P.fuel <= 0; lowWarned = P.fuel < 20;
 }
 const SAVE_KEY = 'redrose_save_v1';
@@ -550,16 +1046,16 @@ function spawnExit() {
   if ((((ex % 2) + 2) % 2) === 0) ex++;
   if ((((ey % 2) + 2) % 2) === 0) ey++;
   exit = { x: ex + 0.5, y: ey + 0.5 };
-  Snd.toll();
-  toast('Где-то в замке расцвела Красная Роза. Иди туда, куда указывает стрелка.', 6);
+  Snd.toll(); buzz([30, 60, 30, 60, 120]);
+  toast('Где-то в замке расцвела Красная Роза. Слушай её звон и иди за стрелкой.', 6);
 }
 
-/* ================= Экран ================= */
+/* ================= Экран и свет ================= */
 const cv = document.getElementById('game'), ctx = cv.getContext('2d', { alpha: false });
 let W, H, F, img, buf, zbuf;
 function resize() {
   const aw = innerWidth, ah = innerHeight, asp = aw / ah;
-  const budget = Math.min(aw, ah) > 600 ? 115000 : 68000;
+  const budget = Math.min(aw, ah) > 600 ? 110000 : 64000;
   W = Math.max(120, Math.round(Math.sqrt(budget * asp)));
   H = Math.max(100, Math.round(W / asp));
   F = Math.min(H * 0.95, W * 0.85);
@@ -575,13 +1071,43 @@ function light(d) {
   const s = v * Math.sqrt(v) * 1.3 * flick;
   return s > 1 ? 1 : s;
 }
+function forNearItems(x, y, fn) {
+  const cx = Math.floor(x) >> 4, cy = Math.floor(y) >> 4;
+  for (let j = cy - 1; j <= cy + 1; j++) for (let i = cx - 1; i <= cx + 1; i++) for (const it of getChunk(i, j).items) fn(it);
+}
+function gatherLights(t) {
+  const arr = [];
+  const add = (x, y, r, i) => { const dx = x - P.x, dy = y - P.y, d2 = dx * dx + dy * dy; if (d2 < (r + 9) * (r + 9)) arr.push({ x, y, r2: r * r, i, d2 }); };
+  forNearItems(P.x, P.y, it => { if (it.t === 'candle') add(it.x, it.y, 2.3, 0.7 * (0.9 + 0.1 * Math.sin(t * 11 + it.x * 7))); });
+  for (const b of beacons) add(b.x, b.y, 3.0, 0.9 * Math.min(1, b.life / 8) * (0.92 + 0.08 * Math.sin(t * 9 + b.y)));
+  for (const f of fires) add(f.x, f.y, 2.2 + 2.2 * Math.min(1, f.life / 4), 1.15 * (0.82 + 0.18 * Math.sin(t * 17 + f.x)));
+  if (proj) add(proj.x, proj.y, 1.8, 0.9);
+  arr.sort((a, b) => a.d2 - b.d2);
+  if (arr.length > 4) arr.length = 4;
+  return arr;
+}
+function lightAt(x, y) {
+  let l = 0;
+  for (const L of lights) { const dx = x - L.x, dy = y - L.y, d2 = dx * dx + dy * dy; if (d2 < L.r2) { const v = 1 - d2 / L.r2; l += v * v * L.i; } }
+  return l;
+}
+// безопасный свет, который Тень не переступает
+function litAt(x, y) {
+  for (const b of beacons) { const dx = x - b.x, dy = y - b.y; if (dx * dx + dy * dy < 5.8) return true; }
+  for (const f of fires) { const dx = x - f.x, dy = y - f.y; if (dx * dx + dy * dy < 9) return true; }
+  let lit = false;
+  forNearItems(x, y, it => { if (!lit && it.t === 'candle') { const dx = x - it.x, dy = y - it.y; if (dx * dx + dy * dy < 2.6) lit = true; } });
+  return lit;
+}
 
 function render(t) {
   const dirX = Math.cos(P.a), dirY = Math.sin(P.a), p = W / (2 * F);
   const plX = -dirY * p, plY = dirX * p;
   const hz = Math.round(H / 2 + P.pitch * H + bobY);
   const rx0 = dirX - plX, ry0 = dirY - plY, rx1 = dirX + plX, ry1 = dirY + plY;
-  const BLACK = 0xff000000;
+  const BLACK = 0xff000000, tr = TH.tint[0], tg = TH.tint[1], tb = TH.tint[2];
+  const L = lights, nl = L.length;
+  const L0 = L[0], L1 = L[1], L2 = L[2], L3 = L[3];
 
   // пол и потолок
   for (let y = 0; y < H; y++) {
@@ -592,15 +1118,33 @@ function render(t) {
     const rd = (0.5 * F) / dy;
     let s = light(rd);
     if (!isFloor) s *= 0.75;
-    if (s < 0.012) { buf.fill(BLACK, row, row + W); continue; }
-    const sr = s, sg = s * 0.84, sb = s * 0.62;
+    if (s < 0.012 && (!nl || rd > 18)) { buf.fill(BLACK, row, row + W); continue; }
+    const sr = s * tr, sg = s * tg, sb = s * tb;
     const stx = rd * (rx1 - rx0) / W, sty = rd * (ry1 - ry0) / W;
     let fx = P.x + rd * rx0, fy = P.y + rd * ry0;
-    const tex = isFloor ? TF : TC;
-    for (let x = 0; x < W; x++) {
-      const c = tex[((((fy * 64) | 0) & 63) << 6) | (((fx * 64) | 0) & 63)];
-      buf[row + x] = 0xff000000 | (((((c >> 16) & 255) * sb) | 0) << 16) | (((((c >> 8) & 255) * sg) | 0) << 8) | (((c & 255) * sr) | 0);
-      fx += stx; fy += sty;
+    const tex = isFloor ? TH.floor : TH.ceil, wo = (isFloor && TH.water) ? t * 0.07 : 0, lk = isFloor ? 1 : 0.55;
+    if (!nl) {
+      for (let x = 0; x < W; x++) {
+        const c = tex[((((fy * 64) | 0) & 63) << 6) | ((((fx + wo) * 64) | 0) & 63)];
+        buf[row + x] = 0xff000000 | (((((c >> 16) & 255) * sb) | 0) << 16) | (((((c >> 8) & 255) * sg) | 0) << 8) | (((c & 255) * sr) | 0);
+        fx += stx; fy += sty;
+      }
+    } else {
+      for (let x = 0; x < W; x++) {
+        let l = 0, ddx, ddy, d2, v;
+        ddx = fx - L0.x; ddy = fy - L0.y; d2 = ddx * ddx + ddy * ddy; if (d2 < L0.r2) { v = 1 - d2 / L0.r2; l += v * v * L0.i; }
+        if (L1) { ddx = fx - L1.x; ddy = fy - L1.y; d2 = ddx * ddx + ddy * ddy; if (d2 < L1.r2) { v = 1 - d2 / L1.r2; l += v * v * L1.i; } }
+        if (L2) { ddx = fx - L2.x; ddy = fy - L2.y; d2 = ddx * ddx + ddy * ddy; if (d2 < L2.r2) { v = 1 - d2 / L2.r2; l += v * v * L2.i; } }
+        if (L3) { ddx = fx - L3.x; ddy = fy - L3.y; d2 = ddx * ddx + ddy * ddy; if (d2 < L3.r2) { v = 1 - d2 / L3.r2; l += v * v * L3.i; } }
+        l *= lk;
+        const R = sr + l, G = sg + l * 0.72, B = sb + l * 0.42;
+        if (R < 0.012) buf[row + x] = BLACK;
+        else {
+          const c = tex[((((fy * 64) | 0) & 63) << 6) | ((((fx + wo) * 64) | 0) & 63)];
+          buf[row + x] = 0xff000000 | (cl(((c >> 16) & 255) * B) << 16) | (cl(((c >> 8) & 255) * G) << 8) | cl((c & 255) * R);
+        }
+        fx += stx; fy += sty;
+      }
     }
   }
 
@@ -624,47 +1168,62 @@ function render(t) {
     zbuf[x] = perp;
     const lineH = F / perp, ds = hz - lineH / 2;
     const y0 = Math.max(0, Math.floor(ds)), y1 = Math.min(H - 1, Math.floor(ds + lineH));
-    let s = light(perp) * (side ? 0.78 : 1);
-    if (s < 0.012) { for (let y = y0; y <= y1; y++) buf[y * W + x] = BLACK; continue; }
+    const shade = side ? 0.78 : 1;
+    let s = light(perp) * shade, l = 0;
+    if (nl) l = lightAt(P.x + rdx * (perp - 0.08), P.y + rdy * (perp - 0.08)) * shade;
+    const R = s * tr + l, G = s * tg + l * 0.72, B = s * tb + l * 0.42;
+    if (R < 0.012) { for (let y = y0; y <= y1; y++) buf[y * W + x] = BLACK; continue; }
     let wx = side ? P.x + perp * rdx : P.y + perp * rdy; wx -= Math.floor(wx);
     let tx = (wx * 64) | 0;
-    if (side === 0 && rdx > 0) tx = 63 - tx;
-    if (side === 1 && rdy < 0) tx = 63 - tx;
-    const tex = TEX[hit] || TEX[1], sr = s, sg = s * 0.84, sb = s * 0.62, k = 64 / lineH;
+    if (side === 0 && rdx < 0) tx = 63 - tx;
+    if (side === 1 && rdy > 0) tx = 63 - tx;
+    const face = side === 0 ? (stepX > 0 ? 0 : 1) : (stepY > 0 ? 2 : 3);
+    const hc = lc;
+    const mk2 = hc.marks.size ? hc.marks.get(((((my & 15) << 4) | (mx & 15)) << 2) | face) : undefined;
+    let tex;
+    if (hit === 5) tex = TEX_GATE;
+    else if (side === 0 ? nicheAt(mx - stepX, my) : nicheAt(mx, my - stepY)) tex = TEX_NICHE;
+    else tex = TH.tex[hit];
+    const k = 64 / lineH;
     for (let y = y0; y <= y1; y++) {
       let ty = ((y - ds) * k) | 0; if (ty > 63) ty = 63; else if (ty < 0) ty = 0;
-      const c = tex[(ty << 6) | tx];
-      buf[y * W + x] = 0xff000000 | (((((c >> 16) & 255) * sb) | 0) << 16) | (((((c >> 8) & 255) * sg) | 0) << 8) | (((c & 255) * sr) | 0);
+      const ti = (ty << 6) | tx;
+      let c = tex[ti], cr = c & 255, cg = (c >> 8) & 255, cb = (c >> 16) & 255;
+      if (mk2) { const a = mk2[ti]; if (a) { const q = a / 255 * 0.9; cr += (232 - cr) * q; cg += (228 - cg) * q; cb += (214 - cb) * q; } }
+      buf[y * W + x] = 0xff000000 | (cl(cb * B) << 16) | (cl(cg * G) << 8) | cl(cr * R);
     }
   }
 
   // спрайты
   const list = [];
-  const pcx = Math.floor(P.x) >> 4, pcy = Math.floor(P.y) >> 4;
-  for (let cy = pcy - 1; cy <= pcy + 1; cy++) for (let cx = pcx - 1; cx <= pcx + 1; cx++) {
-    for (const it of getChunk(cx, cy).items) {
-      if (collected.has(it.id)) continue;
-      const dx = it.x - P.x, dy = it.y - P.y, d2 = dx * dx + dy * dy;
-      const name = it.t === 'keypart' ? 'key' + it.k : it.t;
-      const maxD = DEF[name].emit ? 20 : LR + 1;
-      if (d2 < maxD * maxD) list.push({ x: it.x, y: it.y, t: name, d2 });
-    }
-  }
-  if (exit) { const dx = exit.x - P.x, dy = exit.y - P.y; list.push({ x: exit.x, y: exit.y, t: 'rose', d2: dx * dx + dy * dy }); }
+  forNearItems(P.x, P.y, it => {
+    if (collected.has(it.id)) return;
+    const dx = it.x - P.x, dy = it.y - P.y, d2 = dx * dx + dy * dy, name = sprName(it);
+    const maxD = DEF[name].emit ? 20 : LR + 4;
+    if (d2 < maxD * maxD) list.push({ x: it.x, y: it.y, t: name, d2 });
+  });
+  const addS = (x, y, t) => { const dx = x - P.x, dy = y - P.y; list.push({ x, y, t, d2: dx * dx + dy * dy }); };
+  if (exit) addS(exit.x, exit.y, 'rose');
+  for (const b of beacons) addS(b.x, b.y, 'beacon');
+  for (const f of fires) addS(f.x, f.y, 'fire');
+  if (proj) addS(proj.x, proj.y, 'bombp');
   if (SH.on) { const dx = SH.x - P.x, dy = SH.y - P.y, d2 = dx * dx + dy * dy; if (d2 < 400) list.push({ x: SH.x, y: SH.y, t: 'shadow', d2 }); }
   list.sort((a, b) => b.d2 - a.d2);
-  const inv = 1 / (plX * dirY - dirX * plY);
+  const idet = 1 / (plX * dirY - dirX * plY);
   const pulse = 0.8 + 0.2 * Math.sin(t * 3);
   for (const sp of list) {
     const sx = sp.x - P.x, sy = sp.y - P.y;
-    const tX = inv * (dirY * sx - dirX * sy), tY = inv * (-plY * sx + plX * sy);
+    const tX = idet * (dirY * sx - dirX * sy), tY = idet * (-plY * sx + plX * sy);
     if (tY < 0.2) continue;
     const def = DEF[sp.t], d = SPR[sp.t];
-    const scrX = (W / 2) * (1 + tX / tY), size = def.sz * F / tY;
+    const scrX = (W / 2) * (1 + tX / tY);
+    const fl = sp.t === 'fire' ? 0.9 + 0.12 * Math.sin(t * 23 + sp.x) : 1;
+    const size = def.sz * F / tY * fl;
     const lift = def.lift + (def.bob ? Math.sin(t * 2.2 + sp.x * 3) * 0.05 : 0);
     const by = hz + 0.5 * F / tY - lift * F / tY, ty0 = by - size;
     const x0 = Math.floor(scrX - size / 2), x1 = Math.floor(scrX + size / 2);
-    const s = light(tY), em = def.emit, sAll = Math.max(s, em);
+    const em = def.emit, ll = nl ? Math.min(1, lightAt(sp.x, sp.y)) : 0;
+    const s = Math.max(light(tY), ll), sAll = Math.max(s, em);
     const sr = sAll, sg = em ? sAll : sAll * 0.84, sb = em ? sAll : sAll * 0.62;
     if (sAll < 0.012 && !def.dark) continue;
     const gk = em * pulse / 255;
@@ -677,9 +1236,8 @@ function render(t) {
         if (a < 10) continue;
         const o = y * W + x;
         if (def.dark) {
-          if (d[i] > 150 && d[i + 1] < 200 && a > 200) {   // горящие глаза видны и в полной темноте
-            buf[o] = 0xff000000 | (d[i + 2] << 16) | (d[i + 1] << 8) | d[i];
-          } else {
+          if (d[i] > 150 && d[i + 1] < 200 && a > 200) buf[o] = 0xff000000 | (d[i + 2] << 16) | (d[i + 1] << 8) | d[i];
+          else {
             const k = 1 - a / 255 * 0.94, c = buf[o];
             buf[o] = 0xff000000 | (((((c >> 16) & 255) * k) | 0) << 16) | (((((c >> 8) & 255) * k) | 0) << 8) | (((c & 255) * k) | 0);
           }
@@ -700,8 +1258,8 @@ function render(t) {
 
 function drawTorch(t) {
   const s = Math.min(H, W * 0.75) / 200;
-  const bx = W * 0.8 + Math.sin(bobPh * 0.5) * 3 * s, by = H + 8 * s + Math.abs(Math.cos(bobPh * 0.5)) * 4 * s;
-  const lit = P.fuel > 0 && blackDur <= 0;
+  const bx = W * 0.8 + Math.sin(bobPh * 0.5) * 3 * s, by = H + 8 * s + Math.abs(Math.cos(bobPh * 0.5)) * 4 * s + (hidden ? 30 * s : 0);
+  const lit = P.fuel > 0 && blackDur <= 0 && !hidden;
   ctx.save(); ctx.translate(bx, by); ctx.rotate(-0.26);
   ctx.fillStyle = lit ? '#3e2717' : '#1e140c'; ctx.fillRect(-4 * s, -72 * s, 8 * s, 84 * s);
   ctx.fillStyle = lit ? '#25160c' : '#120b06'; ctx.fillRect(-4 * s, -72 * s, 3 * s, 84 * s);
@@ -737,7 +1295,7 @@ function drawTorch(t) {
 const mini = document.getElementById('mini'), mctx = mini.getContext('2d');
 let showMap = true;
 function markSeen() {
-  const r = Math.min(4, Math.ceil(LR * 0.7));
+  const r = Math.min(4, Math.ceil(Math.max(LR, 2) * 0.7));
   const px = Math.floor(P.x), py = Math.floor(P.y);
   for (let y = py - r; y <= py + r; y++) for (let x = px - r; x <= px + r; x++) {
     if ((x - px) * (x - px) + (y - py) * (y - py) > r * r) continue;
@@ -756,19 +1314,24 @@ function drawMini(t) {
     const wx = px + x, wy = py + y;
     if (!isSeen(wx, wy)) continue;
     const tt = tile(wx, wy);
-    mctx.fillStyle = tt === 5 ? '#a0602e' : tt ? '#4a3f3a' : '#16121a';
+    mctx.fillStyle = tt === 5 ? '#a0602e' : tt ? '#4a3f3a' : nicheAt(wx, wy) ? '#2c3858' : '#16121a';
     mctx.fillRect(ox + x * c - c / 2, oy + y * c - c / 2, c, c);
   }
-  const pcx = px >> 4, pcy = py >> 4;
-  for (let cy = pcy - 1; cy <= pcy + 1; cy++) for (let cx = pcx - 1; cx <= pcx + 1; cx++) {
-    for (const it of getChunk(cx, cy).items) {
-      if ((it.t !== 'petal' && it.t !== 'oil' && it.t !== 'keypart') || collected.has(it.id)) continue;
-      const ix = Math.floor(it.x), iy = Math.floor(it.y);
-      if (!isSeen(ix, iy)) continue;
-      mctx.fillStyle = it.t === 'petal' ? '#ff3550' : it.t === 'oil' ? '#e39a3c' : '#e8d08a';
-      mctx.beginPath(); mctx.arc(66 + (it.x - P.x) * c, 66 + (it.y - P.y) * c, 2, 0, 7); mctx.fill();
-    }
+  mctx.fillStyle = '#efe9da';
+  for (const m of marks.values()) {
+    const dx = m.x - px, dy = m.y - py;
+    if (Math.abs(dx) > R || Math.abs(dy) > R || !isSeen(m.x, m.y)) continue;
+    mctx.fillRect(ox + dx * c - 1, oy + dy * c - 1, 2, 2);
   }
+  forNearItems(P.x, P.y, it => {
+    if (it.t === 'candle' || it.t === 'bone' || collected.has(it.id)) return;
+    const ix = Math.floor(it.x), iy = Math.floor(it.y);
+    if (!isSeen(ix, iy)) return;
+    mctx.fillStyle = it.t === 'petal' ? '#ff3550' : it.t === 'oil' ? '#e39a3c' : it.t === 'keypart' ? '#e8d08a' : it.t === 'note' ? '#cdb98f' : '#9b927f';
+    mctx.beginPath(); mctx.arc(66 + (it.x - P.x) * c, 66 + (it.y - P.y) * c, 2, 0, 7); mctx.fill();
+  });
+  for (const b of beacons) { mctx.fillStyle = '#ffd27a'; mctx.beginPath(); mctx.arc(66 + (b.x - P.x) * c, 66 + (b.y - P.y) * c, 2.6, 0, 7); mctx.fill(); }
+  for (const f of fires) { mctx.fillStyle = '#ff7a2a'; mctx.beginPath(); mctx.arc(66 + (f.x - P.x) * c, 66 + (f.y - P.y) * c, 3, 0, 7); mctx.fill(); }
   if (exit) {
     let dx = (exit.x - P.x) * c, dy = (exit.y - P.y) * c; const d = Math.hypot(dx, dy);
     if (d > 58) { dx *= 58 / d; dy *= 58 / d; }
@@ -776,7 +1339,7 @@ function drawMini(t) {
     mctx.beginPath(); mctx.arc(66 + dx, 66 + dy, 4, 0, 7); mctx.fill();
   }
   mctx.translate(66, 66); mctx.rotate(P.a);
-  mctx.fillStyle = '#f2d39a'; mctx.beginPath(); mctx.moveTo(6, 0); mctx.lineTo(-4, -4); mctx.lineTo(-2, 0); mctx.lineTo(-4, 4); mctx.fill();
+  mctx.fillStyle = hidden ? '#8ea4d8' : '#f2d39a'; mctx.beginPath(); mctx.moveTo(6, 0); mctx.lineTo(-4, -4); mctx.lineTo(-2, 0); mctx.lineTo(-4, 4); mctx.fill();
   mctx.restore();
 }
 
@@ -784,41 +1347,143 @@ function drawMini(t) {
 const $ = id => document.getElementById(id);
 const PETAL_SVG = '<svg viewBox="0 0 20 20"><path d="M10 2 C15 5 16 12 10 18 C4 12 5 5 10 2 Z" fill="#c8213a" stroke="#ff8a9a" stroke-width=".8"/><path d="M10 5 C12 8 12 12 10 15" stroke="#7a0a1a" fill="none"/></svg>';
 $('petals').innerHTML = PETAL_SVG.repeat(NEED);
+$('buildN').textContent = BUILD;
 let toastT = 0;
 function toast(msg, sec) { const el = $('toast'); el.textContent = msg; el.classList.add('on'); toastT = sec || 3.5; }
+let fcardT = 0;
+function floorCard() {
+  $('fcN').textContent = 'Этаж ' + roman(FLOOR); $('fcT').textContent = TH.name;
+  $('fcard').classList.add('on'); fcardT = 4;
+}
+const uiC = new Map();
+function setTxt(el, v) { if (uiC.get(el) !== v) { uiC.set(el, v); el.textContent = v; } }
+function setHid(el, h) { if (el.hidden !== h) el.hidden = h; }
+function inNiche() { return nicheAt(Math.floor(P.x), Math.floor(P.y)) === 1; }
 function updHud() {
   const ps = $('petals').children;
   for (let i = 0; i < NEED; i++) ps[i].classList.toggle('got', i < P.petals);
   const fb = $('fuelbar'); fb.firstElementChild.style.width = P.fuel + '%'; fb.classList.toggle('low', P.fuel < 20);
   $('fear').style.opacity = (Math.min(100, P.fear) / 100) * 0.95;
-  for (let k = 0; k < 3; k++) { const el = $('p' + k); el.classList.toggle('has', inv.parts[k] > 0); el.lastElementChild.textContent = inv.parts[k]; }
-  const kc = $('keyc'); kc.classList.toggle('has', inv.keys > 0); kc.lastElementChild.textContent = inv.keys;
-  $('bCraft').hidden = !canCraft();
+  for (let k = 0; k < 3; k++) { const el = $('p' + k); el.classList.toggle('has', inv.parts[k] > 0); setTxt(el.lastElementChild, String(inv.parts[k])); }
+  const kc = $('keyc'); kc.classList.toggle('has', inv.keys > 0); setTxt(kc.lastElementChild, String(inv.keys));
+  setTxt($('flr'), 'Этаж ' + roman(FLOOR) + ' · ' + TH.name);
+  setTxt($('bChalk'), 'Мел ' + inv.chalk);
+  $('bCraft').classList.toggle('ready', RECIPES.some(canMake));
+  const nn = inNiche();
+  setHid($('bHide'), !(nn || hidden)); setTxt($('bHide'), hidden ? 'Выйти из ниши' : 'Спрятаться');
+  setHid($('bOil'), !inv.oil); setTxt($('bOil'), 'Масло ' + inv.oil);
+  setHid($('bBomb'), !inv.bomb); setTxt($('bBomb'), 'Бомба ' + inv.bomb);
+  setHid($('bCandle'), !inv.candle); setTxt($('bCandle'), 'Свеча ' + inv.candle);
+  setHid($('bTorch'), !inv.torch); setTxt($('bTorch'), 'Факел ' + inv.torch);
   const cp = $('compass');
   if (exit) {
     cp.classList.add('on');
     const rel = Math.atan2(exit.y - P.y, exit.x - P.x) - P.a;
     cp.firstElementChild.style.transform = 'rotate(' + rel + 'rad)';
-    $('cdist').textContent = '≈ ' + Math.round(Math.hypot(exit.x - P.x, exit.y - P.y)) + ' шагов';
+    setTxt($('cdist'), '≈ ' + Math.round(Math.hypot(exit.x - P.x, exit.y - P.y)) + ' шагов');
   } else cp.classList.remove('on');
 }
+
+/* ================= Ремесло ================= */
+const INAME = { oil: 'Масло', rag: 'Тряпка', bone: 'Кость', wax: 'Воск', wick: 'Фитиль', chalk: 'Мел', bomb: 'Огненная бомба', candle: 'Свеча-маячок', torch: 'Запасной факел', keys: 'Ключ', p0: 'Кольцо ключа', p1: 'Стержень ключа', p2: 'Бородка ключа' };
+const RECIPES = [
+  { id: 'key', name: 'Ключ', desc: 'Открывает одну запертую решётку. Через решётки можно срезать путь.', need: { p0: 1, p1: 1, p2: 1 }, out: 'keys' },
+  { id: 'bomb', name: 'Огненная бомба', desc: 'Летит вперёд и горит 15 секунд. Тень не переступает огонь и сгорает рядом со вспышкой.', need: { oil: 1, rag: 1 }, out: 'bomb' },
+  { id: 'torch', name: 'Запасной факел', desc: 'Сразу полный огонь, даже если сквозняк задул пламя.', need: { bone: 1, rag: 1 }, out: 'torch' },
+  { id: 'candle', name: 'Свеча-маячок', desc: 'Ставится на пол и горит две минуты. Тень не заходит в её свет, а на карте она видна издалека.', need: { wax: 1, wick: 1 }, out: 'candle' }
+];
+function have(k) { return k[0] === 'p' && k.length === 2 ? inv.parts[+k[1]] : inv[k]; }
+function take(k) { if (k[0] === 'p' && k.length === 2) inv.parts[+k[1]]--; else inv[k]--; }
+function canMake(r) { for (const k in r.need) if (have(k) < r.need[k]) return false; return true; }
+function make(id) {
+  const r = RECIPES.find(x => x.id === id); if (!r || !canMake(r)) return;
+  for (const k in r.need) take(k);
+  inv[r.out]++; Snd.forge(); setTimeout(() => Snd.clank(), 220); buzz([15, 30, 15]);
+  save(); renderCraft();
+}
+function renderCraft() {
+  const keys = ['p0', 'p1', 'p2', 'oil', 'rag', 'bone', 'wax', 'wick', 'chalk', 'keys', 'bomb', 'torch', 'candle'];
+  $('invGrid').innerHTML = keys.map(k => '<span class="chip' + (have(k) ? '' : ' zero') + '">' + INAME[k] + '<b>' + have(k) + '</b></span>').join('');
+  $('recList').innerHTML = RECIPES.map(r => {
+    const need = Object.keys(r.need).map(k => '<span class="' + (have(k) >= r.need[k] ? 'ok' : 'no') + '">' + INAME[k] + ' ' + have(k) + '/' + r.need[k] + '</span>').join(' · ');
+    return '<div class="rec"><h3>' + r.name + '</h3><p>' + r.desc + '</p><p class="need">' + need + '</p>' +
+      '<button class="btn small" data-make="' + r.id + '"' + (canMake(r) ? '' : ' disabled') + '>Сделать</button></div>';
+  }).join('');
+}
+$('recList').addEventListener('click', e => { const b = e.target.closest('[data-make]'); if (b) make(b.dataset.make); });
+function openCraft() { if (state !== 'play') return; state = 'craft'; releaseInput(); renderCraft(); show('craftS'); }
+
+/* ================= Использование предметов ================= */
+function pourOil(auto) {
+  if (!inv.oil || P.fuel >= 99) return;
+  inv.oil--; P.fuel = Math.min(100, P.fuel + 38); lowWarned = P.fuel < 20; darkWarned = false;
+  Snd.pour(); if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
+  toast(auto ? 'Пламя почти погасло, и ты подлил масла.' : 'Масло. Факел разгорается ярче.', 2.5); save();
+}
+function useTorch() {
+  if (!inv.torch) return;
+  inv.torch--; P.fuel = 100; lowWarned = darkWarned = false;
+  if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
+  if (hidden) unhide(true);
+  Snd.relight(); Snd.forge(); buzz(30); toast('Новый факел вспыхнул в полную силу.', 2.5); save();
+}
+function throwBomb() {
+  if (!inv.bomb || proj || hidden) return;
+  inv.bomb--; proj = { x: P.x, y: P.y, dx: Math.cos(P.a), dy: Math.sin(P.a), d: 0 };
+  Snd.whoosh(); buzz(15);
+}
+function explode(x, y) {
+  const fx = Math.floor(x) + 0.5, fy = Math.floor(y) + 0.5;
+  fires.push({ x: fx, y: fy, life: 15, crT: 0 });
+  Snd.boom({ x: fx, y: fy }); buzz(70);
+  if (SH.on && Math.hypot(SH.x - fx, SH.y - fy) < 3.2) dissolveShadow('Огонь охватил Тень, и она растаяла с визгом.');
+}
+function placeCandle() {
+  if (!inv.candle) return;
+  const x = Math.floor(P.x) + 0.5, y = Math.floor(P.y) + 0.5;
+  if (beacons.some(b => Math.hypot(b.x - x, b.y - y) < 0.5)) return toast('Здесь уже горит свеча.', 1.8);
+  inv.candle--; beacons.push({ x, y, life: 120 });
+  Snd.relight(); buzz(15); toast('Свеча-маячок горит. Тень не войдёт в её свет.', 2.5); save();
+}
+function hide() {
+  if (hidden || !inNiche()) return;
+  hidden = true; Snd.relight(); buzz(20);
+  toast('Ты прижался к камню и прикрыл огонь. Масло не тратится. Не двигайся.', 3);
+}
+function unhide(quiet) { if (!hidden) return; hidden = false; if (!quiet) { Snd.relight(); toast('Ты вышел из ниши.', 1.5); } }
 
 /* ================= Ввод ================= */
 const keys = {};
 let lookDX = 0, lookDY = 0, joy = null, look = null, mouseDrag = false;
 addEventListener('keydown', e => {
   keys[e.code] = true;
-  if (e.code === 'KeyC' && state === 'play') craft();
-  if (e.code === 'Escape' && state === 'play') pause();
-  if (e.code === 'KeyM' && state === 'play') toggleMap();
-  if (state === 'play' && e.code.startsWith('Arrow')) e.preventDefault();
+  if (state === 'play') {
+    if (e.code === 'Escape') pause();
+    else if (e.code === 'KeyM') toggleMap();
+    else if (e.code === 'KeyC') openCraft();
+    else if (e.code === 'KeyH') hidden ? unhide() : hide();
+    else if (e.code === 'KeyO') pourOil();
+    else if (e.code === 'KeyB') throwBomb();
+    else if (e.code === 'KeyV') placeCandle();
+    else if (e.code === 'KeyT') useTorch();
+    else if (e.code === 'KeyG') $('chalkPal').hidden = !$('chalkPal').hidden;
+    else if (/^Digit[1-4]$/.test(e.code)) placeMark(+e.code[5] - 1);
+    if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
+  } else if (state === 'craft' && (e.code === 'Escape' || e.code === 'KeyC')) closeOverlay();
+  else if (state === 'note' && (e.code === 'Escape' || e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); closeNote(); }
+  else if (state === 'journal' && e.code === 'Escape') closeJournal();
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
+function releaseInput() {
+  for (const k in keys) keys[k] = false;
+  if (document.pointerLockElement) document.exitPointerLock();
+  joy = look = null; joyEl.style.display = 'none'; $('chalkPal').hidden = true;
+}
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const isTouch = matchMedia('(pointer:coarse)').matches;
-cv.addEventListener('mousedown', e => {
+cv.addEventListener('mousedown', () => {
   if (state !== 'play' || isTouch) return;
-  mouseDrag = true;
+  mouseDrag = true; $('chalkPal').hidden = true;
   try { const p = cv.requestPointerLock && cv.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) {}
 });
 addEventListener('mouseup', () => { mouseDrag = false; });
@@ -826,12 +1491,10 @@ addEventListener('mousemove', e => {
   if (state !== 'play') return;
   if (document.pointerLockElement === cv || mouseDrag) { lookDX += e.movementX * 0.0024; lookDY += e.movementY * 0.0016; }
 });
-document.addEventListener('pointerlockchange', () => {
-  if (!document.pointerLockElement && state === 'play' && !isTouch) mouseDrag = false;
-});
 const joyEl = $('joy');
 cv.addEventListener('touchstart', e => {
   e.preventDefault(); if (state !== 'play') return;
+  $('chalkPal').hidden = true;
   for (const t of e.changedTouches) {
     if (!joy && t.clientX < innerWidth * 0.45) {
       joy = { id: t.identifier, ox: t.clientX, oy: t.clientY, x: 0, y: 0 };
@@ -868,6 +1531,8 @@ function tryMove(mx, my) {
   if (mx) { const nx = P.x + mx, ex = nx + Math.sign(mx) * r; if (!solid(ex, P.y - r * 0.9) && !solid(ex, P.y + r * 0.9)) P.x = nx; }
   if (my) { const ny = P.y + my, ey = ny + Math.sign(my) * r; if (!solid(P.x - r * 0.9, ey) && !solid(P.x + r * 0.9, ey)) P.y = ny; }
 }
+const PICK = new Set(['petal', 'keypart', 'oil', 'rag', 'bone', 'wax', 'wick', 'chalk', 'note']);
+const PICK_MSG = { rag: 'Тряпка. Пригодится для бомбы или факела.', bone: 'Кость. Из неё выйдет рукоять факела.', wax: 'Огарок воска. С фитилём выйдет свеча.', wick: 'Фитиль. С воском выйдет свеча.', oil: 'Склянка масла. Факел возьмёт её сам, когда начнёт гаснуть.' };
 function update(dt, t) {
   P.time += dt;
   let f = 0, s = 0, turn = 0;
@@ -878,6 +1543,8 @@ function update(dt, t) {
   if (keys.ArrowLeft || keys.KeyQ) turn -= 1;
   if (keys.ArrowRight || keys.KeyE) turn += 1;
   if (joy) { f -= joy.y; s += joy.x; }
+  if (hidden && (Math.abs(f) > 0.3 || Math.abs(s) > 0.3)) unhide();
+  if (hidden) { f = 0; s = 0; }
   P.a += turn * 2.3 * dt + lookDX; lookDX = 0;
   let pv = 0;
   if (keys.KeyR || keys.PageUp) pv += 1;
@@ -888,11 +1555,12 @@ function update(dt, t) {
   const ox = P.x, oy = P.y;
   tryMove((ca * f - sa * s) * sp, (sa * f + ca * s) * sp);
   const moved = Math.hypot(P.x - ox, P.y - oy);
+  moving = moved > 0.0005;
   P.dist += moved;
-  if (moved > 0.0005) { bobPh += moved * 7.5; stepAcc += moved; if (stepAcc > 0.7) { stepAcc = 0; Snd.step(); } }
+  if (moving) { bobPh += moved * 7.5; stepAcc += moved; if (stepAcc > 0.7) { stepAcc = 0; Snd.step(); } }
   bobY = Math.sin(bobPh) * Math.max(1, H / 150);
 
-  // решётки: упёрся в решётку — открываем ключом
+  // решётки
   if (f > 0.3) {
     const gx = Math.floor(P.x + ca * 0.75), gy = Math.floor(P.y + sa * 0.75);
     if (tile(gx, gy) === 5) {
@@ -900,87 +1568,111 @@ function update(dt, t) {
       if (inv.keys > 0) {
         inv.keys--; opened.add(id);
         getChunk(gx >> 4, gy >> 4).g[((gy & 15) << 4) | (gx & 15)] = 0;
-        Snd.clank(); toast('Ключ повернулся. Решётка поднялась.', 2.5); save();
+        Snd.clank(); buzz(40); toast('Ключ повернулся. Решётка поднялась.', 2.5); save();
       } else if (gateMsg !== id) {
         gateMsg = id;
-        toast(canCraft() ? 'Решётка заперта. Собери ключ из частей (кнопка «Собрать ключ» или C).' : 'Решётка заперта. Нужен ключ: кольцо, стержень и бородка.', 3.5);
+        toast(RECIPES[0] && canMake(RECIPES[0]) ? 'Решётка заперта. Собери ключ в «Ремесле».' : 'Решётка заперта. Нужен ключ: кольцо, стержень и бородка.', 3.5);
       }
     }
   }
 
   // факел
-  if (P.fuel > 0) {
-    P.fuel = Math.max(0, P.fuel - dt * 0.42);
-    if (P.fuel < 20 && !lowWarned) { lowWarned = true; toast('Факел слабеет. Ищи склянки с маслом в тупиках.'); }
-    if (P.fuel === 0 && !darkWarned) { darkWarned = true; toast('Факел погас. Тьма подбирается ближе.', 5); }
+  if (P.fuel > 0 && !hidden) {
+    P.fuel = Math.max(0, P.fuel - dt * 0.42 * (1 + 0.1 * (FLOOR - 1)));
+    if (P.fuel < 20 && !lowWarned) { lowWarned = true; if (!inv.oil) toast('Факел слабеет. Ищи склянки с маслом в тупиках.'); }
+    if (P.fuel === 0 && !darkWarned && !inv.oil) { darkWarned = true; toast('Факел погас. Тьма подбирается ближе.', 5); }
     if (blackDur <= 0) { crackT -= dt; if (crackT < 0) { crackT = 0.15 + Math.random() * 0.6; Snd.crackle(); } }
   }
-  // внезапная полная темнота
+  if (P.fuel < 10 && inv.oil > 0 && !hidden) pourOil(true);
+  // внезапная тьма
   if (blackDur > 0) {
     blackDur -= dt;
-    if (blackDur <= 0) { blackT = 40 + Math.random() * 45; if (P.fuel > 0) { Snd.relight(); toast('Пламя снова занялось.', 2); } }
+    if (blackDur <= 0) { blackT = blackInterval(); if (P.fuel > 0 && !hidden) { Snd.relight(); toast('Пламя снова занялось.', 2); } }
   } else {
     blackT -= dt;
     if (blackT < 1.4 && !preWarn) { preWarn = true; Snd.gust(); }
-    if (blackT <= 0) { preWarn = false; blackDur = 3 + Math.random() * 3; Snd.sputter(); if (P.fuel > 0) toast('Ледяной сквозняк задул пламя…', 3); }
-  }
-  const dark = P.fuel <= 0 || blackDur > 0;
-  if (P.fuel <= 0) P.fear += dt * 1.6;
-  else if (blackDur > 0) P.fear += dt * 2;
-  else P.fear = Math.max(0, P.fear - dt * 2.5);
-  if (dark) { heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); } }
-  flick = 0.9 + 0.06 * Math.sin(t * 13) + 0.04 * Math.sin(t * 29 + 1) + (Math.random() - 0.5) * 0.04;
-  if (preWarn) flick *= 0.4 + Math.random() * 0.6;
-  LR = blackDur > 0 ? 0.8 : P.fuel > 0 ? 2.4 + 5.4 * Math.sqrt(P.fuel / 100) : 1.35;
-  updShadow(dt, dark);
-  if (P.fear >= 100) return lose();
-  dripT -= dt; if (dripT < 0) { dripT = 3 + Math.random() * 7; Snd.drip(); }
-
-  // подбор предметов
-  const pcx = Math.floor(P.x) >> 4, pcy = Math.floor(P.y) >> 4;
-  for (let cy = pcy - 1; cy <= pcy + 1; cy++) for (let cx = pcx - 1; cx <= pcx + 1; cx++) {
-    for (const it of getChunk(cx, cy).items) {
-      if (collected.has(it.id) || (it.t !== 'petal' && it.t !== 'oil' && it.t !== 'keypart')) continue;
-      if (Math.hypot(it.x - P.x, it.y - P.y) > 0.6) continue;
-      if (it.t === 'oil' && P.fuel >= 98) continue;
-      collected.add(it.id);
-      if (it.t === 'petal') {
-        P.petals++; Snd.chime();
-        if (P.petals < NEED) toast('Лепесток Красной Розы. Осталось ' + (NEED - P.petals) + '.');
-        else if (!exit) spawnExit();
-      } else if (it.t === 'keypart') {
-        inv.parts[it.k]++; Snd.forge();
-        const nm = PART_NAMES[it.k];
-        toast('Найдено: ' + nm + '.' + (canCraft() ? ' Можно собрать ключ.' : ''), 3);
-      } else {
-        P.fuel = Math.min(100, P.fuel + 38); Snd.glug(); lowWarned = P.fuel < 20; darkWarned = false;
-        toast('Масло. Факел разгорается ярче.', 2.5);
-      }
-      save();
+    if (blackT <= 0) {
+      preWarn = false; blackDur = 3 + Math.random() * 3; Snd.sputter();
+      if (P.fuel > 0 && !hidden) { toast('Ледяной сквозняк задул пламя…', 3); buzz(120); }
     }
   }
-  if (exit && Math.hypot(exit.x - P.x, exit.y - P.y) < 0.65) return win();
+  const playerLit = lights.length && litAt(P.x, P.y);
+  const dark = (P.fuel <= 0 || blackDur > 0 || hidden) && !playerLit;
+  const shD = SH.on ? Math.hypot(SH.x - P.x, SH.y - P.y) : 99;
+  if (hidden) { if (shD < 3) P.fear += dt * 4; else P.fear = Math.max(0, P.fear - dt * 3); }
+  else if (playerLit) P.fear = Math.max(0, P.fear - dt * 4);
+  else if (P.fuel <= 0) P.fear += dt * 1.6;
+  else if (blackDur > 0) P.fear += dt * 2;
+  else P.fear = Math.max(0, P.fear - dt * 2.5);
+  if (dark || P.fear > 35) { heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); if (P.fear > 45) buzz(25); } }
+  flick = 0.9 + 0.06 * Math.sin(t * 13) + 0.04 * Math.sin(t * 29 + 1) + (Math.random() - 0.5) * 0.04;
+  if (preWarn) flick *= 0.4 + Math.random() * 0.6;
+  LR = hidden ? 1.1 : blackDur > 0 ? 0.8 : P.fuel > 0 ? 2.4 + 5.4 * Math.sqrt(P.fuel / 100) : 1.35;
+  updShadow(dt, dark);
+  if (P.fear >= 100) return lose();
+
+  // бомба и огонь
+  if (proj) {
+    const st = 7 * dt, nx = proj.x + proj.dx * st, ny = proj.y + proj.dy * st;
+    proj.d += st;
+    if (solid(nx, ny) || proj.d > 5.5) { explode(proj.x, proj.y); proj = null; }
+    else { proj.x = nx; proj.y = ny; }
+  }
+  for (const fr of fires) { fr.life -= dt; fr.crT -= dt; if (fr.crT < 0) { fr.crT = 0.12 + Math.random() * 0.25; Snd.crackle(fr); } }
+  fires = fires.filter(fr => fr.life > 0);
+  for (const b of beacons) b.life -= dt;
+  if (beacons.some(b => b.life <= 0)) { beacons = beacons.filter(b => b.life > 0); toast('Где-то догорела свеча-маячок.', 2.5); }
+
+  // подбор предметов
+  forNearItems(P.x, P.y, it => {
+    if (collected.has(it.id) || !PICK.has(it.t)) return;
+    if (Math.hypot(it.x - P.x, it.y - P.y) > 0.6) return;
+    collected.add(it.id);
+    if (it.t === 'petal') {
+      P.petals++; Snd.chime(); buzz([20, 40, 20]);
+      if (P.petals < NEED) toast('Лепесток Красной Розы. Осталось ' + (NEED - P.petals) + '.');
+      else if (!exit) spawnExit();
+    } else if (it.t === 'keypart') {
+      inv.parts[it.k]++; Snd.forge(); buzz(15);
+      toast('Найдено: ' + PART_NAMES[it.k] + '.' + (canMake(RECIPES[0]) ? ' Можно собрать ключ в «Ремесле».' : ''), 3);
+    } else if (it.t === 'chalk') {
+      inv.chalk += 8; Snd.forge(); toast('Кусок мела. Ещё 8 меток.', 2.5);
+    } else if (it.t === 'note') {
+      Snd.page(); save(); openNote(); return;
+    } else {
+      inv[it.t]++; Snd.forge(); buzz(10); toast(PICK_MSG[it.t], 2.8);
+    }
+    save();
+  });
+  if (state !== 'play') return;
+  if (exit && Math.hypot(exit.x - P.x, exit.y - P.y) < 0.65) return floorDone();
+
+  // звуки мира
+  dripT -= dt;
+  if (dripT < 0) { dripT = TH.water ? 1.2 + Math.random() * 3 : 3 + Math.random() * 7; const a = Math.random() * 6.28, r = 2 + Math.random() * 6; Snd.drip({ x: P.x + Math.cos(a) * r, y: P.y + Math.sin(a) * r }); }
+  if (exit) { humT -= dt; if (humT < 0) { humT = 3.2; Snd.roseHum(exit); } }
+  if (TH.erase) {
+    beatT -= dt; if (beatT < 0) { beatT = 1.7; Snd.rootBeat(); }
+    eraseT -= dt;
+    if (eraseT < 0) {
+      eraseT = 45 + Math.random() * 35;
+      const far = [...marks.entries()].filter(([, m]) => Math.hypot(m.x + 0.5 - P.x, m.y + 0.5 - P.y) > 5);
+      if (far.length) { eraseMark(far[(Math.random() * far.length) | 0][0]); toast('Корни шевельнулись. Где-то за спиной стёрлась метка мелом.', 3.5); save(); }
+    }
+  }
 
   markSeen();
   saveT -= dt; if (saveT < 0) { saveT = 5; save(); }
-  if (chunks.size > 120) for (const [k, c] of chunks) if (Math.abs(c.cx - pcx) > 3 || Math.abs(c.cy - pcy) > 3) chunks.delete(k);
+  const pcx = Math.floor(P.x) >> 4, pcy = Math.floor(P.y) >> 4;
+  if (chunks.size > 120) { for (const [k, c] of chunks) if (Math.abs(c.cx - pcx) > 3 || Math.abs(c.cy - pcy) > 3) chunks.delete(k); lcx = lcy = 1e9; }
   if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('toast').classList.remove('on'); }
-}
-
-/* ================= Крафт ================= */
-function canCraft() { return inv.parts[0] > 0 && inv.parts[1] > 0 && inv.parts[2] > 0; }
-function craft() {
-  if (!canCraft()) return;
-  for (let k = 0; k < 3; k++) inv.parts[k]--;
-  inv.keys++; Snd.forge(); setTimeout(() => Snd.clank(), 250);
-  toast('Ключ собран. Он откроет одну решётку в стене — так можно срезать путь.', 3.5);
-  save();
+  if (fcardT > 0) { fcardT -= dt; if (fcardT <= 0) $('fcard').classList.remove('on'); }
 }
 
 /* ================= Тень ================= */
 const RW = 22, WD = 2 * RW + 1, field = new Int16Array(WD * WD), fq = new Int32Array(WD * WD);
 let fox = 0, foy = 0, fieldT = 0;
-function shPass(x, y) { const t = tile(x, y); return t === 0 || t === 5; }   // Тень проходит сквозь решётки
+function shPass(x, y) { const t = tile(x, y); return t === 0 || t === 5; }
 function buildField() {
   const px = Math.floor(P.x), py = Math.floor(P.y);
   fox = px - RW; foy = py - RW; field.fill(-1);
@@ -999,101 +1691,221 @@ function spawnShadow() {
   for (let i = 0; i < WD * WD; i++) {
     const d = field[i]; if (d < 16 || d > 34) continue;
     const x = fox + i % WD, y = foy + ((i / WD) | 0);
-    if ((x & 1) && (y & 1)) cand.push(x, y);
+    if ((x & 1) && (y & 1) && !litAt(x + 0.5, y + 0.5)) cand.push(x, y);
   }
   if (!cand.length) return false;
   const k = ((Math.random() * cand.length / 2) | 0) * 2;
-  SH.cx = SH.tx = cand[k]; SH.cy = SH.ty = cand[k + 1]; SH.x = SH.cx + 0.5; SH.y = SH.cy + 0.5;
-  SH.on = true; SH.life = 30 + Math.random() * 25;
+  SH.cx = SH.tx = SH.px = cand[k]; SH.cy = SH.ty = SH.py = cand[k + 1]; SH.x = SH.cx + 0.5; SH.y = SH.cy + 0.5;
+  SH.on = true; SH.life = 30 + Math.random() * 25; SH.rolled = false; SH.leaving = false;
   return true;
+}
+function dissolveShadow(msg) {
+  Snd.hiss({ x: SH.x, y: SH.y }); SH.on = false; SH.spawnT = 12 + Math.random() * 10;
+  if (msg) toast(msg, 2.5);
+}
+function touchShadow() {
+  P.fear += 40; if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
+  Snd.scream(); buzz([80, 60, 160]); toast('Тень прошла сквозь тебя. Холод сжал сердце.', 3.5);
+  SH.on = false; SH.spawnT = 18 + Math.random() * 15;
 }
 function updShadow(dt, dark) {
   fieldT -= dt; if (fieldT <= 0) { fieldT = 0.3; buildField(); }
-  if (!SH.on) { SH.spawnT -= dt * (dark ? 3 : 1); if (SH.spawnT <= 0 && !spawnShadow()) SH.spawnT = 3; return; }
+  if (!SH.on) {
+    let rate = dark ? 3 : 1; if (TH.hear && moving) rate *= 2;
+    SH.spawnT -= dt * rate; if (SH.spawnT <= 0 && !spawnShadow()) SH.spawnT = 3;
+    return;
+  }
   SH.life -= dt;
   const pd = fieldAt(SH.cx, SH.cy);
-  if (pd < 0 || (SH.life <= 0 && !dark)) { SH.on = false; SH.spawnT = 15 + Math.random() * 25; return; }
-  if (!dark && pd < LR * 0.5) {   // свет обжигает Тень
-    SH.on = false; SH.spawnT = 12 + Math.random() * 10; Snd.hiss(); toast('Тень зашипела и растаяла в свете факела.', 2.5); return;
-  }
-  const edge = LR + 1.5;
-  const mode = dark ? 1 : pd > edge + 2 ? 1 : pd < edge ? -1 : 0;   // охота / отступить / караулить у края света
-  const speed = dark ? 2.2 : mode < 0 ? 2.4 : 1.1;
+  if (pd < 0 || (SH.life <= 0 && (!dark || SH.leaving))) { SH.on = false; SH.spawnT = 15 + Math.random() * 25; return; }
+  if (litAt(SH.x, SH.y)) return dissolveShadow('Тень зашипела и растаяла в свете.');
+  if (!dark && !hidden && pd < LR * 0.5) return dissolveShadow('Тень зашипела и растаяла в свете факела.');
+  let mode;
+  if (SH.leaving) mode = -1;
+  else if (hidden) mode = 2;
+  else if (dark) mode = 1;
+  else { const edge = LR + 1.5; mode = pd > edge + 2 ? 1 : pd < edge ? -1 : 0; }
+  let speed;
+  if (mode === 1 && dark) speed = Math.min(2.45, 2.2 + 0.06 * (FLOOR - 1) + (TH.hear && moving ? 0.12 : 0));
+  else if (mode === -1) speed = SH.leaving ? 1.4 : 2.4;
+  else if (mode === 2) speed = 1.0;
+  else speed = 1.1;
   const gx = SH.tx + 0.5, gy = SH.ty + 0.5, dx = gx - SH.x, dy = gy - SH.y, dl = Math.hypot(dx, dy);
   if (dl < 0.04) {
-    SH.cx = SH.tx; SH.cy = SH.ty;
+    SH.px = SH.cx; SH.py = SH.cy; SH.cx = SH.tx; SH.cy = SH.ty;
     if (mode !== 0) {
-      let bd = pd, best = null;
+      const opts = [];
       for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        const n = fieldAt(SH.cx + ox, SH.cy + oy); if (n < 0) continue;
-        if (mode > 0 ? n < bd : n > bd) { bd = n; best = [SH.cx + ox, SH.cy + oy]; }
+        const nx = SH.cx + ox, ny = SH.cy + oy, n = fieldAt(nx, ny);
+        if (n < 0 || litAt(nx + 0.5, ny + 0.5)) continue;
+        opts.push([nx, ny, n]);
+      }
+      let best = null;
+      if (mode === 2) {
+        if (Math.random() < 0.55) { for (const o of opts) if (o[2] < pd && (!best || o[2] < best[2])) best = o; }
+        if (!best && opts.length) { const nb = opts.filter(o => o[0] !== SH.px || o[1] !== SH.py); const pool = nb.length ? nb : opts; best = pool[(Math.random() * pool.length) | 0]; }
+      } else {
+        let bd = pd;
+        for (const o of opts) if (mode > 0 ? o[2] < bd : o[2] > bd) { bd = o[2]; best = o; }
       }
       if (best) { SH.tx = best[0]; SH.ty = best[1]; }
     }
   } else { const st = Math.min(dl, speed * dt); SH.x += dx / dl * st; SH.y += dy / dl * st; }
 
-  const ed = Math.hypot(SH.x - P.x, SH.y - P.y);
+  const ed = Math.hypot(SH.x - P.x, SH.y - P.y), pos = { x: SH.x, y: SH.y };
   if (ed < 0.55) {
-    P.fear += 40; if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
-    Snd.scream(); toast('Тень прошла сквозь тебя. Холод сжал сердце.', 3.5);
-    SH.on = false; SH.spawnT = 18 + Math.random() * 15; return;
+    if (hidden) {
+      if (!SH.rolled) {
+        SH.rolled = true;
+        if (Math.random() < 0.22 + 0.03 * (FLOOR - 1)) { unhide(true); touchShadow(); return; }
+        SH.leaving = true; SH.life = Math.min(SH.life, 7); buzz(30);
+        toast('Тень замерла рядом… и прошла мимо.', 3);
+      }
+    } else if (!SH.leaving) { touchShadow(); return; }
   }
-  if (ed < 3) P.fear += dt * 4;
+  if (ed < 3 && !hidden) P.fear += dt * 4;
   SH.whisT -= dt;
-  if (ed < 10 && SH.whisT <= 0) { SH.whisT = 1 + Math.random() * 1.8; Snd.whisper((1 - ed / 10) * (dark ? 1 : 0.5)); }
-  if (dark && ed < 9 && !SH.seenMsg) { SH.seenMsg = true; toast('Что-то движется в темноте…', 3); }
+  if (ed < 12 && SH.whisT <= 0) { SH.whisT = 1 + Math.random() * 1.8; Snd.whisper((1 - ed / 12) * (dark ? 1 : 0.5), pos); }
+  SH.slT -= dt;
+  if (ed < 14 && SH.slT <= 0 && dl >= 0.04) { SH.slT = 0.55 + Math.random() * 0.3; Snd.slither(pos); }
+  if (dark && ed < 9 && !SH.seenMsg) { SH.seenMsg = true; toast('Что-то движется в темноте… Слушай, с какой стороны.', 3); }
 }
 
+/* ================= Записки ================= */
+let noteFrom = 'play';
+function showNote(idx, from) {
+  noteFrom = from;
+  const [text, by] = NOTES[idx];
+  $('nText').textContent = '«' + text + '»'; $('nBy').textContent = '— ' + by;
+  $('nNum').textContent = 'Записка ' + (idx + 1) + ' из ' + NOTES.length;
+  $('bNoteClose').textContent = from === 'journal' ? 'К списку' : 'Дальше';
+  state = 'note'; show('noteS');
+}
+function openNote() {
+  releaseInput();
+  let idx = -1;
+  for (let i = 0; i < NOTES.length; i++) if (!meta.notes.includes(i)) { idx = i; break; }
+  if (idx < 0) idx = (Math.random() * NOTES.length) | 0;
+  else { meta.notes.push(idx); saveMeta(); }
+  showNote(idx, 'play');
+}
+function closeNote() {
+  if (noteFrom === 'journal') return openJournal(journalFrom);
+  state = 'play'; show(null); last = performance.now();
+}
+let journalFrom = 'menu';
+function openJournal(from) {
+  journalFrom = from || 'menu';
+  const read = meta.notes.slice().sort((a, b) => a - b);
+  $('jCount').textContent = 'Прочитано ' + read.length + ' из ' + NOTES.length;
+  $('jList').innerHTML = read.map(i => '<button data-n="' + i + '"><i>' + (i + 1) + '.</i>' + NOTES[i][0].split(/[.:]/)[0] + '…</button>').join('');
+  state = 'journal'; show('journalS');
+}
+$('jList').addEventListener('click', e => { const b = e.target.closest('[data-n]'); if (b) showNote(+b.dataset.n, 'journal'); });
+function closeJournal() { state = 'pause'; show('menu'); menuState(); }
+
 /* ================= Экраны ================= */
-function show(id) { for (const s of ['menu', 'win', 'lose']) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
-function play() { state = 'play'; show(null); Snd.init(); last = performance.now(); }
+const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS'];
+function show(id) { for (const s of SCREENS) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
+let wake = null;
+function play() {
+  state = 'play'; show(null); Snd.init(); last = performance.now();
+  try { if (navigator.wakeLock && !wake) navigator.wakeLock.request('screen').then(w => { wake = w; w.addEventListener('release', () => { wake = null; }); }).catch(() => {}); } catch (e) {}
+}
+function closeOverlay() { state = 'play'; show(null); last = performance.now(); }
+function menuState() {
+  $('bJournal').hidden = !meta.notes.length;
+  $('bVib').textContent = 'Вибрация: ' + (meta.vib ? 'вкл' : 'выкл');
+  const b = $('best'); b.hidden = !meta.best; b.textContent = 'Глубже всего: этаж ' + roman(meta.best || 1);
+}
 function pause() {
-  state = 'pause'; save();
-  if (document.pointerLockElement) document.exitPointerLock();
-  joy = look = null; joyEl.style.display = 'none';
+  state = 'pause'; save(); releaseInput();
   $('bResume').hidden = false; $('bCont').hidden = true; $('bNew').textContent = 'Новый замок';
-  show('menu');
+  menuState(); show('menu');
 }
 function fmt(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return m + ':' + String(s).padStart(2, '0'); }
 function statsHTML() {
-  return '<dt>Время</dt><dd>' + fmt(P.time) + '</dd><dt>Пройдено</dt><dd>' + Math.round(P.dist) + ' шагов</dd><dt>Лепестки</dt><dd>' + P.petals + ' из ' + NEED + '</dd>';
+  return '<dt>Этаж</dt><dd>' + roman(FLOOR) + ' · ' + TH.name + '</dd><dt>Время</dt><dd>' + fmt(P.time) + '</dd><dt>Пройдено</dt><dd>' + Math.round(P.dist) + ' шагов</dd>' +
+    '<dt>Записки</dt><dd>' + meta.notes.length + ' из ' + NOTES.length + '</dd>';
 }
-function endGame(id, el) {
-  state = id; clearSave();
-  if (document.pointerLockElement) document.exitPointerLock();
-  joy = look = null; joyEl.style.display = 'none';
-  $(el).innerHTML = statsHTML(); show(id);
+function floorDone() {
+  state = 'descend'; releaseInput(); Snd.descend(); buzz([40, 80, 40, 80, 200]);
+  meta.best = Math.max(meta.best || 0, FLOOR + 1); saveMeta();
+  const next = THEMES[FLOOR % THEMES.length];
+  $('dTitle').textContent = 'Этаж ' + roman(FLOOR) + ' пройден';
+  $('dLore').textContent = 'Роза раскрылась, и камень под ногами ушёл вниз. ' + next.enter;
+  $('dStats').innerHTML = statsHTML();
+  $('bDescend').textContent = 'Спуститься на этаж ' + roman(FLOOR + 1);
+  show('descend'); save();
 }
-function win() { Snd.win(); endGame('win', 'winStats'); }
-function lose() { endGame('lose', 'loseStats'); }
-function startNew() { newGame(); save(); play(); toast('Найди пять лепестков Красной Розы. Береги огонь.', 5); }
+function descend() {
+  setFloor(FLOOR + 1); resetFloorState();
+  P.fuel = Math.min(100, P.fuel + 25); lowWarned = P.fuel < 20; darkWarned = false;
+  save(); play(); floorCard();
+}
+function lose() {
+  state = 'lose'; releaseInput(); clearSave();
+  meta.best = Math.max(meta.best || 0, FLOOR); saveMeta();
+  $('loseStats').innerHTML = statsHTML() + '<dt>Рекорд</dt><dd>этаж ' + roman(meta.best) + '</dd>';
+  show('lose');
+}
+function startNew() {
+  newGame(); save(); play(); floorCard();
+  toast('Найди пять лепестков Красной Розы. Береги огонь.', 5);
+}
 $('bNew').onclick = startNew;
-$('bAgainW').onclick = startNew;
 $('bAgainL').onclick = startNew;
+$('bDescend').onclick = descend;
 $('bResume').onclick = play;
-$('bCont').onclick = () => { const s = loadSave(); if (s) { restore(s); play(); toast('Ты снова в замке.', 2.5); } else startNew(); };
+$('bCont').onclick = () => { const s = loadSave(); if (s) { restore(s); play(); floorCard(); } else startNew(); };
 $('bPause').onclick = pause;
+$('bJournal').onclick = () => openJournal('menu');
+$('bJClose').onclick = closeJournal;
+$('bNoteClose').onclick = closeNote;
+$('bCraftClose').onclick = closeOverlay;
+$('bVib').onclick = () => { meta.vib = !meta.vib; saveMeta(); menuState(); if (meta.vib) buzz(30); };
 function toggleMap() { showMap = !showMap; mini.style.display = showMap ? '' : 'none'; }
 $('bMap').onclick = toggleMap;
-$('bCraft').onclick = craft;
+$('bCraft').onclick = openCraft;
+$('bHide').onclick = () => { hidden ? unhide() : hide(); };
+$('bOil').onclick = () => pourOil();
+$('bBomb').onclick = throwBomb;
+$('bCandle').onclick = placeCandle;
+$('bTorch').onclick = useTorch;
+$('bChalk').onclick = () => { $('chalkPal').hidden = !$('chalkPal').hidden; };
+$('chalkPal').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) placeMark(+b.dataset.s); });
+
+/* ================= PWA ================= */
+let installEvt = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('bInstall').hidden = false; });
+$('bInstall').onclick = () => { if (!installEvt) return; installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('bInstall').hidden = true; }); };
+try {
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && window.self === window.top)
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+} catch (e) {}
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pause(); });
 
 /* ================= Цикл ================= */
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   const t = now / 1000;
-  if (state === 'play') { update(dt, t); updHud(); if (showMap) drawMini(t); }
+  lights = gatherLights(t);
+  if (state === 'play') { update(dt, t); if (state === 'play') { updHud(); if (showMap) drawMini(t); } }
   else { flick = 0.92 + 0.05 * Math.sin(t * 11); }
   render(t);
   requestAnimationFrame(frame);
 }
-
 function boot(data) {
   const s = (data && data.save) || loadSave();
   if (s) { restore(s); $('bCont').hidden = false; $('bNew').textContent = 'Новый замок'; }
   else newGame();
+  menuState();
   requestAnimationFrame(frame);
 }
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ save: serialize() })); } catch (e) {}
 (window.claude && window.claude.hot && window.claude.hot.ready) ? window.claude.hot.ready(boot) : boot((window.claude && window.claude.hot && window.claude.hot.data) || {});
 </script>
+
+</body>
+</html>
