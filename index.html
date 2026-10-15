@@ -143,6 +143,12 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 .jlist button{font-family:var(--f-body);font-size:15px;text-align:left;color:var(--ash);background:rgba(255,255,255,.03);
   border:1px solid rgba(201,189,168,.14);padding:10px 12px;cursor:pointer;line-height:1.35}
 .jlist button i{color:var(--dim);font-style:normal;margin-right:8px;font-variant-numeric:tabular-nums}
+.upd{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 16px;border:1px solid #8a6a2a;background:rgba(48,32,8,.55);width:min(320px,100%)}
+.upd p{margin:0;font-size:15px;color:#f0d79a}
+#updPill{position:absolute;left:50%;top:calc(66px + env(safe-area-inset-top,0px));transform:translateX(-50%);pointer-events:auto;
+  font-family:var(--f-body);font-size:14px;color:#f0d79a;background:rgba(40,26,6,.85);border:1px solid #8a6a2a;padding:7px 14px;cursor:pointer;
+  box-shadow:0 0 12px rgba(226,145,63,.35);white-space:nowrap}
+#updPill:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
 #iosSw{position:fixed;left:-200px;top:0;opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){#toast,.bar i,#fear,#fcard{transition:none}.parch{transform:none}}
 </style>
@@ -178,6 +184,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
     </div>
   </div>
   <div id="fcard"><b id="fcN"></b><span id="fcT"></span></div>
+  <button id="updPill" hidden>Новая версия · Обновить</button>
   <div id="toast"></div>
   <div class="act">
     <div id="chalkPal" hidden>
@@ -203,6 +210,10 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
     <p class="sub">Лабиринт замка Розенхолл</p>
     <p class="lore">Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она откроет путь глубже. Держись ближе к огню: в темноте бродит Тень.</p>
     <p class="best" id="best" hidden></p>
+    <div class="upd" id="updBox" hidden>
+      <p id="updText">Вышла новая версия игры</p>
+      <button class="btn small" id="bUpdate">Обновить</button>
+    </div>
     <div class="btns">
       <button class="btn" id="bResume" hidden>Вернуться в замок</button>
       <button class="btn" id="bCont" hidden>Продолжить</button>
@@ -270,7 +281,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 
 <script>
 'use strict';
-const BUILD = 'R001.004';
+const BUILD = 'R001.005';
 /* ================= Константы и хеш ================= */
 const S = 16, N = 8, NEED = 5;
 let BASE = 1, SEED = 1, FLOOR = 1, TH = null;
@@ -1933,10 +1944,50 @@ updFs();
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('bInstall').hidden = false; });
 $('bInstall').onclick = () => { if (!installEvt) return; installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('bInstall').hidden = true; }); };
+// Обновления: новый sw.js ждёт, пока игрок не нажмёт «Обновить»
+let swReg = null, updWorker = null, reloading = false;
+function swVersion(w) {
+  return new Promise(res => {
+    try {
+      const ch = new MessageChannel(), tm = setTimeout(() => res(null), 1500);
+      ch.port1.onmessage = e => { clearTimeout(tm); res(e.data); };
+      w.postMessage({ type: 'version' }, [ch.port2]);
+    } catch (e) { res(null); }
+  });
+}
+async function onWaiting(w) {
+  const v = await swVersion(w);
+  if (v === 'redrose-' + BUILD) { w.postMessage('skipWaiting'); return; }   // страница уже новая, просто включаем новый кэш
+  updWorker = w;
+  const nb = v ? v.replace('redrose-', '') : '';
+  $('updText').textContent = 'Вышла новая версия игры' + (nb ? ' ' + nb : '') + '. Прогресс сохранится.';
+  $('updBox').hidden = false; $('updPill').hidden = false;
+  if (state === 'play') toast('Вышла новая версия игры. Нажми «Обновить» вверху.', 4);
+}
+function applyUpdate() {
+  save(); reloading = true;
+  try { sessionStorage.setItem('redrose_updated', '1'); } catch (e) {}
+  if (updWorker) updWorker.postMessage('skipWaiting'); else location.reload();
+  setTimeout(() => location.reload(), 2500);
+}
+$('bUpdate').onclick = applyUpdate;
+$('updPill').onclick = applyUpdate;
 try {
-  if ('serviceWorker' in navigator && location.protocol === 'https:' && window.self === window.top)
-    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  if ('serviceWorker' in navigator && window.isSecureContext && window.self === window.top) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloading) location.reload(); });
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(reg => {
+      swReg = reg;
+      if (reg.waiting && navigator.serviceWorker.controller) onWaiting(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (nw) nw.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) onWaiting(nw); });
+      });
+      setInterval(() => { if (!document.hidden) reg.update().catch(() => {}); }, 15 * 60 * 1000);
+    }).catch(() => {}));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && swReg) swReg.update().catch(() => {}); });
+  }
 } catch (e) {}
+try { if (sessionStorage.getItem('redrose_updated')) { sessionStorage.removeItem('redrose_updated'); setTimeout(() => { const b = $('best'); b.hidden = false; b.textContent = 'Игра обновлена до ' + BUILD + '. Нажми «Продолжить».'; }, 0); } } catch (e) {}
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pause(); });
 
 /* ================= Цикл ================= */
