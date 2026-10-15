@@ -60,6 +60,9 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:
 .inv svg{width:18px;height:18px}
 .inv b{font-weight:400;color:var(--ash)}
 .inv .keyc b{color:#e8c070}
+.trc{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.fsb{display:flex;align-items:center;justify-content:center;padding:6px;min-width:36px}
+.fsb svg{width:20px;height:20px}
 #mini{width:132px;height:132px;border:1px solid rgba(201,189,168,.18);background:rgba(5,4,8,.55);border-radius:50%}
 .ibtn{pointer-events:auto;font-family:var(--f-body);font-size:14px;color:var(--ash);background:rgba(10,8,12,.66);
   border:1px solid rgba(201,189,168,.25);padding:6px 11px;cursor:pointer;min-height:36px;font-variant-numeric:tabular-nums}
@@ -167,9 +170,12 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
   </div>
   <div id="compass"><svg viewBox="0 0 32 32"><path d="M16 2 L24 26 L16 21 L8 26 Z" fill="#d42a40" stroke="#ffb3bd" stroke-width="1"/></svg><span id="cdist"></span></div>
   <div class="tr">
-    <button class="ibtn" id="bMap" aria-label="Показать или скрыть карту">Карта</button>
     <canvas id="mini" width="132" height="132"></canvas>
-    <button class="ibtn" id="bPause" aria-label="Пауза">Пауза</button>
+    <div class="trc">
+      <button class="ibtn" id="bPause" aria-label="Пауза">Пауза</button>
+      <button class="ibtn" id="bMap" aria-label="Показать или скрыть карту">Карта</button>
+      <button class="ibtn fsb" id="bFs" aria-label="На весь экран" title="На весь экран" hidden></button>
+    </div>
   </div>
   <div id="fcard"><b id="fcN"></b><span id="fcT"></span></div>
   <div id="toast"></div>
@@ -202,6 +208,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
       <button class="btn" id="bCont" hidden>Продолжить</button>
       <button class="btn" id="bNew">Войти в замок</button>
       <button class="btn ghost small" id="bJournal" hidden>Записки узников</button>
+      <button class="btn ghost small" id="bFsMenu" hidden>На весь экран</button>
       <button class="btn ghost small" id="bVib">Вибрация: вкл</button>
       <button class="btn ghost small" id="bInstall" hidden>Установить на устройство</button>
     </div>
@@ -244,6 +251,14 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
   </div>
 </div>
 
+<div class="screen" id="fsHint">
+  <div class="panel">
+    <h2>На весь экран</h2>
+    <p class="lore">Safari на iPhone не умеет разворачивать сайты на весь экран. Добавь игру на экран «Домой»: кнопка «Поделиться» внизу Safari, затем «На экран „Домой“». С иконки Red Rose откроется без панелей браузера, и прогресс сохранится.</p>
+    <div class="btns"><button class="btn ghost" id="bFsHintClose">Понятно</button></div>
+  </div>
+</div>
+
 <div class="screen" id="journalS">
   <div class="panel">
     <h2>Записки узников</h2>
@@ -255,7 +270,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 
 <script>
 'use strict';
-const BUILD = 'R001.003';
+const BUILD = 'R001.004';
 /* ================= Константы и хеш ================= */
 const S = 16, N = 8, NEED = 5;
 let BASE = 1, SEED = 1, FLOOR = 1, TH = null;
@@ -1805,11 +1820,12 @@ $('jList').addEventListener('click', e => { const b = e.target.closest('[data-n]
 function closeJournal() { state = 'pause'; show('menu'); menuState(); }
 
 /* ================= Экраны ================= */
-const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS'];
+const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint'];
 function show(id) { for (const s of SCREENS) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
 let wake = null;
 function play() {
   state = 'play'; show(null); Snd.init(); last = performance.now();
+  if (isTouch && fsSupported() && !isFs() && !isStandalone()) enterFs(true);
   try { if (navigator.wakeLock && !wake) navigator.wakeLock.request('screen').then(w => { wake = w; w.addEventListener('release', () => { wake = null; }); }).catch(() => {}); } catch (e) {}
 }
 function closeOverlay() { state = 'play'; show(null); last = performance.now(); }
@@ -1874,6 +1890,44 @@ $('bCandle').onclick = placeCandle;
 $('bTorch').onclick = useTorch;
 $('bChalk').onclick = () => { $('chalkPal').hidden = !$('chalkPal').hidden; };
 $('chalkPal').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) placeMark(+b.dataset.s); });
+
+/* ================= Полноэкранный режим ================= */
+const docEl = document.documentElement;
+const FS_IN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>';
+const FS_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg>';
+function fsSupported() { return !!(docEl.requestFullscreen || docEl.webkitRequestFullscreen); }
+function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function isStandalone() { try { return matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } }
+let fsFailed = false;
+function enterFs(auto) {
+  const fn = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+  if (!fn) return;
+  const fail = () => { fsFailed = true; updFs(); if (!auto) toast('Браузер не дал развернуть игру. Открой её с сайта kryukovmikhail.github.io/redrose.', 4); };
+  try { const r = fn.call(docEl, { navigationUI: 'hide' }); if (r && r.catch) r.catch(fail); } catch (e) { fail(); }
+}
+function exitFs() {
+  const fn = document.exitFullscreen || document.webkitExitFullscreen;
+  try { const r = fn && fn.call(document); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+}
+function toggleFs() {
+  if (isFs()) exitFs();
+  else if (fsSupported()) enterFs(false);
+  else if (isIOS) { if (state === 'play') pause(); show('fsHint'); }
+}
+function updFs() {
+  const fs = isFs(), can = !isStandalone() && (fsSupported() || isIOS);
+  const hb = $('bFs'), mb = $('bFsMenu');
+  hb.hidden = !can || (fsFailed && !fs); mb.hidden = !can || fs || (fsFailed && !isIOS);
+  hb.innerHTML = fs ? FS_OUT : FS_IN;
+  const lbl = fs ? 'Выйти из полноэкранного режима' : 'На весь экран';
+  hb.setAttribute('aria-label', lbl); hb.title = lbl;
+}
+document.addEventListener('fullscreenchange', () => { updFs(); resize(); });
+document.addEventListener('webkitfullscreenchange', () => { updFs(); resize(); });
+$('bFs').onclick = toggleFs;
+$('bFsMenu').onclick = () => { if (fsSupported()) enterFs(false); else show('fsHint'); };
+$('bFsHintClose').onclick = () => { menuState(); show('menu'); };
+updFs();
 
 /* ================= PWA ================= */
 let installEvt = null;

@@ -1,5 +1,5 @@
 // Red Rose — офлайн-кэш. Меняйте VERSION при каждом релизе.
-const VERSION = 'redrose-R001.003';
+const VERSION = 'redrose-R001.004';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
