@@ -1,5 +1,5 @@
 // Red Rose — офлайн-кэш и обновления. VERSION поднимается при каждом релизе (build.py делает это сам).
-const VERSION = 'redrose-R001.006';
+const VERSION = 'redrose-R001.007';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
 // Новая версия скачивается заранее и ждёт: игра покажет «Обновить», и только по нажатию она включится.

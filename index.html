@@ -143,6 +143,28 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 .jlist button{font-family:var(--f-body);font-size:15px;text-align:left;color:var(--ash);background:rgba(255,255,255,.03);
   border:1px solid rgba(201,189,168,.14);padding:10px 12px;cursor:pointer;line-height:1.35}
 .jlist button i{color:var(--dim);font-style:normal;margin-right:8px;font-variant-numeric:tabular-nums}
+.sets{display:flex;flex-direction:column;gap:10px;width:100%;text-align:left}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;padding:10px 12px;border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6)}
+.row>span{font-size:15px;min-width:0}
+.row input[type=range]{width:min(220px,100%);accent-color:var(--rose)}
+.row input[type=range]:focus-visible{outline:2px solid var(--ember);outline-offset:3px}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font-family:var(--f-body);font-size:14px;color:var(--ash);background:transparent;border:1px solid rgba(201,189,168,.25);padding:6px 10px;cursor:pointer;min-height:34px}
+.seg button.on{color:#f3e6d2;background:linear-gradient(#3a0d16,#22070d);border-color:#8e2233}
+.seg button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.chal{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.chal div{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:10px 12px;border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6)}
+.chal div.done{border-color:#7a6a2a;background:rgba(48,36,8,.5)}
+.chal i{font-style:normal;grid-row:1 / span 2;font-size:18px;color:var(--dim)}
+.chal div.done i{color:#f0d79a}
+.chal b{font-weight:400;font-size:15px}
+.chal small{font-size:13px;color:var(--dim)}
+#tip{position:absolute;left:50%;top:calc(112px + env(safe-area-inset-top,0px));transform:translateX(-50%);width:max-content;max-width:min(80vw,460px);
+  padding:9px 14px;font-size:15px;line-height:1.4;color:#e8e0cf;background:rgba(14,18,30,.84);border:1px solid #4d5c80;opacity:0;transition:opacity .4s;pointer-events:none}
+#tip.on{opacity:1}
+#tip b{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9fb8d8;font-weight:400;margin-bottom:2px}
+body.joyR .act{right:auto;left:calc(12px + env(safe-area-inset-left,0px));justify-content:flex-start}
+body.joyR #chalkPal{right:auto;left:0}
 .gifts{display:grid;gap:8px;width:100%}
 .gift{display:flex;flex-direction:column;gap:3px;text-align:left;font-family:var(--f-body);cursor:pointer;padding:12px 14px;
   color:var(--ash);background:linear-gradient(rgba(60,10,20,.55),rgba(30,6,12,.6));border:1px solid #6e1a27}
@@ -194,6 +216,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
   </div>
   <div id="fcard"><b id="fcN"></b><span id="fcT"></span></div>
   <button id="updPill" hidden>Новая версия · Обновить</button>
+  <div id="tip"><b>Подсказка</b><span id="tipT"></span></div>
   <div id="toast"></div>
   <div class="act">
     <div id="chalkPal" hidden>
@@ -228,12 +251,14 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
       <button class="btn" id="bCont" hidden>Продолжить</button>
       <button class="btn" id="bNew">Войти в замок</button>
       <button class="btn ghost small" id="bJournal" hidden>Записки узников</button>
+      <button class="btn ghost small" id="bChal">Испытания</button>
+      <button class="btn ghost small" id="bSet">Настройки</button>
       <button class="btn ghost small" id="bFsMenu" hidden>На весь экран</button>
-      <button class="btn ghost small" id="bVib">Вибрация: вкл</button>
       <button class="btn ghost small" id="bInstall" hidden>Установить на устройство</button>
     </div>
     <div class="help desk">WASD — идти · Shift — тихий шаг · мышь — оглядываться · R / F — вверх и вниз · ← → — поворот<br>C — ремесло · H — спрятаться в нише · 1–4 — мел · O масло · B бомба · V свеча · T факел<br>M — карта · Esc — пауза · щёлкни по экрану, чтобы захватить мышь</div>
     <div class="help touch">Левый палец — идти, лёгкое касание — тихий шаг · правый палец — оглядываться<br>Кнопки справа внизу — мел, ремесло и предметы</div>
+    <div class="help">Геймпад: левый стик — идти (слегка — тихо) · правый — обзор · A спрятаться · B бомба · X свеча · Y ремесло · LB масло · RB факел · крестовина — мел · Start — пауза</div>
   </div>
 </div>
 
@@ -248,11 +273,54 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
   </div>
 </div>
 
+<div class="screen" id="truthS">
+  <div class="panel">
+    <h2>Вся правда</h2>
+    <p class="lore">Ты прочёл их всех: Мартина, Агнессу, брата Ульриха, Йохана. И теперь понимаешь. Изольда не умерла. Граф отдал её Розе, чтобы она жила вечно, и Роза сдержала слово: Сердце замка — это её сердце. А Тень на краю света — сам граф. Он так и не решился войти в огонь, чтобы забрать её назад.</p>
+    <p class="lore">Три шипа в твоей руке. Сердце бьётся медленно, будто ждёт.</p>
+    <div class="btns">
+      <button class="btn" id="bTruthStop">Остановить Сердце</button>
+      <button class="btn ghost" id="bTruthStay">Занять её место</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="setS">
+  <div class="panel">
+    <h2>Настройки</h2>
+    <div class="sets">
+      <label class="row" for="sSens"><span>Чувствительность обзора</span><input type="range" id="sSens" min="0.4" max="2" step="0.1"></label>
+      <label class="row" for="sFx"><span>Громкость звуков</span><input type="range" id="sFx" min="0" max="1" step="0.05"></label>
+      <label class="row" for="sAmb"><span>Фоновый гул</span><input type="range" id="sAmb" min="0" max="1" step="0.05"></label>
+      <div class="row"><span>Качество картинки</span><div class="seg" id="sQ"><button data-v="auto">Авто</button><button data-v="low">Низкое</button><button data-v="mid">Среднее</button><button data-v="high">Высокое</button></div></div>
+      <div class="row"><span>Джойстик на телефоне</span><div class="seg" id="sJoy"><button data-v="left">Слева</button><button data-v="right">Справа</button></div></div>
+      <div class="row"><span>Инверсия вертикали</span><div class="seg" id="sInv"><button data-v="0">Нет</button><button data-v="1">Да</button></div></div>
+      <div class="row"><span>Вибрация</span><div class="seg" id="sVib"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
+      <div class="row"><span>Подсказки</span><div class="seg" id="sTips"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
+    </div>
+    <div class="btns">
+      <button class="btn ghost small" id="bTipsReset">Показать подсказки заново</button>
+      <button class="btn ghost" id="bSetClose">Готово</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="chalS">
+  <div class="panel">
+    <h2>Испытания</h2>
+    <p class="sub" id="chalCount"></p>
+    <div class="chal" id="chalList"></div>
+    <p class="help">За каждое испытание открывается дар, который можно взять с собой в начале нового забега.</p>
+    <div class="btns"><button class="btn ghost" id="bChalClose">Назад</button></div>
+  </div>
+</div>
+
 <div class="screen" id="endS">
   <div class="panel">
-    <h2>Сердце замка</h2>
-    <p class="lore">Ты вонзаешь три шипа в живое, тёплое сердце. Удар. Ещё один, тише. Тишина. Корни разжимаются, стены оседают, и впервые за всё это время сквозняк пахнет не камнем, а травой. Где-то наверху открылась дверь, которой не было.</p>
-    <p class="lore">Ты выбрался из замка Розенхолл.</p>
+    <h2 id="endTitle">Сердце замка</h2>
+    <p class="lore" id="endLore1"></p>
+    <p class="lore" id="endLore2"></p>
+    <p class="help" id="endHint" hidden></p>
     <dl class="stats" id="endStats"></dl>
     <p class="credits">Red Rose · игра Михаила Крюкова</p>
     <div class="btns">
@@ -306,7 +374,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 
 <script>
 'use strict';
-const BUILD = 'R001.006';
+const BUILD = 'R001.007';
 const FINAL = 8;   // этаж с Сердцем замка
 /* ================= Константы и хеш ================= */
 const S = 16, N = 8, NEED = 5;
@@ -594,6 +662,132 @@ const TEX_GROWN = mk((x, y) => {
   return pack(c[0], c[1], c[2]);
 });
 
+// --- V. Библиотека графа
+const BOOKC = [[112, 24, 22], [34, 64, 40], [88, 58, 30], [30, 38, 74], [142, 106, 40], [72, 20, 42], [62, 46, 32], [96, 90, 70]];
+function makeBooks(seed, gaps) {
+  const rows = [];
+  for (let r = 0; r < 4; r++) {
+    const arr = new Array(64); let x = 2, id = 0;
+    while (x < 62) {
+      const w = 2 + Math.floor(nz(r, id, seed) * 4), h = 3 + Math.floor(nz(id, r, seed + 1) * 5);
+      const c = BOOKC[Math.floor(nz(r * 7 + id, 3, seed + 2) * BOOKC.length)], gap = gaps && nz(id, r, seed + 3) < 0.16;
+      for (let k = 0; k < w && x < 62; k++, x++) arr[x] = { c, h, gap, w, k };
+      id++;
+    }
+    rows.push(arr);
+  }
+  return mk((x, y) => {
+    const r = y >> 4, ly = y & 15;
+    if (ly < 2 || x < 2 || x > 61) { const k = 0.8 + nz(x, y, seed + 9) * 0.3 - (ly === 1 ? 0.25 : 0); return pack(72 * k, 45 * k, 24 * k); }
+    const b = rows[r][x], top = 9 - b.h;
+    if (b.gap || ly < top) return pack(14, 10, 8);
+    const k = 0.7 + 0.3 * Math.sin((b.k + 0.5) / b.w * Math.PI);
+    if (ly === top + 2 || ly === 13) return pack(172 * k, 132 * k, 60 * k);
+    return pack(b.c[0] * k, b.c[1] * k, b.c[2] * k);
+  });
+}
+const TEX_BOOKS = makeBooks(1, false), TEX_BOOKS2 = makeBooks(5, true);
+const FL_CARPET = mk((x, y) => {
+  const u = (x & 15) - 8, v = (y & 15) - 8, d = Math.abs(u) + Math.abs(v), k = 0.85 + nz(x, y, 60) * 0.25;
+  if (d === 7) return pack(130 * k, 96 * k, 40 * k);
+  if (d < 3) return pack(40 * k, 18 * k, 30 * k);
+  return pack(78 * k, 16 * k, 22 * k);
+});
+// --- VI. Часовня
+function ashlarRGB(x, y, sd) {
+  const row = y >> 4, off = (row & 1) * 16, lx = (x + off) & 31, ly = y & 15;
+  if (lx === 0 || ly === 0) return [58, 56, 54];
+  const k = 118 + nz(((x + off) & 63) >> 5, row, 61 + sd) * 26 + (nz(x, y, 62 + sd) - 0.5) * 10 - (lx === 31 || ly === 15 ? 14 : 0);
+  return [k * 1.02, k, k * 0.95];
+}
+const TEX_ASHLAR = mk((x, y) => { const c = ashlarRGB(x, y, 0); return pack(c[0], c[1], c[2]); });
+const GLASS = [[190, 30, 40], [40, 70, 190], [210, 160, 40], [40, 140, 70], [120, 40, 150]];
+const TEX_STAINED = mk((x, y) => {
+  const dx = x - 32, inW = (y >= 22 && y <= 60 && Math.abs(dx) <= 15) || (y < 22 && y >= 5 && (Math.abs(dx) + (22 - y) * 0.9) <= 15);
+  const rim = (y >= 20 && y <= 62 && Math.abs(dx) <= 18) || (y < 20 && y >= 2 && (Math.abs(dx) + (22 - y) * 0.9) <= 19);
+  if (inW) {
+    if (Math.abs(dx) <= 0 || x % 7 === 0 || y % 7 === 0) return pack(22, 20, 18);
+    const c = GLASS[Math.floor(nz((x / 7) | 0, (y / 7) | 0, 63) * GLASS.length)], k = 0.8 + nz(x, y, 64) * 0.35;
+    return pack(c[0] * k, c[1] * k, c[2] * k);
+  }
+  const c = ashlarRGB(x, y, 1);
+  return rim ? pack(c[0] * 1.15, c[1] * 1.15, c[2] * 1.12) : pack(c[0], c[1], c[2]);
+});
+const TEX_RELIEF = mk((x, y) => {
+  const c = ashlarRGB(x, y, 2), dx = x - 32, dy = y - 30;
+  const cross = (Math.abs(dx) <= 3 && dy >= -18 && dy <= 22) || (Math.abs(dy + 6) <= 3 && Math.abs(dx) <= 13);
+  if (cross) { const edge = (Math.abs(dx) === 3 && Math.abs(dy + 6) > 3) || (Math.abs(dy + 6) === 3 && Math.abs(dx) > 3); return pack(c[0] * (edge ? 0.7 : 1.22), c[1] * (edge ? 0.7 : 1.2), c[2] * (edge ? 0.7 : 1.15)); }
+  return pack(c[0], c[1], c[2]);
+});
+const TEX_ASHMOSS = mk((x, y) => {
+  const c = ashlarRGB(x, y, 3), m = nz(x >> 2, y >> 2, 65) * 0.6 + nz(x, y, 66) * 0.4 + y / 120;
+  if (m > 0.86) { const k = 0.5 + nz(x, y, 67) * 0.5; return pack(40 * k + 12, 66 * k + 12, 34 * k + 8); }
+  return pack(c[0] * 0.9, c[1] * 0.9, c[2] * 0.88);
+});
+const FL_MARBLE = mk((x, y) => {
+  const dark = ((x >> 4) + (y >> 4)) & 1, vein = Math.abs(Math.sin(x * 0.2 + y * 0.13 + Math.sin(y * 0.3) * 2)) < 0.06;
+  let k = dark ? 34 : 150; k += (nz(x, y, 68) - 0.5) * 10; if (vein) k += dark ? 20 : -30;
+  if ((x & 15) === 0 || (y & 15) === 0) k = 60;
+  return pack(k, k * 0.98, k * 0.95);
+});
+const CE_STARS = mk((x, y) => {
+  if (Math.abs(x - y) < 1 || Math.abs(x + y - 63) < 1) return pack(70, 62, 50);
+  if (nz(x, y, 69) > 0.985) return pack(220, 180, 80);
+  return pack(16 + nz(x >> 2, y >> 2, 70) * 6, 20, 46);
+});
+// --- VII. Кухни и погреба
+function brickRGB(x, y, sd) {
+  const row = y >> 3, off = (row & 1) * 8, lx = (x + off) & 15, ly = y & 7;
+  if (lx === 0 || ly === 0) return [30, 24, 20];
+  const k = 0.75 + nz(((x + off) & 63) >> 4, row, 71 + sd) * 0.35 + (nz(x, y, 72 + sd) - 0.5) * 0.12;
+  return [96 * k, 50 * k, 34 * k];
+}
+const TEX_SOOT = mk((x, y) => { const c = brickRGB(x, y, 0), s = 0.45 + 0.55 * (y / 63) + (nz(x >> 2, y >> 3, 73) - 0.5) * 0.2; return pack(c[0] * s, c[1] * s, c[2] * s); });
+const TEX_POTS = mk((x, y) => {
+  if ((y >= 29 && y <= 31) || y >= 61) return pack(64, 40, 22);
+  for (const [cx, cy, r] of [[12, 22, 7], [32, 23, 6], [51, 21, 8], [20, 52, 8], [44, 53, 7]]) {
+    const dx = x - cx, dy = y - cy, d = dx * dx + dy * dy * 1.3;
+    if (d < r * r) { const k = 0.7 + 0.5 * Math.max(0, -dx / r) + (d < 3 ? 0.4 : 0); return pack(160 * k, 84 * k, 42 * k); }
+    if (Math.abs(dy + r * 0.8) <= 0.6 && Math.abs(dx) <= r * 0.6) return pack(90, 50, 26);
+  }
+  const c = brickRGB(x, y, 1); return pack(c[0] * 0.7, c[1] * 0.7, c[2] * 0.7);
+});
+function hearthTex(hot) {
+  return mk((x, y) => {
+    if (y >= 13 && y <= 18) { const k = 0.8 + nz(x, y, 74) * 0.3; return pack(80 * k, 50 * k, 26 * k); }
+    const dx = x - 32, inA = y >= 22 && Math.abs(dx) <= 19 && !(y < 28 && Math.abs(dx) > 19 - (28 - y));
+    if (inA) {
+      if (y >= 52) {
+        const n = nz(x, y, 75);
+        if (hot) return n > 0.7 ? pack(200, 96 + n * 50, 24) : n > 0.4 ? pack(130, 40, 12) : pack(60 + n * 40, 18, 8);
+        return pack(60 + n * 30, 58 + n * 28, 54 + n * 26);
+      }
+      if (hot) {
+        const w = 10 - (52 - y) * 0.42 + Math.sin(y * 0.7 + x * 0.9) * 2.2;
+        if (y > 34 && Math.abs(dx) < w) {
+          const core = Math.abs(dx) < w * 0.45, n = 0.8 + nz(x, y, 80) * 0.25;
+          return core ? pack(220 * n, (140 + (y - 34) * 2) * n, 50 * n) : pack(180 * n, 70 * n, 20 * n);
+        }
+      }
+      const k = 10 + (y - 22) * 0.4; return pack(k * 1.3, k, k * 0.8);
+    }
+    const c = brickRGB(x, y, 2), s = hot ? 1 : 0.8; return pack(c[0] * s, c[1] * s, c[2] * s);
+  });
+}
+const TEX_HEARTH = hearthTex(true), TEX_HEARTH_COLD = hearthTex(false);
+const TEX_BARRELS = mk((x, y) => {
+  const lx = (x & 31) - 15.5, ly = (y & 31) - 15.5, d = Math.sqrt(lx * lx + ly * ly);
+  if (d > 15) return pack(14, 10, 8);
+  if (d > 13.5 || (d > 8.5 && d < 9.6)) return pack(46, 40, 36);
+  const k = 0.75 + 0.15 * Math.sin(lx * 0.9 + nz(x >> 5, y >> 5, 76) * 6) + nz(x, y, 77) * 0.12;
+  return pack(98 * k, 64 * k, 36 * k);
+});
+const FL_TERRA = mk((x, y) => {
+  if ((x & 15) === 0 || (y & 15) === 0) return pack(40, 30, 24);
+  const k = 0.75 + nz(x >> 4, y >> 4, 78) * 0.3 + (nz(x, y, 79) - 0.5) * 0.1;
+  return pack(132 * k, 66 * k, 40 * k);
+});
+
 /* ================= Этажи (темы) ================= */
 const THEMES = [
   { name: 'Покои графа', tint: [1, 0.84, 0.62], w: [0.6, 0.8, 0.9], gate: 0.06, oil: 1, bone: 0.6,
@@ -612,17 +806,34 @@ const THEMES = [
     tex: [0, TEX_EARTH, TEX_ROOTSTONE, TEX_VEINS, TEX_DENSE], floor: FL_EARTH, ceil: CE_ROOTS,
     enter: 'Стены теплеют, сквозь камень лезут корни. Метки мелом здесь долго не живут. Внизу бьётся что-то большое.' }
 ];
+THEMES.push(
+  { name: 'Библиотека графа', tint: [1, 0.82, 0.6], w: [0.55, 0.85, 0.93], gate: 0.05, oil: 0.9, bone: 0.5, note: 3, shift: 1,
+    tex: [0, TEX_BOOKS, TEX_BOOKS2, TEX_TAPESTRY, TEX_WAINSCOT], floor: FL_CARPET, ceil: CE_BEAMS,
+    enter: 'Лестница выводит в библиотеку графа. Шкафы здесь стоят не там, где стояли минуту назад.',
+    intro: 'Книжные шкафы сдвигаются сами, и коридоры библиотеки меняются. Метки мелом помогут не потеряться. Записок здесь больше.' },
+  { name: 'Часовня', tint: [0.95, 0.88, 0.75], w: [0.55, 0.72, 0.86], gate: 0.06, oil: 1, bone: 0.8, altar: 1, weak: 1,
+    tex: [0, TEX_ASHLAR, TEX_STAINED, TEX_RELIEF, TEX_ASHMOSS], floor: FL_MARBLE, ceil: CE_STARS,
+    enter: 'Внизу пахнет воском и ладаном. Замковая часовня, где отпевали графиню.',
+    intro: 'У алтарей Тень слабеет и не может подойти, а страх уходит. Отдыхай у них, прежде чем идти дальше.' },
+  { name: 'Кухни и погреба', tint: [1, 0.8, 0.55], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.3, bone: 1.4, wax: 3, wick: 3, candle: 2, hearth: 1,
+    tex: [0, TEX_SOOT, TEX_POTS, TEX_HEARTH, TEX_BARRELS], floor: FL_TERRA, ceil: CE_BEAMS,
+    enter: 'Тянет копотью и старым жиром. Кухни и погреба замка: масла здесь почти нет, зато воска хоть отбавляй.',
+    intro: 'Масла почти нет, но очаги ещё тлеют: упрись в очаг, чтобы подпалить факел. Каждый очаг — только раз.' }
+);
 for (const th of THEMES) {
   const w = [['petal', 0.13], ['keypart', 0.09], ['oil', 0.13 * th.oil], ['rag', 0.08], ['bone', 0.06 * th.bone],
-    ['wax', 0.05], ['wick', 0.05], ['chalk', 0.04], ['note', 0.05]];
+    ['wax', 0.05 * (th.wax || 1)], ['wick', 0.05 * (th.wick || 1)], ['chalk', 0.04], ['note', 0.05 * (th.note || 1)], ['altar', 0.1 * (th.altar || 0)]];
   let acc = 0; th.dead = w.map(([t, p]) => [t, acc += p]);
-  th.corr = [['bone', acc = 0.025 * th.bone], ['oil', acc += 0.015 * th.oil], ['candle', acc += 0.015]];
+  th.corr = [['bone', acc = 0.025 * th.bone], ['oil', acc += 0.015 * th.oil], ['candle', acc += 0.015 * (th.candle || 1)]];
 }
+// I–VIII: четыре старые темы дважды; дальше новые вперемешку со старыми
+const DEEP_ORDER = [4, 5, 6, 1, 2, 3, 0];
+function themeFor(f) { return f <= 8 ? THEMES[(f - 1) % 4] : THEMES[DEEP_ORDER[(f - 9) % DEEP_ORDER.length]]; }
 
 /* ================= Генерация бесконечного лабиринта ================= */
 // Тайлы: 0 пол, 1–4 стены темы, 5 запертая решётка
 const chunks = new Map();
-let opened = new Set(), marks = new Map(), grown = new Set();
+let opened = new Set(), marks = new Map(), grown = new Set(), ovr = new Map(), usedHearth = new Set();
 function genChunk(cx, cy) {
   const g = new Uint8Array(S * S).fill(1), nic = new Uint8Array(S * S);
   const r = rng(h32(cx, cy, 7));
@@ -689,6 +900,11 @@ function genChunk(cx, cy) {
     if (t) items.push({ x: wx + 0.5, y: wy + 0.5, t, id: wx + ',' + wy, k: h32(wx, wy, 21) % 3 });
     else if (open === 1 && v2 < 0.5) nic[y * S + x] = 1;
   }
+  if (hall && TH.altar) {
+    const wx = cx * S + hall.x + 2, wy = cy * S + hall.y + 2, id = wx + ',' + wy;
+    const ex = items.findIndex(it => it.id === id); if (ex >= 0) items.splice(ex, 1);
+    items.push({ x: wx + 0.5, y: wy + 0.5, t: 'altar', id });
+  }
   if (hall) {
     for (let n = 0; n < 3; n++) {
       const x = hall.x + 2 * ((r() * 3) | 0), y = hall.y + 2 * ((r() * 3) | 0);
@@ -707,6 +923,10 @@ function getChunk(cx, cy) {
       if (c.g[i] === 5 && opened.has((cx * S + (i & 15)) + ',' + (cy * S + (i >> 4)))) c.g[i] = 0;
     if (grown.size) for (let i = 0; i < S * S; i++)
       if (c.g[i] === 0 && grown.has((cx * S + (i & 15)) + ',' + (cy * S + (i >> 4)))) c.g[i] = 6;
+    if (ovr.size) for (let i = 0; i < S * S; i++) {
+      const v = ovr.get((cx * S + (i & 15)) + ',' + (cy * S + (i >> 4)));
+      if (v !== undefined) c.g[i] = v;
+    }
     for (const m of marks.values()) if ((m.x >> 4) === cx && (m.y >> 4) === cy) c.marks.set(((((m.y & 15) << 4) | (m.x & 15)) << 2) | m.f, maskFor(m.s, m.n));
     chunks.set(key, c);
   }
@@ -891,6 +1111,16 @@ const SPR = {
     g.fillStyle = '#6a3a12'; g.beginPath(); g.arc(16, 18, 6, 0, 7); g.fill();
     g.fillStyle = '#ffd27a'; g.beginPath(); g.ellipse(16, 9, 2.5, 4, 0, 0, 7); g.fill();
   }),
+  altar: sprite(g => {
+    glow(g, 9, 14, 8, 'rgba(255,180,80,0.5)'); glow(g, 23, 14, 8, 'rgba(255,180,80,0.5)');
+    g.fillStyle = '#8a857c'; g.fillRect(4, 20, 24, 12);
+    g.fillStyle = '#a7a296'; g.fillRect(3, 19, 26, 3);
+    g.fillStyle = '#7a1420'; g.fillRect(10, 22, 12, 10);
+    g.fillStyle = '#c8a24a'; g.fillRect(15.5, 23, 1, 6); g.fillRect(13.5, 25, 5, 1);
+    g.fillStyle = '#e6d6b2'; g.fillRect(8, 13, 2.5, 6); g.fillRect(22, 13, 2.5, 6);
+    g.fillStyle = '#ffd27a'; g.beginPath(); g.ellipse(9.2, 11, 1.4, 2.4, 0, 0, 7); g.ellipse(23.2, 11, 1.4, 2.4, 0, 0, 7); g.fill();
+    g.fillStyle = '#c8a24a'; g.fillRect(15, 6, 2, 13); g.fillRect(12, 9, 8, 2);
+  }),
   jailer: sprite(g => {
     glow(g, 25, 24, 8, 'rgba(255,200,90,0.5)');
     g.fillStyle = '#2a221c'; g.beginPath(); g.moveTo(9, 9); g.lineTo(23, 9); g.lineTo(26, 28); g.lineTo(6, 28); g.closePath(); g.fill();
@@ -959,6 +1189,7 @@ const DEF = {
   chalk: { sz: 0.3, lift: 0, emit: 0.15 }, note: { sz: 0.36, lift: 0, emit: 0.3 },
   fire: { sz: 0.85, lift: 0, emit: 1 }, bombp: { sz: 0.24, lift: 0.45, emit: 1 },
   shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
+  altar: { sz: 0.75, lift: 0, emit: 0.6 },
   jailer: { sz: 1.15, lift: 0, emit: 0, hot: 1 },
   drowned: { sz: 1.05, lift: 0, emit: 0 },
   thorn: { sz: 0.46, lift: 0.08, emit: 0.55, bob: 1 },
@@ -974,7 +1205,8 @@ const Snd = {
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
     const c = this.c = new AC();
-    this.m = c.createGain(); this.m.gain.value = 0.85; this.m.connect(c.destination);
+    this.m = c.createGain(); this.m.gain.value = meta.set.fx; this.m.connect(c.destination);
+    this.amb = c.createGain(); this.amb.gain.value = meta.set.amb; this.amb.connect(c.destination);
     const d = c.createDelay(1); d.delayTime.value = 0.21;
     const fb = c.createGain(); fb.gain.value = 0.42;
     const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1600;
@@ -1006,14 +1238,14 @@ const Snd = {
   },
   ambient() {
     const c = this.c;
-    const mkO = (f, v) => { const o = c.createOscillator(); o.frequency.value = f; const g = c.createGain(); g.gain.value = v; o.connect(g); g.connect(this.m); o.start(); return g; };
+    const mkO = (f, v) => { const o = c.createOscillator(); o.frequency.value = f; const g = c.createGain(); g.gain.value = v; o.connect(g); g.connect(this.amb); o.start(); return g; };
     mkO(49, 0.05); const g2 = mkO(73.6, 0.022);
     const l = c.createOscillator(); l.frequency.value = 0.07; const lg = c.createGain(); lg.gain.value = 0.018; l.connect(lg); lg.connect(g2.gain); l.start();
     const n = c.createBufferSource(); n.buffer = this.nb; n.loop = true;
     const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 240;
     const ng = c.createGain(); ng.gain.value = 0.09;
     const l2 = c.createOscillator(); l2.frequency.value = 0.11; const l2g = c.createGain(); l2g.gain.value = 0.06; l2.connect(l2g); l2g.connect(ng.gain); l2.start();
-    n.connect(f); f.connect(ng); ng.connect(this.m); n.start();
+    n.connect(f); f.connect(ng); ng.connect(this.amb); n.start();
   },
   noise(freq, q, peak, dur, wet, type, pos) {
     if (!this.c) return;
@@ -1041,6 +1273,7 @@ const Snd = {
   thornChime(pos) { this.tone(1046, 1046, 'sine', 0.12, 0.9, 0.7, 0, pos); this.tone(1568, 1568, 'sine', 0.05, 0.7, 0.7, 0.05, pos); },
   heartBig(pos) { this.tone(58, 34, 'sine', 1.2, 0.26, 0.4, 0, pos); this.tone(52, 30, 'sine', 0.9, 0.26, 0.4, 0.24, pos); },
   burn() { this.noise(1400, 0.5, 0.25, 0.35, 0.3, 'bandpass'); this.crackle(); },
+  grind(pos) { this.noise(160, 1.2, 0.9, 1.4, 0.6, 'bandpass', pos); this.noise(420, 3, 0.25, 1.2, 0.5, 'bandpass', pos); this.tone(70, 55, 'sawtooth', 0.06, 1.3, 0.5, 0, pos); },
   ending() { [262, 330, 392, 523, 659].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 3, 0.7, i * 0.35)); },
   drip(pos) { this.tone(1500 + Math.random() * 600, 480, 'sine', 0.09, 0.09, 0.9, 0, pos); },
   crackle(pos) { this.noise(2600, 0.8, pos ? 0.08 : 0.035, 0.02, 0, 'highpass', pos); },
@@ -1078,7 +1311,12 @@ const Snd = {
 const iosSw = document.getElementById('iosSw');
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 function buzz(p) {
-  if (!meta.vib) return;
+  if (!meta.set.vib) return;
+  if (lastInput === 'pad') {
+    try { const g = getPad(); const ms = Array.isArray(p) ? p.reduce((a, b) => a + b, 0) : p;
+      if (g && g.vibrationActuator) g.vibrationActuator.playEffect('dual-rumble', { duration: Math.min(400, ms), strongMagnitude: 0.7, weakMagnitude: 0.4 }).catch(() => {}); } catch (e) {}
+    return;
+  }
   try { if (navigator.vibrate && !isIOS) { navigator.vibrate(p); return; } } catch (e) {}
   if (isIOS) { try { iosSw.click(); } catch (e) {} }
 }
@@ -1110,6 +1348,9 @@ const META_KEY = 'redrose_meta_v1';
 let meta = { notes: [], best: 0, vib: true };
 try { const m = JSON.parse(localStorage.getItem(META_KEY) || 'null'); if (m) meta = Object.assign(meta, m); } catch (e) {}
 function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} }
+const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, q: 'auto', joy: 'left', vib: true, tips: true };
+meta.set = Object.assign({}, SET0, meta.set || {});
+if (meta.vib === false) { meta.set.vib = false; delete meta.vib; }
 
 /* ================= Состояние ================= */
 const P = { x: 1.5, y: 1.5, a: 0, pitch: 0, fuel: 100, petals: 0, fear: 0, time: 0, dist: 0, gifts: [], ended: false };
@@ -1153,8 +1394,45 @@ const MON = { on: false, kind: null, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, px:
 let trail = [], lastCell = '', growT = 1, burnT = 0, stillT = 0, anchor = { x: 0, y: 0 }, growMsg = false, grabMsg = false, burnMsg = false;
 let thorns = [], thornT = 2, noiseR = 0, pulseR = 0, pulseT = 0, sneak = false;
 function makeNoise(r) { pulseR = Math.max(pulseR, r); pulseT = 0.6; }
+let hearths = [], hearthT = 0, shiftT = 25, shiftMsg = false;
+// статистика этажа для испытаний
+let FS = { hid: false, poured: false, caught: false, woke: false, t0: 0 };
+
+/* ---------- Испытания ---------- */
+const CHALLENGES = [
+  { id: 'nohide', name: 'Пройти этаж III или глубже, ни разу не спрятавшись в нише', gift: 'brave' },
+  { id: 'dark', name: 'Пройти этаж III или глубже, ни разу не подлив масла', gift: 'longburn' },
+  { id: 'fast', name: 'Пройти этаж II или глубже быстрее чем за 4 минуты', gift: 'swift' },
+  { id: 'jailer', name: 'Пройти Темницы, не попавшись Тюремщику', gift: 'gatebreak' },
+  { id: 'silent', name: 'Пройти Склепы, не разбудив Утопленника', gift: 'quiet' },
+  { id: 'nobomb', name: 'Дойти до Сердца замка, не бросив ни одной бомбы', gift: 'keen' },
+  { id: 'deep', name: 'Спуститься на XII этаж', gift: 'ember' },
+  { id: 'scholar', name: 'Прочитать все записки узников', gift: 'petalsight' }
+];
+function chDone(id) {
+  if (!meta.ch) meta.ch = {};
+  if (meta.ch[id]) return;
+  meta.ch[id] = true; saveMeta();
+  const c = CHALLENGES.find(x => x.id === id), g = GIFTS.find(x => x.id === c.gift);
+  setTimeout(() => toast('Испытание пройдено: «' + c.name + '». Новый дар на старте: ' + g.name + '.', 6), 600);
+}
+
+/* ---------- Подсказки ---------- */
+let tipQ = [], tipT = 0, lastInput = matchMedia('(pointer:coarse)').matches ? 'touch' : 'kb';
+function ctl(kb, touch, pad) { return lastInput === 'pad' ? pad : lastInput === 'touch' ? touch : kb; }
+function tip(id, text) {
+  if (!meta.set.tips) return;
+  if (!meta.tips) meta.tips = {};
+  if (meta.tips[id]) return;
+  meta.tips[id] = 1; saveMeta();
+  tipQ.push(text);
+}
+function updTips(dt) {
+  if (tipT > 0) { tipT -= dt; if (tipT <= 0) $('tip').classList.remove('on'); return; }
+  if (tipQ.length && state === 'play') { $('tipT').textContent = tipQ.shift(); $('tip').classList.add('on'); tipT = 6.5; }
+}
 function setFloor(f) {
-  FLOOR = f; SEED = floorSeed(BASE, f); TH = THEMES[(f - 1) % THEMES.length];
+  FLOOR = f; SEED = floorSeed(BASE, f); TH = themeFor(f);
   chunks.clear(); lcx = lcy = 1e9;
 }
 function resetFloorState() {
@@ -1162,33 +1440,37 @@ function resetFloorState() {
   collected = new Set(); exit = null; seen = new Map(); opened = new Set(); marks = new Map(); markN = 0;
   beacons = []; fires = []; proj = null; hidden = false;
   blackT = blackInterval(); blackDur = 0; preWarn = false; gateMsg = ''; eraseT = 50 + Math.random() * 30; resetShadow();
-  grown = new Set(); resetFloorMisc();
+  grown = new Set(); ovr = new Map(); usedHearth = new Set(); resetFloorMisc();
   if (!solid(2.5, 1.5)) P.a = 0; else if (!solid(1.5, 2.5)) P.a = Math.PI / 2;
   thorns = []; if (isFinale()) placeThorns();
 }
 function resetFloorMisc() {
   trail = []; lastCell = ''; growT = 1; burnT = 0; stillT = 0; anchor = { x: P.x, y: P.y }; growMsg = grabMsg = burnMsg = false;
   gateFree = hasGift('gatebreak') ? 1 : 0; thornT = 2; pulseR = 0;
+  hearths = []; hearthT = 0; shiftT = 20 + Math.random() * 10; shiftMsg = false;
+  FS = { hid: false, poured: false, caught: false, woke: false, t0: P.time };
   Object.assign(MON, { on: false, kind: TH.mon || null, respT: TH.mon === 'jailer' ? 8 : 5, msg: false, sawHide: false, rolled: false, stunT: 0 });
 }
 function newGame() {
   BASE = (Math.random() * 1e9) | 0;
   inv = JSON.parse(JSON.stringify(INV0));
-  P.fuel = 100; P.time = 0; P.dist = 0; P.gifts = []; P.ended = false; darkWarned = lowWarned = false;
+  P.fuel = 100; P.time = 0; P.dist = 0; P.gifts = []; P.ended = false; P.bombs = 0; darkWarned = lowWarned = false;
   setFloor(1); resetFloorState();
 }
 function serialize() {
   return { v: 2, base: BASE, floor: FLOOR, x: P.x, y: P.y, a: P.a, fuel: P.fuel, petals: P.petals, time: P.time, dist: P.dist,
     collected: [...collected], exit, opened: [...opened], inv, marks: [...marks.values()], markN,
     beacons: beacons.map(b => ({ x: b.x, y: b.y, life: b.life })),
-    gifts: P.gifts, ended: P.ended, grown: [...grown], thorns, gateFree };
+    gifts: P.gifts, ended: P.ended, grown: [...grown], thorns, gateFree,
+    ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS };
 }
 function restore(s) {
   if (!s.v) { s = { base: s.seed, floor: 1, x: s.x, y: s.y, a: s.a, fuel: s.fuel, petals: s.petals, time: s.time, dist: s.dist, collected: s.collected, exit: s.exit, opened: s.opened,
     inv: Object.assign(JSON.parse(JSON.stringify(INV0)), { parts: s.parts || [0, 0, 0], keys: s.keys || 0 }) }; }
   BASE = s.base; opened = new Set(s.opened || []); marks = new Map(); grown = new Set(s.grown || []);
   for (const m of (s.marks || [])) marks.set(m.x + ',' + m.y + ',' + m.f, m);
-  P.gifts = (s.gifts || []).slice(); P.ended = !!s.ended;
+  P.gifts = (s.gifts || []).slice(); P.ended = !!s.ended; P.bombs = s.bombs || 0;
+  ovr = new Map(s.ovr || []); usedHearth = new Set(s.hearth || []);
   setFloor(s.floor || 1);
   Object.assign(P, { x: s.x, y: s.y, a: s.a, pitch: 0, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
   collected = new Set(s.collected || []); exit = s.exit || null; seen = new Map();
@@ -1197,6 +1479,7 @@ function restore(s) {
   blackT = blackInterval(); blackDur = 0; preWarn = false; gateMsg = ''; eraseT = 60; resetShadow();
   darkWarned = P.fuel <= 0; lowWarned = P.fuel < 20;
   resetFloorMisc(); if (s.gateFree !== undefined) gateFree = s.gateFree;
+  if (s.fs) FS = Object.assign(FS, s.fs);
   thorns = (s.thorns || []).slice(); if (isFinale() && !thorns.length) placeThorns();
 }
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -1246,7 +1529,7 @@ const cv = document.getElementById('game'), ctx = cv.getContext('2d', { alpha: f
 let W, H, F, img, buf, zbuf;
 function resize() {
   const aw = innerWidth, ah = innerHeight, asp = aw / ah;
-  const budget = Math.min(aw, ah) > 600 ? 110000 : 64000;
+  const q = meta.set.q, budget = q === 'low' ? 36000 : q === 'mid' ? 64000 : q === 'high' ? 110000 : Math.min(aw, ah) > 600 ? 110000 : 64000;
   W = Math.max(120, Math.round(Math.sqrt(budget * asp)));
   H = Math.max(100, Math.round(W / asp));
   F = Math.min(H * 0.95, W * 0.85);
@@ -1269,7 +1552,11 @@ function forNearItems(x, y, fn) {
 function gatherLights(t) {
   const arr = [];
   const add = (x, y, r, i) => { const dx = x - P.x, dy = y - P.y, d2 = dx * dx + dy * dy; if (d2 < (r + 9) * (r + 9)) arr.push({ x, y, r2: r * r, i, d2 }); };
-  forNearItems(P.x, P.y, it => { if (it.t === 'candle') add(it.x, it.y, 2.3, 0.7 * (0.9 + 0.1 * Math.sin(t * 11 + it.x * 7))); });
+  forNearItems(P.x, P.y, it => {
+    if (it.t === 'candle') add(it.x, it.y, 2.3, 0.7 * (0.9 + 0.1 * Math.sin(t * 11 + it.x * 7)));
+    else if (it.t === 'altar') add(it.x, it.y, 2.9, 0.8 * (0.92 + 0.08 * Math.sin(t * 9 + it.y * 5)));
+  });
+  for (const h of hearths) add(h.x, h.y, 2.2, 0.5 * (0.85 + 0.15 * Math.sin(t * 13 + h.x * 3)));
   for (const b of beacons) add(b.x, b.y, 3.0, 0.9 * Math.min(1, b.life / 8) * (0.92 + 0.08 * Math.sin(t * 9 + b.y)));
   for (const f of fires) add(f.x, f.y, 2.2 + 2.2 * Math.min(1, f.life / 4), 1.15 * (0.82 + 0.18 * Math.sin(t * 17 + f.x)));
   if (proj) add(proj.x, proj.y, 1.8, 0.9);
@@ -1288,7 +1575,11 @@ function litAt(x, y) {
   for (const b of beacons) { const dx = x - b.x, dy = y - b.y; if (dx * dx + dy * dy < 5.8) return true; }
   for (const f of fires) { const dx = x - f.x, dy = y - f.y; if (dx * dx + dy * dy < 9) return true; }
   let lit = false;
-  forNearItems(x, y, it => { if (!lit && it.t === 'candle') { const dx = x - it.x, dy = y - it.y; if (dx * dx + dy * dy < 2.6) lit = true; } });
+  forNearItems(x, y, it => {
+    if (lit) return;
+    const dx = x - it.x, dy = y - it.y, d2 = dx * dx + dy * dy;
+    if ((it.t === 'candle' && d2 < 2.6) || (it.t === 'altar' && d2 < 7.3)) lit = true;
+  });
   return lit;
 }
 
@@ -1375,6 +1666,7 @@ function render(t) {
     let tex;
     if (hit === 5) tex = TEX_GATE;
     else if (hit === 6) tex = TEX_GROWN;
+    else if (hit === 3 && TH.hearth && usedHearth.has(mx + ',' + my)) tex = TEX_HEARTH_COLD;
     else if (side === 0 ? nicheAt(mx - stepX, my) : nicheAt(mx, my - stepY)) tex = TEX_NICHE;
     else tex = TH.tex[hit];
     const k = 64 / lineH;
@@ -1632,7 +1924,7 @@ function openCraft() { if (state !== 'play') return; state = 'craft'; releaseInp
 /* ================= Использование предметов ================= */
 function pourOil(auto) {
   if (!inv.oil || P.fuel >= 99) return;
-  inv.oil--; P.fuel = Math.min(100, P.fuel + (hasGift('deepoil') ? 65 : 38)); lowWarned = P.fuel < 20; darkWarned = false;
+  inv.oil--; FS.poured = true; P.fuel = Math.min(100, P.fuel + (hasGift('deepoil') ? 65 : 38)); lowWarned = P.fuel < 20; darkWarned = false;
   Snd.pour(); if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
   toast(auto ? 'Пламя почти погасло, и ты подлил масла.' : 'Масло. Факел разгорается ярче.', 2.5); save();
 }
@@ -1645,7 +1937,7 @@ function useTorch() {
 }
 function throwBomb() {
   if (!inv.bomb || proj || hidden) return;
-  inv.bomb--; proj = { x: P.x, y: P.y, dx: Math.cos(P.a), dy: Math.sin(P.a), d: 0 };
+  inv.bomb--; P.bombs = (P.bombs || 0) + 1; proj ={ x: P.x, y: P.y, dx: Math.cos(P.a), dy: Math.sin(P.a), d: 0 };
   Snd.whoosh(); buzz(15);
 }
 function explode(x, y) {
@@ -1671,7 +1963,7 @@ function placeCandle() {
 }
 function hide() {
   if (hidden || !inNiche()) return;
-  hidden = true; Snd.relight(); buzz(20);
+  hidden = true; FS.hid = true; Snd.relight(); buzz(20);
   if (MON.on && MON.kind === 'jailer' && MON.mode === 'chase' && monLOS(MON.x, MON.y)) MON.sawHide = true;
   toast('Ты прижался к камню и прикрыл огонь. Масло не тратится. Не двигайся.', 3);
 }
@@ -1681,7 +1973,9 @@ function unhide(quiet) { if (!hidden) return; hidden = false; if (!quiet) { Snd.
 const keys = {};
 let lookDX = 0, lookDY = 0, joy = null, look = null, mouseDrag = false;
 addEventListener('keydown', e => {
-  keys[e.code] = true;
+  keys[e.code] = true; lastInput = 'kb';
+  if (state === 'setS' && e.code === 'Escape') return closeSettings();
+  if (state === 'chal' && e.code === 'Escape') return closeChal();
   if (state === 'play') {
     if (e.code === 'Escape') pause();
     else if (e.code === 'KeyM') toggleMap();
@@ -1715,14 +2009,18 @@ cv.addEventListener('mousedown', () => {
 addEventListener('mouseup', () => { mouseDrag = false; });
 addEventListener('mousemove', e => {
   if (state !== 'play') return;
-  if (document.pointerLockElement === cv || mouseDrag) { lookDX += e.movementX * 0.0024; lookDY += e.movementY * 0.0016; }
+  if (document.pointerLockElement === cv || mouseDrag) {
+    lastInput = 'kb';
+    lookDX += e.movementX * 0.0024 * meta.set.sens; lookDY += e.movementY * 0.0016 * meta.set.sens * (meta.set.invY ? -1 : 1);
+  }
 });
 const joyEl = $('joy');
 cv.addEventListener('touchstart', e => {
   e.preventDefault(); if (state !== 'play') return;
   $('chalkPal').hidden = true;
   for (const t of e.changedTouches) {
-    if (!joy && t.clientX < innerWidth * 0.45) {
+    lastInput = 'touch';
+    if (!joy && (meta.set.joy === 'right' ? t.clientX > innerWidth * 0.55 : t.clientX < innerWidth * 0.45)) {
       joy = { id: t.identifier, ox: t.clientX, oy: t.clientY, x: 0, y: 0 };
       joyEl.style.left = t.clientX + 'px'; joyEl.style.top = t.clientY + 'px'; joyEl.style.display = 'block';
       joyEl.firstElementChild.style.transform = '';
@@ -1738,8 +2036,8 @@ cv.addEventListener('touchmove', e => {
       joy.x = dx; joy.y = dy;
       joyEl.firstElementChild.style.transform = 'translate(' + dx * 33 + 'px,' + dy * 33 + 'px)';
     } else if (look && t.identifier === look.id) {
-      lookDX += (t.clientX - look.lx) * 0.0075; look.lx = t.clientX;
-      lookDY += (t.clientY - look.ly) / innerHeight * 1.1; look.ly = t.clientY;
+      lookDX += (t.clientX - look.lx) * 0.0075 * meta.set.sens; look.lx = t.clientX;
+      lookDY += (t.clientY - look.ly) / innerHeight * 1.1 * meta.set.sens * (meta.set.invY ? -1 : 1); look.ly = t.clientY;
     }
   }
 }, { passive: false });
@@ -1750,6 +2048,74 @@ function endTouch(e) {
   }
 }
 cv.addEventListener('touchend', endTouch); cv.addEventListener('touchcancel', endTouch);
+
+/* ---------- Геймпад ---------- */
+const PAD = { on: false, lx: 0, ly: 0, rx: 0, ry: 0, lt: false, prev: [], navT: 0 };
+function getPad() {
+  try { const gs = navigator.getGamepads ? navigator.getGamepads() : []; for (const g of gs) if (g && g.connected) return g; } catch (e) {}
+  return null;
+}
+function dz(v) { return Math.abs(v) < 0.15 ? 0 : (v - Math.sign(v) * 0.15) / 0.85; }
+addEventListener('gamepadconnected', e => { lastInput = 'pad'; toast('Геймпад подключён: ' + (e.gamepad.id || '').split('(')[0].trim().slice(0, 40), 3); });
+addEventListener('gamepaddisconnected', () => { PAD.on = false; toast('Геймпад отключён.', 2.5); });
+function activeScreen() { for (const s of SCREENS) if ($(s).classList.contains('on')) return $(s); return null; }
+function focusables(root) {
+  return [...root.querySelectorAll('button, input[type=range]')].filter(el => !el.disabled && el.offsetParent !== null);
+}
+function padNav(dir) {
+  const root = activeScreen(); if (!root) return;
+  const els = focusables(root); if (!els.length) return;
+  let i = els.indexOf(document.activeElement);
+  i = i < 0 ? 0 : (i + dir + els.length) % els.length;
+  els[i].focus(); els[i].scrollIntoView({ block: 'nearest' });
+}
+function padBack() {
+  if (state === 'craft') closeOverlay();
+  else if (state === 'note') closeNote();
+  else if (state === 'journal') closeJournal();
+  else if (state === 'setS') closeSettings();
+  else if (state === 'chal') closeChal();
+}
+function pollPad(dt) {
+  const g = getPad();
+  if (!g) { PAD.on = false; return; }
+  const b = i => !!(g.buttons[i] && (g.buttons[i].pressed || g.buttons[i].value > 0.5));
+  const now = g.buttons.map((_, i) => b(i)), was = PAD.prev, edge = i => now[i] && !was[i];
+  PAD.prev = now;
+  PAD.lx = dz(g.axes[0] || 0); PAD.ly = dz(g.axes[1] || 0); PAD.rx = dz(g.axes[2] || 0); PAD.ry = dz(g.axes[3] || 0); PAD.lt = b(6);
+  const active = now.some(Boolean) || Math.abs(PAD.lx) + Math.abs(PAD.ly) + Math.abs(PAD.rx) + Math.abs(PAD.ry) > 0;
+  if (active) lastInput = 'pad';
+  PAD.on = true;
+  if (state === 'play') {
+    if (edge(0)) hidden ? unhide() : hide();
+    if (edge(1)) throwBomb();
+    if (edge(2)) placeCandle();
+    if (edge(3)) openCraft();
+    if (edge(4)) pourOil();
+    if (edge(5)) useTorch();
+    if (edge(7)) placeMark(3);
+    if (edge(12)) placeMark(3);
+    if (edge(13)) placeMark(2);
+    if (edge(14)) placeMark(0);
+    if (edge(15)) placeMark(1);
+    if (edge(8)) toggleMap();
+    if (edge(9)) pause();
+    return;
+  }
+  // меню: крестовина или стик — выбор, A — нажать, B — назад, Start — играть
+  PAD.navT -= dt;
+  const ay = PAD.ly, ax = PAD.lx;
+  if (edge(12) || edge(14) || (ay < -0.6 && PAD.navT <= 0)) { padNav(-1); PAD.navT = 0.25; }
+  if (edge(13) || edge(15) || (ay > 0.6 && PAD.navT <= 0)) { padNav(1); PAD.navT = 0.25; }
+  const el = document.activeElement;
+  if (el && el.type === 'range' && Math.abs(ax) > 0.6 && PAD.navT <= 0) {
+    el.value = +el.value + Math.sign(ax) * +el.step; el.dispatchEvent(new Event('input')); PAD.navT = 0.12;
+  }
+  if (edge(0)) { const root = activeScreen(); if (el && root && root.contains(el) && el.tagName === 'BUTTON') el.click(); else padNav(0); }
+  if (edge(1) || (state === 'craft' && edge(3))) padBack();
+  if (edge(9) && state === 'pause') play();
+  else if (edge(9) && state === 'menu') { if (!$('bCont').hidden) $('bCont').click(); else $('bNew').click(); }
+}
 
 /* ================= Логика ================= */
 function tryMove(mx, my) {
@@ -1769,6 +2135,11 @@ function update(dt, t) {
   if (keys.ArrowLeft || keys.KeyQ) turn -= 1;
   if (keys.ArrowRight || keys.KeyE) turn += 1;
   if (joy) { f -= joy.y; s += joy.x; }
+  if (PAD.on) {
+    f -= PAD.ly; s += PAD.lx;
+    P.a += PAD.rx * 2.8 * meta.set.sens * dt;
+    lookDY += PAD.ry * 1.1 * meta.set.sens * dt * (meta.set.invY ? -1 : 1);
+  }
   if (hidden && (Math.abs(f) > 0.3 || Math.abs(s) > 0.3)) unhide();
   if (hidden) { f = 0; s = 0; }
   P.a += turn * 2.3 * dt + lookDX; lookDX = 0;
@@ -1777,8 +2148,10 @@ function update(dt, t) {
   if (keys.KeyF || keys.PageDown) pv -= 1;
   P.pitch = Math.max(-0.45, Math.min(0.45, P.pitch + pv * 0.9 * dt - lookDY)); lookDY = 0;
   const len = Math.hypot(f, s); if (len > 1) { f /= len; s /= len; }
-  sneak = !!(keys.ShiftLeft || keys.ShiftRight || keys.ControlLeft || (joy && Math.hypot(joy.x, joy.y) > 0.08 && Math.hypot(joy.x, joy.y) < 0.55));
-  if (joy && sneak) { const jl = Math.hypot(f, s); if (jl > 0) { f /= jl; s /= jl; } }
+  const padMag = PAD.on ? Math.hypot(PAD.lx, PAD.ly) : 0;
+  sneak = !!(keys.ShiftLeft || keys.ShiftRight || keys.ControlLeft || (joy && Math.hypot(joy.x, joy.y) > 0.08 && Math.hypot(joy.x, joy.y) < 0.55) ||
+    (PAD.on && (PAD.lt || (padMag > 0.05 && padMag < 0.55))));
+  if ((joy || padMag > 0.05) && sneak) { const jl = Math.hypot(f, s); if (jl > 0) { f /= jl; s /= jl; } }
   const sp = (hasGift('swift') ? 2.95 : 2.6) * (sneak ? 0.45 : 1) * dt, ca = Math.cos(P.a), sa = Math.sin(P.a);
   const ox = P.x, oy = P.y;
   tryMove((ca * f - sa * s) * sp, (sa * f + ca * s) * sp);
@@ -1796,6 +2169,11 @@ function update(dt, t) {
   let burning = false;
   if (f > 0.3) {
     const gx = Math.floor(P.x + ca * 0.75), gy = Math.floor(P.y + sa * 0.75), gt = tile(gx, gy);
+    if (gt === 3 && TH.hearth && !usedHearth.has(gx + ',' + gy)) {
+      usedHearth.add(gx + ',' + gy); P.fuel = Math.min(100, P.fuel + 35); lowWarned = P.fuel < 20; darkWarned = false;
+      if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
+      Snd.relight(); Snd.burn(); buzz(30); toast('Очаг ещё тлел. Ты подпалил от него факел.', 2.5); save();
+    }
     if (gt === 6) {
       if (P.fuel > 0 && blackDur <= 0 && !hidden) {
         burning = true; burnT += dt;
@@ -1837,7 +2215,7 @@ function update(dt, t) {
     if (blackDur <= 0) { blackT = blackInterval(); if (P.fuel > 0 && !hidden) { Snd.relight(); toast('Пламя снова занялось.', 2); } }
   } else {
     blackT -= dt;
-    if (blackT < 1.4 && !preWarn) { preWarn = true; Snd.gust(); }
+    if (blackT < 1.4 && !preWarn) { preWarn = true; Snd.gust(); tip('gust', 'Пламя дрожит: сейчас ледяной сквозняк задует факел на несколько секунд. Держись подальше от Тени.'); }
     if (blackT <= 0) {
       preWarn = false; blackDur = (3 + Math.random() * 3) * (hasGift('ember') ? 0.5 : 1); Snd.sputter();
       if (P.fuel > 0 && !hidden) { toast('Ледяной сквозняк задул пламя…', 3); buzz(120); }
@@ -1852,6 +2230,28 @@ function update(dt, t) {
   else if (blackDur > 0) fearUp(dt * 2);
   else P.fear = Math.max(0, P.fear - dt * 2.5);
   if (TH.grow) updRoots(dt);
+  if (TH.weak && playerLit) P.fear = Math.max(0, P.fear - dt * 6);
+  if (TH.shift) { shiftT -= dt; if (shiftT < 0) { shiftT = 16 + Math.random() * 12; shiftShelves(); } }
+  if (TH.hearth) {
+    hearthT -= dt;
+    if (hearthT < 0) {
+      hearthT = 0.5; hearths = [];
+      const px = Math.floor(P.x), py = Math.floor(P.y);
+      for (let y = py - 7; y <= py + 7 && hearths.length < 6; y++) for (let x = px - 7; x <= px + 7; x++)
+        if (tile(x, y) === 3 && !usedHearth.has(x + ',' + y) && (!tile(x + 1, y) || !tile(x - 1, y) || !tile(x, y + 1) || !tile(x, y - 1))) hearths.push({ x: x + 0.5, y: y + 0.5 });
+    }
+  } else if (hearths.length) hearths = [];
+  // подсказки по ходу игры
+  if (P.time > 1.5) tip('move', ctl('WASD — идти, мышь — оглядываться. Щёлкни по экрану, чтобы захватить мышь. Shift — тихий шаг.',
+    'Левый палец — идти, правый — оглядываться. Лёгкое касание джойстика — тихий шаг.', 'Левый стик — идти, правый — оглядываться. Слегка наклони стик, чтобы идти тихо.'));
+  if (P.time > 40) tip('map', 'На мини-карте видно всё, где ты уже был. Синие клетки — ниши, рыжие — решётки.');
+  if (P.time > 90) tip('chalk', 'Заблудился? Ставь метки мелом на стенах: ' + ctl('клавиши 1–4.', 'кнопка «Мел».', 'крестовина геймпада.'));
+  if (inNiche() && !hidden) tip('niche', 'Это ниша. Здесь можно спрятаться (' + ctl('H', 'кнопка «Спрятаться»', 'A') + '): огонь прикрыт, масло не тратится, Тень чаще проходит мимо.');
+  if (P.fuel < 35 && P.fuel > 0) tip('oil', 'Масло кончается. Склянки лежат в тупиках, факел возьмёт их сам.');
+  if (RECIPES.some(canMake)) tip('craft', 'Можно смастерить что-то полезное: открой «Ремесло» (' + ctl('C', 'кнопка внизу', 'Y') + ').');
+  if (exit && !isFinale()) tip('rose', 'Стрелка вверху ведёт к Розе. Слушай её звон: он слышен с той стороны, где она растёт.');
+  if (SH.on && shD < 9) tip('shadow', 'Красные глаза — это Тень. Она боится света, а в темноте охотится. Не дай факелу погаснуть.');
+  updTips(dt);
   if (dark || P.fear > 35) { heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); if (P.fear > 45) buzz(25); } }
   flick = 0.9 + 0.06 * Math.sin(t * 13) + 0.04 * Math.sin(t * 29 + 1) + (Math.random() - 0.5) * 0.04;
   if (preWarn) flick *= 0.4 + Math.random() * 0.6;
@@ -2007,7 +2407,7 @@ function updShadow(dt, dark) {
   else if (dark) mode = 1;
   else { const edge = LR + 1.5; mode = pd > edge + 2 ? 1 : pd < edge ? -1 : 0; }
   let speed;
-  if (mode === 1 && dark) speed = Math.min(2.45, 2.2 + 0.06 * (FLOOR - 1) + (TH.hear && moving && !sneak && !hasGift('quiet') ? 0.12 : 0));
+  if (mode === 1 && dark) speed = (TH.weak ? 0.85 : 1) * Math.min(2.45,2.2 + 0.06 * (FLOOR - 1) + (TH.hear && moving && !sneak && !hasGift('quiet') ? 0.12 : 0));
   else if (mode === -1) speed = SH.leaving ? 1.4 : 2.4;
   else if (mode === 2) speed = 1.0;
   else speed = 1.1;
@@ -2089,6 +2489,54 @@ function updRoots(dt) {
   }
 }
 
+/* ================= Библиотека: шкафы сдвигаются ================= */
+function setOvr(x, y, v) { setTile(x, y, v); ovr.set(x + ',' + y, v); }
+// клетки-стенки между двумя клетками лабиринта
+function edgeSides(x, y) {
+  if ((x & 1) === 0 && (y & 1) === 1) return [[x - 1, y], [x + 1, y]];
+  if ((x & 1) === 1 && (y & 1) === 0) return [[x, y - 1], [x, y + 1]];
+  return null;
+}
+function connected(a, b, limit) {
+  const q = [a], seen = new Set([a[0] + ',' + a[1]]);
+  for (let h = 0; h < q.length && h < limit; h++) {
+    const [x, y] = q[h];
+    if (x === b[0] && y === b[1]) return true;
+    for (const [ox, oy] of DIRS) {
+      const nx = x + ox, ny = y + oy, k = nx + ',' + ny;
+      if (seen.has(k) || tile(nx, ny) !== 0) continue;
+      seen.add(k); q.push([nx, ny]);
+    }
+  }
+  return false;
+}
+function shiftShelves() {
+  const px = Math.floor(P.x), py = Math.floor(P.y), opens = [], closes = [];
+  for (let y = py - 9; y <= py + 9; y++) for (let x = px - 9; x <= px + 9; x++) {
+    const d = Math.hypot(x - px, y - py); if (d < 3) continue;
+    const sides = edgeSides(x, y); if (!sides) continue;
+    if (tile(sides[0][0], sides[0][1]) !== 0 || tile(sides[1][0], sides[1][1]) !== 0) continue;
+    const t = tile(x, y);
+    if (t === 1 || t === 2) opens.push([x, y]);
+    else if (t === 0) closes.push([x, y]);
+  }
+  let moved = null;
+  if (opens.length) { const o = opens[(Math.random() * opens.length) | 0]; setOvr(o[0], o[1], 0); moved = o; }
+  for (let tries = 0; tries < 8 && closes.length; tries++) {
+    const i = (Math.random() * closes.length) | 0, c = closes.splice(i, 1)[0], sides = edgeSides(c[0], c[1]);
+    const cx = c[0] + 0.5, cy = c[1] + 0.5;
+    if ((SH.on && Math.hypot(SH.x - cx, SH.y - cy) < 1.2) || (exit && Math.hypot(exit.x - cx, exit.y - cy) < 1.2)) continue;
+    setTile(c[0], c[1], 1);
+    if (connected(sides[0], sides[1], 400)) { ovr.set(c[0] + ',' + c[1], 1); moved = moved || c; break; }
+    setTile(c[0], c[1], 0);
+  }
+  if (moved) {
+    Snd.grind({ x: moved[0] + 0.5, y: moved[1] + 0.5 }); buzz(30);
+    if (!shiftMsg) { shiftMsg = true; toast('Где-то с тяжёлым скрипом сдвинулся книжный шкаф. Коридоры библиотеки меняются.', 4); }
+    save();
+  }
+}
+
 /* ================= Обитатели: Тюремщик и Утопленник ================= */
 function monLOS(x, y) {
   const dx = P.x - x, dy = P.y - y, d = Math.hypot(dx, dy);
@@ -2136,7 +2584,7 @@ const STEAL = ['keys', 'bomb', 'torch', 'candle', 'oil', 'rag', 'wax', 'wick', '
 function monCatch() {
   const pos = { x: MON.x, y: MON.y };
   if (MON.kind === 'jailer') {
-    fearUp(30); Snd.jShout(pos); buzz([90, 50, 120]);
+    FS.caught = true; fearUp(30); Snd.jShout(pos); buzz([90, 50, 120]);
     const k = STEAL.find(k => inv[k] > 0);
     if (k) { inv[k]--; toast('Тюремщик схватил тебя и вырвал: ' + INAME[k].toLowerCase() + '. Потом отпустил с хохотом.', 4); }
     else toast('Тюремщик тряхнул тебя за шиворот и отшвырнул, как пустой мешок.', 3.5);
@@ -2166,7 +2614,7 @@ function updMon(dt) {
   } else {
     if (ed < noiseR) {
       if (MON.mode !== 'hunt') { Snd.gurgle(pos); if (!MON.msg) { MON.msg = true; toast('Под водой что-то шевельнулось и двинулось на звук.', 3.5); } }
-      MON.mode = 'hunt'; MON.hearT = 2.5;
+      MON.mode = 'hunt'; MON.hearT = 2.5; FS.woke = true;
     } else if (MON.mode === 'hunt') { MON.hearT -= dt; if (MON.hearT <= 0) MON.mode = 'patrol'; }
     chase = MON.mode === 'hunt';
     speed = chase ? 2.0 : 0.8;
@@ -2208,7 +2656,7 @@ function openNote() {
   let idx = -1;
   for (let i = 0; i < NOTES.length; i++) if (!meta.notes.includes(i)) { idx = i; break; }
   if (idx < 0) idx = (Math.random() * NOTES.length) | 0;
-  else { meta.notes.push(idx); saveMeta(); }
+  else { meta.notes.push(idx); saveMeta(); if (meta.notes.length >= NOTES.length) chDone('scholar'); }
   showNote(idx, 'play');
 }
 function closeNote() {
@@ -2227,7 +2675,7 @@ $('jList').addEventListener('click', e => { const b = e.target.closest('[data-n]
 function closeJournal() { state = 'pause'; show('menu'); menuState(); }
 
 /* ================= Экраны ================= */
-const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS'];
+const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS'];
 function show(id) { for (const s of SCREENS) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
 let wake = null;
 function play() {
@@ -2238,7 +2686,8 @@ function play() {
 function closeOverlay() { state = 'play'; show(null); last = performance.now(); }
 function menuState() {
   $('bJournal').hidden = !meta.notes.length;
-  $('bVib').textContent = 'Вибрация: ' + (meta.vib ? 'вкл' : 'выкл');
+  const nd = CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).length;
+  $('bChal').textContent = 'Испытания · ' + nd + ' из ' + CHALLENGES.length;
   const b = $('best'); b.hidden = !meta.best; b.textContent = 'Глубже всего: этаж ' + roman(meta.best || 1);
 }
 function pause() {
@@ -2253,37 +2702,79 @@ function statsHTML() {
     '<dt>Записки</dt><dd>' + meta.notes.length + ' из ' + NOTES.length + '</dd>' + (g.length ? '<dt>Дары</dt><dd>' + g.join(', ') + '</dd>' : '');
 }
 const FINAL_ENTER = 'Корни сходятся в одну точку. Здесь, на самом дне, бьётся Сердце замка. Найди три Шипа Розы, и его можно будет остановить.';
-function enterText(nf) { return nf === FINAL && !P.ended ? FINAL_ENTER : THEMES[(nf - 1) % THEMES.length].enter; }
-function openDescend(title, lore) {
+function enterText(nf) { return nf === FINAL && !P.ended ? FINAL_ENTER : themeFor(nf).enter; }
+function openDescend(title, lore, fixed) {
   state = 'descend'; releaseInput();
+  const start = descMode === 'start';
   $('dTitle').textContent = title; $('dLore').textContent = lore;
-  $('dStats').innerHTML = statsHTML();
-  const pool = GIFTS.filter(g => !hasGift(g.id));
-  for (let i = pool.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  const offer = pool.slice(0, 3);
+  $('dStats').innerHTML = start ? '' : statsHTML(); $('dStats').hidden = start;
+  let offer;
+  if (fixed) offer = fixed.map(id => GIFTS.find(g => g.id === id)).filter(Boolean);
+  else {
+    const pool = GIFTS.filter(g => !hasGift(g.id));
+    for (let i = pool.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    offer = pool.slice(0, 3);
+  }
   $('gifts').innerHTML = offer.map(g => '<button class="gift" data-g="' + g.id + '"><b>' + g.name + '</b><span>' + g.desc + '</span></button>').join('');
-  $('giftHead').hidden = !offer.length; $('gifts').hidden = !offer.length; $('bDescend').hidden = !!offer.length;
-  $('bDescend').textContent = 'Спуститься на этаж ' + roman(FLOOR + 1);
-  show('descend'); save();
+  $('giftHead').hidden = !offer.length; $('gifts').hidden = !offer.length;
+  $('bDescend').hidden = !start && !!offer.length;
+  $('bDescend').textContent = start ? 'Начать без дара' : 'Спуститься на этаж ' + roman(FLOOR + 1);
+  show('descend'); if (!start) save();
 }
 $('gifts').addEventListener('click', e => {
   const b = e.target.closest('[data-g]'); if (!b) return;
   P.gifts.push(b.dataset.g);
   if (b.dataset.g === 'chalkmaster') inv.chalk += 10;
-  descend();
+  if (b.dataset.g === 'gatebreak') gateFree = Math.max(gateFree, 1);
+  if (descMode === 'start') begin(); else descend();
 });
+function checkFloorChallenges() {
+  if (!FS.hid && FLOOR >= 3) chDone('nohide');
+  if (!FS.poured && FLOOR >= 3) chDone('dark');
+  if (P.time - FS.t0 < 240 && FLOOR >= 2) chDone('fast');
+  if (TH.mon === 'jailer' && !FS.caught) chDone('jailer');
+  if (TH.mon === 'drowned' && !FS.woke) chDone('silent');
+}
 function floorDone() {
-  if (isFinale()) return ending();
+  if (isFinale()) return reachHeart();
+  checkFloorChallenges();
   Snd.descend(); buzz([40, 80, 40, 80, 200]);
   meta.best = Math.max(meta.best || 0, FLOOR + 1); saveMeta();
   openDescend('Этаж ' + roman(FLOOR) + ' пройден', 'Роза раскрылась, и камень под ногами ушёл вниз. ' + enterText(FLOOR + 1) + ' Роза дарит тебе силу на дорогу.');
 }
-function ending() {
-  state = 'ending'; releaseInput(); Snd.ending(); buzz([60, 120, 60, 120, 300]);
-  meta.endings = (meta.endings || 0) + 1; meta.best = Math.max(meta.best || 0, FLOOR); saveMeta();
-  $('endStats').innerHTML = statsHTML();
-  show('endS'); save();
+const END_TEXT = {
+  plain: ['Ты вонзаешь три шипа в живое, тёплое сердце. Удар. Ещё один, тише. Тишина. Корни разжимаются, стены оседают, и впервые за всё это время сквозняк пахнет не камнем, а травой. Где-то наверху открылась дверь, которой не было.',
+    'Ты выбрался из замка Розенхолл.'],
+  stop: ['Три шипа входят в живое. Изольда вздыхает, впервые за двести лет, и замок рушится вслед за её последним ударом. Тень на краю света гаснет вместе с ней, и тебе кажется, что она улыбалась.',
+    'Ты выходишь на траву. Позади — только холм, тихий и пустой, и одна красная роза у самой вершины.'],
+  stay: ['Ты опускаешь шипы. Корни обнимают тебя бережно, как ребёнка. Изольда выходит из Сердца и, не оглядываясь, уходит наверх: к нему, к свету, к тому, кто ждал её на краю огня.',
+    'А замок затихает, привыкая к новому сердцу. Следующему гостю тоже понадобятся лепестки.']
+};
+function reachHeart() {
+  state = 'truth'; releaseInput();
+  if (!P.bombs) chDone('nobomb');
+  checkFloorChallenges();
+  if (meta.notes.length >= NOTES.length) { Snd.heartBig({ x: P.x, y: P.y }); show('truthS'); save(); return; }
+  ending('plain');
 }
+function ending(kind) {
+  state = 'ending'; releaseInput(); Snd.ending(); buzz([60, 120, 60, 120, 300]);
+  meta.endings = (meta.endings || 0) + 1; meta.best = Math.max(meta.best || 0, FLOOR);
+  if (kind === 'stop') meta.endStop = true;
+  if (kind === 'stay') meta.endStay = true;
+  saveMeta();
+  $('endTitle').textContent = kind === 'stay' ? 'Новое сердце' : kind === 'stop' ? 'Последний удар' : 'Сердце замка';
+  $('endLore1').textContent = END_TEXT[kind][0]; $('endLore2').textContent = END_TEXT[kind][1];
+  const hint = $('endHint');
+  hint.hidden = kind !== 'plain';
+  hint.textContent = 'Прочитано записок: ' + meta.notes.length + ' из ' + NOTES.length + '. Тот, кто узнает всю правду, увидит у Сердца другой финал.';
+  $('endStats').innerHTML = statsHTML();
+  $('bEndDeeper').hidden = kind === 'stay';
+  show('endS');
+  if (kind === 'stay') clearSave(); else save();
+}
+$('bTruthStop').onclick = () => ending('stop');
+$('bTruthStay').onclick = () => ending('stay');
 $('bEndDeeper').onclick = () => {
   P.ended = true;
   openDescend('Бесконечный спуск', 'Замок отпустил тебя, но лестница вниз осталась. Говорят, глубже Роза растёт снова, и Тень по-прежнему ждёт на краю света.');
@@ -2292,6 +2783,7 @@ $('bEndNew').onclick = () => { clearSave(); startNew(); };
 function descend() {
   setFloor(FLOOR + 1); resetFloorState();
   P.fuel = Math.min(100, P.fuel + 25); lowWarned = P.fuel < 20; darkWarned = false;
+  if (FLOOR >= 12) chDone('deep');
   save(); play(); floorCard();
   const intro = isFinale() ? FINAL_ENTER : TH.intro;
   if (intro) setTimeout(() => { if (state === 'play') toast(intro, 7); }, 2500);
@@ -2302,13 +2794,26 @@ function lose() {
   $('loseStats').innerHTML = statsHTML() + '<dt>Рекорд</dt><dd>этаж ' + roman(meta.best) + '</dd>';
   show('lose');
 }
+let descMode = 'floor';
+function startGifts() { return [...new Set(CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).map(c => c.gift))]; }
 function startNew() {
-  newGame(); save(); play(); floorCard();
+  newGame();
+  const offer = startGifts();
+  if (offer.length) {
+    descMode = 'start';
+    openDescend('Дар на дорогу', 'Пройденные испытания не забыты. Роза позволяет взять с собой одну силу с самого начала.', offer);
+    return;
+  }
+  begin();
+}
+function begin() {
+  descMode = 'floor';
+  save(); play(); floorCard();
   toast('Найди пять лепестков Красной Розы. Береги огонь.', 5);
 }
 $('bNew').onclick = startNew;
 $('bAgainL').onclick = startNew;
-$('bDescend').onclick = descend;
+$('bDescend').onclick = () => { if (descMode === 'start') begin(); else descend(); };
 $('bResume').onclick = play;
 $('bCont').onclick = () => { const s = loadSave(); if (s) { restore(s); play(); floorCard(); } else startNew(); };
 $('bPause').onclick = pause;
@@ -2316,7 +2821,45 @@ $('bJournal').onclick = () => openJournal('menu');
 $('bJClose').onclick = closeJournal;
 $('bNoteClose').onclick = closeNote;
 $('bCraftClose').onclick = closeOverlay;
-$('bVib').onclick = () => { meta.vib = !meta.vib; saveMeta(); menuState(); if (meta.vib) buzz(30); };
+/* ---------- Настройки ---------- */
+let setFrom = 'menu';
+function syncSettings() {
+  const s = meta.set;
+  $('sSens').value = s.sens; $('sFx').value = s.fx; $('sAmb').value = s.amb;
+  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0' };
+  for (const id in segs) for (const b of $(id).children) b.classList.toggle('on', b.dataset.v === segs[id]);
+  document.body.classList.toggle('joyR', s.joy === 'right');
+  if (Snd.c) { Snd.m.gain.value = s.fx; Snd.amb.gain.value = s.amb; }
+}
+function openSettings() { setFrom = state; state = 'setS'; syncSettings(); show('setS'); }
+function closeSettings() { saveMeta(); state = setFrom; menuState(); show('menu'); }
+$('bSet').onclick = openSettings;
+$('bSetClose').onclick = closeSettings;
+$('sSens').addEventListener('input', e => { meta.set.sens = +e.target.value; });
+$('sFx').addEventListener('input', e => { meta.set.fx = +e.target.value; syncSettings(); });
+$('sAmb').addEventListener('input', e => { meta.set.amb = +e.target.value; syncSettings(); });
+$('sFx').addEventListener('change', () => { Snd.init(); Snd.chime(); });
+const SEG = { sQ: v => { meta.set.q = v; resize(); }, sJoy: v => { meta.set.joy = v; }, sInv: v => { meta.set.invY = v === '1'; },
+  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; } };
+for (const id in SEG) $(id).addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; SEG[id](b.dataset.v); saveMeta(); syncSettings(); });
+$('bTipsReset').onclick = () => { meta.tips = {}; meta.set.tips = true; saveMeta(); syncSettings(); $('bTipsReset').textContent = 'Подсказки покажутся снова'; };
+
+/* ---------- Экран испытаний ---------- */
+let chalFrom = 'menu';
+function openChal() {
+  chalFrom = state; state = 'chal';
+  const done = CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).length;
+  $('chalCount').textContent = 'Пройдено ' + done + ' из ' + CHALLENGES.length;
+  $('chalList').innerHTML = CHALLENGES.map(c => {
+    const ok = meta.ch && meta.ch[c.id], g = GIFTS.find(x => x.id === c.gift);
+    return '<div class="' + (ok ? 'done' : '') + '"><i>' + (ok ? '✓' : '○') + '</i><b>' + c.name + '</b><small>Дар на старте: ' + g.name + '</small></div>';
+  }).join('');
+  show('chalS');
+}
+function closeChal() { state = chalFrom; menuState(); show('menu'); }
+$('bChal').onclick = openChal;
+$('bChalClose').onclick = closeChal;
+syncSettings();
 function toggleMap() { showMap = !showMap; mini.style.display = showMap ? '' : 'none'; }
 $('bMap').onclick = toggleMap;
 $('bCraft').onclick = openCraft;
@@ -2422,6 +2965,7 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   const t = now / 1000;
   lights = gatherLights(t);
+  pollPad(dt);
   if (state === 'play') { update(dt, t); if (state === 'play') { updHud(); if (showMap) drawMini(t); } }
   else { flick = 0.92 + 0.05 * Math.sin(t * 11); }
   render(t);
