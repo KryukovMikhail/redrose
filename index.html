@@ -165,6 +165,28 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 #tip b{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9fb8d8;font-weight:400;margin-bottom:2px}
 body.joyR .act{right:auto;left:calc(12px + env(safe-area-inset-left,0px));justify-content:flex-start}
 body.joyR #chalkPal{right:auto;left:0}
+.runs{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.runs div{display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:baseline;padding:9px 12px;border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6);font-variant-numeric:tabular-nums}
+.runs div.win{border-color:#7a6a2a;background:rgba(48,36,8,.45)}
+.runs b{font-family:var(--f-head);font-weight:400;font-size:19px;color:var(--rose);grid-row:1 / span 2}
+.runs span{font-size:15px;min-width:0}
+.runs small{font-size:12.5px;color:var(--dim);grid-column:2 / span 2;min-width:0}
+.runs em{font-style:normal;font-size:13px;color:var(--dim);text-align:right}
+.cardimg{width:min(360px,100%);height:auto;border:1px solid #6e1a27;box-shadow:0 18px 50px rgba(0,0,0,.7)}
+.profs{display:flex;flex-direction:column;gap:8px;width:100%}
+.prof{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:12px;border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6);text-align:left}
+.prof.cur{border-color:#8e2233;background:rgba(60,10,20,.45)}
+.prof input{font-family:var(--f-head);font-size:18px;color:var(--ash);background:transparent;border:0;border-bottom:1px dashed rgba(201,189,168,.3);padding:2px 0;min-width:0;width:100%}
+.prof input:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.prof small{grid-column:1;font-size:13px;color:var(--dim)}
+.prof .btn{grid-column:2;grid-row:1 / span 2}
+.xcode{width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--ash);background:rgba(0,0,0,.4);border:1px solid rgba(201,189,168,.2);padding:8px;resize:vertical;word-break:break-all;-webkit-user-select:text;user-select:text}
+.xfile{display:inline-block;cursor:pointer}
+#caps{position:absolute;inset:0;pointer-events:none}
+#caps div{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;color:#e8e0cf;text-shadow:0 0 6px #000,0 0 2px #000;opacity:0;transition:opacity .3s;white-space:nowrap}
+#caps div.on{opacity:1}
+#caps i{display:block;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:14px solid currentColor}
+#caps .threat{color:#ff8f9a}
 .gifts{display:grid;gap:8px;width:100%}
 .gift{display:flex;flex-direction:column;gap:3px;text-align:left;font-family:var(--f-body);cursor:pointer;padding:12px 14px;
   color:var(--ash);background:linear-gradient(rgba(60,10,20,.55),rgba(30,6,12,.6));border:1px solid #6e1a27}
@@ -217,6 +239,7 @@ body.joyR #chalkPal{right:auto;left:0}
   <div id="fcard"><b id="fcN"></b><span id="fcT"></span></div>
   <button id="updPill" hidden>Новая версия · Обновить</button>
   <div id="tip"><b>Подсказка</b><span id="tipT"></span></div>
+  <div id="caps"></div>
   <div id="toast"></div>
   <div class="act">
     <div id="chalkPal" hidden>
@@ -252,6 +275,8 @@ body.joyR #chalkPal{right:auto;left:0}
       <button class="btn" id="bNew">Войти в замок</button>
       <button class="btn ghost small" id="bJournal" hidden>Записки узников</button>
       <button class="btn ghost small" id="bChal">Испытания</button>
+      <button class="btn ghost small" id="bRuns" hidden>Летопись забегов</button>
+      <button class="btn ghost small" id="bProf">Игрок</button>
       <button class="btn ghost small" id="bSet">Настройки</button>
       <button class="btn ghost small" id="bFsMenu" hidden>На весь экран</button>
       <button class="btn ghost small" id="bInstall" hidden>Установить на устройство</button>
@@ -292,6 +317,8 @@ body.joyR #chalkPal{right:auto;left:0}
       <label class="row" for="sSens"><span>Чувствительность обзора</span><input type="range" id="sSens" min="0.4" max="2" step="0.1"></label>
       <label class="row" for="sFx"><span>Громкость звуков</span><input type="range" id="sFx" min="0" max="1" step="0.05"></label>
       <label class="row" for="sAmb"><span>Фоновый гул</span><input type="range" id="sAmb" min="0" max="1" step="0.05"></label>
+      <label class="row" for="sMus"><span>Музыка</span><input type="range" id="sMus" min="0" max="1" step="0.05"></label>
+      <div class="row"><span>Значки звуков на экране</span><div class="seg" id="sCaps"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
       <div class="row"><span>Качество картинки</span><div class="seg" id="sQ"><button data-v="auto">Авто</button><button data-v="low">Низкое</button><button data-v="mid">Среднее</button><button data-v="high">Высокое</button></div></div>
       <div class="row"><span>Джойстик на телефоне</span><div class="seg" id="sJoy"><button data-v="left">Слева</button><button data-v="right">Справа</button></div></div>
       <div class="row"><span>Инверсия вертикали</span><div class="seg" id="sInv"><button data-v="0">Нет</button><button data-v="1">Да</button></div></div>
@@ -300,6 +327,7 @@ body.joyR #chalkPal{right:auto;left:0}
     </div>
     <div class="btns">
       <button class="btn ghost small" id="bTipsReset">Показать подсказки заново</button>
+      <button class="btn ghost small" id="bXfer">Перенести прогресс</button>
       <button class="btn ghost" id="bSetClose">Готово</button>
     </div>
   </div>
@@ -325,6 +353,7 @@ body.joyR #chalkPal{right:auto;left:0}
     <p class="credits">Red Rose · игра Михаила Крюкова</p>
     <div class="btns">
       <button class="btn" id="bEndDeeper">Спуститься глубже</button>
+      <button class="btn ghost" id="bEndCard">Карточка итога</button>
       <button class="btn ghost" id="bEndNew">Новый замок</button>
     </div>
   </div>
@@ -335,7 +364,57 @@ body.joyR #chalkPal{right:auto;left:0}
     <h2>Тьма</h2>
     <p class="lore">Последняя искра погасла. Ты ещё слышишь капли воды, но уже не знаешь, где стены. Замок забрал тебя.</p>
     <dl class="stats" id="loseStats"></dl>
-    <div class="btns"><button class="btn" id="bAgainL">Новый замок</button></div>
+    <div class="btns"><button class="btn" id="bAgainL">Новый замок</button><button class="btn ghost" id="bLoseCard">Карточка итога</button></div>
+  </div>
+</div>
+
+<div class="screen" id="runS">
+  <div class="panel wide">
+    <h2>Летопись забегов</h2>
+    <p class="sub" id="runSum"></p>
+    <div class="runs" id="runList"></div>
+    <div class="btns"><button class="btn ghost" id="bRunsClose">Назад</button></div>
+  </div>
+</div>
+
+<div class="screen" id="cardS">
+  <div class="panel">
+    <img id="cardImg" alt="Карточка итога забега" class="cardimg">
+    <p class="help" id="cardHint">На телефоне картинку можно сохранить долгим нажатием.</p>
+    <div class="btns">
+      <button class="btn" id="bCardShare" hidden>Поделиться</button>
+      <button class="btn ghost" id="bCardSave">Сохранить картинку</button>
+      <button class="btn ghost" id="bCardClose">Назад</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="profS">
+  <div class="panel">
+    <h2>Игроки</h2>
+    <p class="help">У каждого игрока свой забег, записки, испытания, летопись и настройки. Удобно, если на одном устройстве играют несколько человек.</p>
+    <div class="profs" id="profList"></div>
+    <div class="btns"><button class="btn ghost" id="bProfClose">Назад</button></div>
+  </div>
+</div>
+
+<div class="screen" id="xferS">
+  <div class="panel">
+    <h2>Перенос прогресса</h2>
+    <p class="help">Скопируй код или сохрани файл здесь, а на другом устройстве вставь его в поле ниже. Переносится всё: забег, записки, испытания, летопись и настройки текущего игрока.</p>
+    <textarea id="xOut" class="xcode" readonly rows="4" aria-label="Код прогресса"></textarea>
+    <div class="btns">
+      <button class="btn small" id="bXCopy">Скопировать код</button>
+      <button class="btn ghost small" id="bXFile">Сохранить файлом</button>
+    </div>
+    <p class="sub">Загрузить с другого устройства</p>
+    <textarea id="xIn" class="xcode" rows="4" placeholder="Вставь код сюда" aria-label="Вставить код прогресса"></textarea>
+    <label class="btn ghost small xfile" for="xFileIn">Выбрать файл<input type="file" id="xFileIn" accept=".txt,.redrose,text/plain" hidden></label>
+    <p class="help" id="xMsg"></p>
+    <div class="btns">
+      <button class="btn small" id="bXLoad">Загрузить прогресс</button>
+      <button class="btn ghost" id="bXClose">Назад</button>
+    </div>
   </div>
 </div>
 
@@ -374,7 +453,7 @@ body.joyR #chalkPal{right:auto;left:0}
 
 <script>
 'use strict';
-const BUILD = 'R001.007';
+const BUILD = 'R001.008';
 const FINAL = 8;   // этаж с Сердцем замка
 /* ================= Константы и хеш ================= */
 const S = 16, N = 8, NEED = 5;
@@ -826,6 +905,35 @@ for (const th of THEMES) {
   let acc = 0; th.dead = w.map(([t, p]) => [t, acc += p]);
   th.corr = [['bone', acc = 0.025 * th.bone], ['oil', acc += 0.015 * th.oil], ['candle', acc += 0.015 * (th.candle || 1)]];
 }
+// настенный факел (тайл 7) и треснувшая кладка (тайл 8) поверх основной стены темы
+function overlayTex(base, fn) { const t = new Uint32Array(4096); for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) { const v = fn(x, y, base[y * 64 + x]); t[y * 64 + x] = v === null ? base[y * 64 + x] : v; } return t; }
+function sconceFn(lit) {
+  return (x, y, c) => {
+    if (x >= 27 && x <= 36 && y >= 38 && y <= 44) return pack(52, 48, 46);            // крепление
+    if (x >= 29 && x <= 34 && y >= 33 && y <= 38) return pack(70, 66, 62);
+    if (x >= 30 && x <= 33 && y >= 20 && y <= 33) return pack(72, 44, 24);            // рукоять
+    if (x >= 28 && x <= 35 && y >= 16 && y <= 20) return lit ? pack(120, 70, 30) : pack(24, 20, 18);
+    if (lit && y >= 2 && y < 16) {
+      const w = (16 - y) * 0.32 + 1.5 + Math.sin(y * 1.3 + x) * 0.8, dx = Math.abs(x - 31.5);
+      if (dx < w * 0.45) return pack(255, 235, 170);
+      if (dx < w) return pack(255, 150 + (y - 2) * 4, 40);
+    }
+    return null;
+  };
+}
+const CRACK = [[22, 6], [27, 18], [24, 27], [31, 36], [29, 46], [36, 58]], CRACK2 = [[27, 18], [36, 22], [41, 21]], CRACK3 = [[31, 36], [38, 40]];
+function segD(px, py, l) { let best = 99; for (let i = 0; i < l.length - 1; i++) { const [ax, ay] = l[i], [bx, by] = l[i + 1], dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))); best = Math.min(best, Math.hypot(px - ax - dx * t, py - ay - dy * t)); } return best; }
+const crackFn = (x, y, c) => {
+  const d = Math.min(segD(x, y, CRACK), segD(x, y, CRACK2) + 0.3, segD(x, y, CRACK3) + 0.3);
+  if (d < 0.9) return pack(8, 6, 6);
+  if (d < 1.8) return pack((c & 255) * 0.65, ((c >> 8) & 255) * 0.65, ((c >> 16) & 255) * 0.65);
+  return null;
+};
+for (const th of THEMES) {
+  th.sconceOff = overlayTex(th.tex[1], sconceFn(false));
+  th.sconceOn = overlayTex(th.tex[1], sconceFn(true));
+  th.crack = overlayTex(th.tex[1], crackFn);
+}
 // I–VIII: четыре старые темы дважды; дальше новые вперемешку со старыми
 const DEEP_ORDER = [4, 5, 6, 1, 2, 3, 0];
 function themeFor(f) { return f <= 8 ? THEMES[(f - 1) % 4] : THEMES[DEEP_ORDER[(f - 9) % DEEP_ORDER.length]]; }
@@ -833,7 +941,7 @@ function themeFor(f) { return f <= 8 ? THEMES[(f - 1) % 4] : THEMES[DEEP_ORDER[(
 /* ================= Генерация бесконечного лабиринта ================= */
 // Тайлы: 0 пол, 1–4 стены темы, 5 запертая решётка
 const chunks = new Map();
-let opened = new Set(), marks = new Map(), grown = new Set(), ovr = new Map(), usedHearth = new Set();
+let opened = new Set(), marks = new Map(), grown = new Set(), ovr = new Map(), usedHearth = new Set(), litSc = new Map(), grownAt = new Map();
 function genChunk(cx, cy) {
   const g = new Uint8Array(S * S).fill(1), nic = new Uint8Array(S * S);
   const r = rng(h32(cx, cy, 7));
@@ -883,6 +991,13 @@ function genChunk(cx, cy) {
     const edge = (x % 2 === 0 && y % 2 === 1) || (y % 2 === 0 && x % 2 === 1);
     if (edge && r() < TH.gate) g[y * S + x] = 5;
   }
+  // настенные факелы: на стенах, у которых есть проход рядом
+  for (let y = 1; y < S - 1; y++) for (let x = 1; x < S - 1; x++) {
+    const t = g[y * S + x];
+    if (t < 1 || t > 4) continue;
+    if (!(g[y * S + x - 1] === 0 || g[y * S + x + 1] === 0 || g[(y - 1) * S + x] === 0 || g[(y + 1) * S + x] === 0)) continue;
+    if (r() < 0.022) g[y * S + x] = 7;
+  }
   const items = [];
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const x = 2 * i + 1, y = 2 * j + 1;
@@ -898,6 +1013,15 @@ function genChunk(cx, cy) {
     for (const [n, c] of tbl) if (v < c) { t = n; break; }
     if (t === 'petal' && FLOOR === FINAL && !P.ended) t = null;   // на дне вместо лепестков — шипы
     if (t) items.push({ x: wx + 0.5, y: wy + 0.5, t, id: wx + ',' + wy, k: h32(wx, wy, 21) % 3 });
+    else if (open === 1 && v2 < 0.09) {
+      // тайник: единственный проход в тупик становится треснувшей кладкой
+      let ex = -1;
+      if (!g[y * S + x - 1]) ex = y * S + x - 1;
+      else if (x + 1 < S && !g[y * S + x + 1]) ex = y * S + x + 1;
+      else if (!g[(y - 1) * S + x]) ex = (y - 1) * S + x;
+      else if (y + 1 < S && !g[(y + 1) * S + x]) ex = (y + 1) * S + x;
+      if (ex >= 0) { g[ex] = 8; items.push({ x: wx + 0.5, y: wy + 0.5, t: 'chest', id: wx + ',' + wy, k: h32(wx, wy, 23) }); }
+    }
     else if (open === 1 && v2 < 0.5) nic[y * S + x] = 1;
   }
   if (hall && TH.altar) {
@@ -1111,6 +1235,14 @@ const SPR = {
     g.fillStyle = '#6a3a12'; g.beginPath(); g.arc(16, 18, 6, 0, 7); g.fill();
     g.fillStyle = '#ffd27a'; g.beginPath(); g.ellipse(16, 9, 2.5, 4, 0, 0, 7); g.fill();
   }),
+  chest: sprite(g => {
+    glow(g, 16, 22, 13, 'rgba(255,200,100,0.3)');
+    g.fillStyle = '#4a2c16'; g.fillRect(6, 19, 20, 12);
+    g.fillStyle = '#6a3e1e'; g.beginPath(); g.moveTo(6, 19); g.quadraticCurveTo(16, 11, 26, 19); g.closePath(); g.fill();
+    g.fillStyle = '#8a7a5a'; g.fillRect(6, 19, 20, 1.5); g.fillRect(10, 14, 1.5, 17); g.fillRect(20.5, 14, 1.5, 17);
+    g.fillStyle = '#d8b24a'; g.fillRect(14.5, 20, 3, 4);
+    g.fillStyle = '#1a0e06'; g.fillRect(15.5, 21.5, 1, 1.5);
+  }),
   altar: sprite(g => {
     glow(g, 9, 14, 8, 'rgba(255,180,80,0.5)'); glow(g, 23, 14, 8, 'rgba(255,180,80,0.5)');
     g.fillStyle = '#8a857c'; g.fillRect(4, 20, 24, 12);
@@ -1190,6 +1322,7 @@ const DEF = {
   fire: { sz: 0.85, lift: 0, emit: 1 }, bombp: { sz: 0.24, lift: 0.45, emit: 1 },
   shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
   altar: { sz: 0.75, lift: 0, emit: 0.6 },
+  chest: { sz: 0.5, lift: 0, emit: 0.25 },
   jailer: { sz: 1.15, lift: 0, emit: 0, hot: 1 },
   drowned: { sz: 1.05, lift: 0, emit: 0 },
   thorn: { sz: 0.46, lift: 0.08, emit: 0.55, bob: 1 },
@@ -1207,6 +1340,13 @@ const Snd = {
     const c = this.c = new AC();
     this.m = c.createGain(); this.m.gain.value = meta.set.fx; this.m.connect(c.destination);
     this.amb = c.createGain(); this.amb.gain.value = meta.set.amb; this.amb.connect(c.destination);
+    this.mus = c.createGain(); this.mus.gain.value = meta.set.mus; this.mus.connect(c.destination);
+    const md = c.createDelay(1); md.delayTime.value = 0.33;
+    const mfb = c.createGain(); mfb.gain.value = 0.45;
+    const mlp = c.createBiquadFilter(); mlp.type = 'lowpass'; mlp.frequency.value = 2200;
+    md.connect(mlp); mlp.connect(mfb); mfb.connect(md);
+    const mw = c.createGain(); mw.gain.value = 0.5; mlp.connect(mw); mw.connect(this.mus);
+    this.musVerb = md;
     const d = c.createDelay(1); d.delayTime.value = 0.21;
     const fb = c.createGain(); fb.gain.value = 0.42;
     const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1600;
@@ -1265,15 +1405,27 @@ const Snd = {
     if (TH.water) { this.noise(700 + Math.random() * 300, 0.7, 0.5 * k, 0.16, 0.45, 'lowpass'); this.noise(2400, 2, 0.08 * k, 0.1, 0.4); }
     else this.noise(280 + Math.random() * 180, 1.2, 0.35 * k, 0.09, 0.25);
   },
-  jKeys(pos) { this.noise(3200 + Math.random() * 800, 6, 0.35, 0.06, 0.4, 'bandpass', pos); setTimeout(() => this.noise(3600, 6, 0.25, 0.05, 0.4, 'bandpass', pos), 70); },
+  jKeys(pos) { cap('звон ключей', pos, 1); this.noise(3200 + Math.random() * 800, 6, 0.35, 0.06, 0.4, 'bandpass', pos); setTimeout(() => this.noise(3600, 6, 0.25, 0.05, 0.4, 'bandpass', pos), 70); },
   jStep(pos) { this.noise(130, 0.8, 0.8, 0.16, 0.3, 'lowpass', pos); },
   jShout(pos) { this.tone(150, 85, 'sawtooth', 0.16, 0.7, 0.7, 0, pos); this.noise(300, 0.7, 0.4, 0.5, 0.6, 'lowpass', pos); },
-  gurgle(pos) { this.tone(95 + Math.random() * 30, 55, 'sine', 0.45, 0.35, 0.5, 0, pos); this.noise(380, 1, 0.3, 0.3, 0.5, 'lowpass', pos); },
-  bigSplash(pos) { this.noise(500, 0.5, 0.9, 0.7, 0.6, 'lowpass', pos); this.noise(2600, 1, 0.3, 0.5, 0.6, 'bandpass', pos); },
-  thornChime(pos) { this.tone(1046, 1046, 'sine', 0.12, 0.9, 0.7, 0, pos); this.tone(1568, 1568, 'sine', 0.05, 0.7, 0.7, 0.05, pos); },
-  heartBig(pos) { this.tone(58, 34, 'sine', 1.2, 0.26, 0.4, 0, pos); this.tone(52, 30, 'sine', 0.9, 0.26, 0.4, 0.24, pos); },
+  gurgle(pos) { cap('бульканье', pos, 1); this.tone(95 + Math.random() * 30, 55, 'sine', 0.45, 0.35, 0.5, 0, pos); this.noise(380, 1, 0.3, 0.3, 0.5, 'lowpass', pos); },
+  bigSplash(pos) { cap('всплеск', pos, 1); this.noise(500, 0.5, 0.9, 0.7, 0.6, 'lowpass', pos); this.noise(2600, 1, 0.3, 0.5, 0.6, 'bandpass', pos); },
+  thornChime(pos) { cap('звон шипа', pos); this.tone(1046, 1046, 'sine', 0.12, 0.9, 0.7, 0, pos); this.tone(1568, 1568, 'sine', 0.05, 0.7, 0.7, 0.05, pos); },
+  heartBig(pos) { cap('стук Сердца', pos); this.tone(58, 34, 'sine', 1.2, 0.26, 0.4, 0, pos); this.tone(52, 30, 'sine', 0.9, 0.26, 0.4, 0.24, pos); },
   burn() { this.noise(1400, 0.5, 0.25, 0.35, 0.3, 'bandpass'); this.crackle(); },
-  grind(pos) { this.noise(160, 1.2, 0.9, 1.4, 0.6, 'bandpass', pos); this.noise(420, 3, 0.25, 1.2, 0.5, 'bandpass', pos); this.tone(70, 55, 'sawtooth', 0.06, 1.3, 0.5, 0, pos); },
+  musNote(f, wave, dur, vol, delay) {
+    if (!this.c) return;
+    const c = this.c, t = c.currentTime + (delay || 0), o = c.createOscillator(); o.type = wave; o.frequency.value = f;
+    const g = c.createGain(), att = wave === 'sawtooth' ? 0.5 : 0.01;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + att); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let out = o;
+    if (wave === 'sawtooth') { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); out = lp; }
+    out.connect(g); g.connect(this.mus);
+    const s = c.createGain(); s.gain.value = 0.6; g.connect(s); s.connect(this.musVerb);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+  crumble(pos) { this.noise(220, 0.7, 0.9, 0.9, 0.6, 'lowpass', pos); for (let i = 0; i < 5; i++) setTimeout(() => this.noise(900 + Math.random() * 900, 2, 0.25, 0.08, 0.4, 'bandpass', pos), 120 + i * 90); },
+  grind(pos) { cap('скрип шкафа', pos); this.noise(160, 1.2, 0.9, 1.4, 0.6, 'bandpass', pos); this.noise(420, 3, 0.25, 1.2, 0.5, 'bandpass', pos); this.tone(70, 55, 'sawtooth', 0.06, 1.3, 0.5, 0, pos); },
   ending() { [262, 330, 392, 523, 659].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 3, 0.7, i * 0.35)); },
   drip(pos) { this.tone(1500 + Math.random() * 600, 480, 'sine', 0.09, 0.09, 0.9, 0, pos); },
   crackle(pos) { this.noise(2600, 0.8, pos ? 0.08 : 0.035, 0.02, 0, 'highpass', pos); },
@@ -1282,7 +1434,7 @@ const Snd = {
   heart(v) { v = v || 1; this.tone(62, 40, 'sine', 0.55 * v, 0.16, 0); this.tone(58, 38, 'sine', 0.4 * v, 0.16, 0, 0.2); },
   toll() { [110, 164.8, 220, 277].forEach((f, i) => this.tone(f, f * 0.995, 'sawtooth', 0.035, 3.2, 0.7, i * 0.12)); },
   descend() { [392, 330, 262, 196].forEach((f, i) => this.tone(f, f, 'sine', 0.09, 1.8, 0.7, i * 0.22)); },
-  roseHum(pos) { this.tone(523, 523, 'sine', 0.12, 1.4, 0.5, 0, pos); this.tone(784, 784, 'sine', 0.06, 1.2, 0.5, 0.12, pos); },
+  roseHum(pos) { cap('звон Розы', pos); this.tone(523, 523, 'sine', 0.12, 1.4, 0.5, 0, pos); this.tone(784, 784, 'sine', 0.06, 1.2, 0.5, 0.12, pos); },
   gust() {
     if (!this.c) return;
     const c = this.c, t = c.currentTime, s = c.createBufferSource(); s.buffer = this.nb; s.loop = true;
@@ -1290,12 +1442,13 @@ const Snd = {
     f.frequency.setValueAtTime(180, t); f.frequency.exponentialRampToValueAtTime(1300, t + 1.2); f.frequency.exponentialRampToValueAtTime(260, t + 2.6);
     const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 1.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
     const a = Math.random() * 6.28;
-    s.connect(f); f.connect(g); this.route(g, 0.4, { x: P.x + Math.cos(a) * 3, y: P.y + Math.sin(a) * 3 }); s.start(t); s.stop(t + 3);
+    const gp = { x: P.x + Math.cos(a) * 3, y: P.y + Math.sin(a) * 3 }; cap('сквозняк', gp);
+    s.connect(f); f.connect(g); this.route(g, 0.4, gp); s.start(t); s.stop(t + 3);
   },
   sputter() { for (let i = 0; i < 5; i++) setTimeout(() => this.crackle(), i * 60 + Math.random() * 40); this.tone(90, 50, 'sine', 0.2, 0.3, 0.3); },
   relight() { this.noise(900, 0.6, 0.18, 0.35, 0.2, 'lowpass'); },
-  whisper(v, pos) { this.noise(1100 + Math.random() * 900, 7, 0.2 + v * 0.5, 0.45, 0.8, 'bandpass', pos); this.noise(2200 + Math.random() * 700, 9, v * 0.3, 0.3, 0.8, 'bandpass', pos); },
-  slither(pos) { this.noise(380 + Math.random() * 200, 1.5, 0.35, 0.35, 0.5, 'bandpass', pos); },
+  whisper(v, pos) { cap('шёпот', pos, 1); this.noise(1100 + Math.random() * 900, 7, 0.2 + v * 0.5, 0.45, 0.8, 'bandpass', pos); this.noise(2200 + Math.random() * 700, 9, v * 0.3, 0.3, 0.8, 'bandpass', pos); },
+  slither(pos) { cap('шорох', pos, 1); this.noise(380 + Math.random() * 200, 1.5, 0.35, 0.35, 0.5, 'bandpass', pos); },
   scream() { this.tone(900, 110, 'sawtooth', 0.12, 1.1, 0.9); this.tone(640, 80, 'square', 0.05, 1.0, 0.9); this.noise(500, 0.5, 0.3, 0.6, 0.6, 'lowpass'); },
   hiss(pos) { this.noise(3200, 0.7, 0.3, 0.5, 0.6, 'highpass', pos); },
   clank() { this.tone(190, 90, 'square', 0.09, 0.16, 0.5); this.noise(1800, 3, 0.3, 0.2, 0.6); this.tone(72, 52, 'sawtooth', 0.06, 1.4, 0.5, 0.15); },
@@ -1344,11 +1497,15 @@ const NOTES = [
   ['В склепах кто-то ходит под водой. Он слеп. Я шёл медленно, почти не поднимая ног, и он проплыл в шаге от меня.', 'брат Ульрих'],
   ['Три шипа. Роза растила их, чтобы никто не тронул её сердце. Они лежат на самом дне, там, где сходятся корни.', 'Агнесса']
 ];
-const META_KEY = 'redrose_meta_v1';
+// игроки (слоты): 0 — исходные ключи, 1 и 2 — с суффиксом
+let PROFILE = 0;
+try { PROFILE = Math.max(0, Math.min(2, +(localStorage.getItem('redrose_profile') || 0) || 0)); } catch (e) {}
+const PSUF = PROFILE ? '_p' + PROFILE : '';
+const META_KEY = 'redrose_meta_v1' + PSUF;
 let meta = { notes: [], best: 0, vib: true };
 try { const m = JSON.parse(localStorage.getItem(META_KEY) || 'null'); if (m) meta = Object.assign(meta, m); } catch (e) {}
 function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} }
-const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, q: 'auto', joy: 'left', vib: true, tips: true };
+const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, mus: 0.6, caps: false, q: 'auto', joy: 'left', vib: true, tips: true };
 meta.set = Object.assign({}, SET0, meta.set || {});
 if (meta.vib === false) { meta.set.vib = false; delete meta.vib; }
 
@@ -1394,7 +1551,7 @@ const MON = { on: false, kind: null, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, px:
 let trail = [], lastCell = '', growT = 1, burnT = 0, stillT = 0, anchor = { x: 0, y: 0 }, growMsg = false, grabMsg = false, burnMsg = false;
 let thorns = [], thornT = 2, noiseR = 0, pulseR = 0, pulseT = 0, sneak = false;
 function makeNoise(r) { pulseR = Math.max(pulseR, r); pulseT = 0.6; }
-let hearths = [], hearthT = 0, shiftT = 25, shiftMsg = false;
+let hearths = [], hearthT = 0, shiftT = 25, shiftMsg = false, crackT2 = 0, crackSeen = false;
 // статистика этажа для испытаний
 let FS = { hid: false, poured: false, caught: false, woke: false, t0: 0 };
 
@@ -1440,7 +1597,7 @@ function resetFloorState() {
   collected = new Set(); exit = null; seen = new Map(); opened = new Set(); marks = new Map(); markN = 0;
   beacons = []; fires = []; proj = null; hidden = false;
   blackT = blackInterval(); blackDur = 0; preWarn = false; gateMsg = ''; eraseT = 50 + Math.random() * 30; resetShadow();
-  grown = new Set(); ovr = new Map(); usedHearth = new Set(); resetFloorMisc();
+  grown = new Set(); grownAt = new Map(); ovr = new Map(); usedHearth = new Set(); litSc = new Map(); resetFloorMisc();
   if (!solid(2.5, 1.5)) P.a = 0; else if (!solid(1.5, 2.5)) P.a = Math.PI / 2;
   thorns = []; if (isFinale()) placeThorns();
 }
@@ -1454,7 +1611,7 @@ function resetFloorMisc() {
 function newGame() {
   BASE = (Math.random() * 1e9) | 0;
   inv = JSON.parse(JSON.stringify(INV0));
-  P.fuel = 100; P.time = 0; P.dist = 0; P.gifts = []; P.ended = false; P.bombs = 0; darkWarned = lowWarned = false;
+  P.fuel = 100; P.time = 0; P.dist = 0; P.gifts = []; P.ended = false; P.bombs = 0; P.runId = Date.now(); P.lastHit = null; darkWarned = lowWarned = false;
   setFloor(1); resetFloorState();
 }
 function serialize() {
@@ -1462,15 +1619,16 @@ function serialize() {
     collected: [...collected], exit, opened: [...opened], inv, marks: [...marks.values()], markN,
     beacons: beacons.map(b => ({ x: b.x, y: b.y, life: b.life })),
     gifts: P.gifts, ended: P.ended, grown: [...grown], thorns, gateFree,
-    ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS };
+    runId: P.runId, ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS, sconces: [...litSc.entries()], hit: P.lastHit || null };
 }
 function restore(s) {
   if (!s.v) { s = { base: s.seed, floor: 1, x: s.x, y: s.y, a: s.a, fuel: s.fuel, petals: s.petals, time: s.time, dist: s.dist, collected: s.collected, exit: s.exit, opened: s.opened,
     inv: Object.assign(JSON.parse(JSON.stringify(INV0)), { parts: s.parts || [0, 0, 0], keys: s.keys || 0 }) }; }
   BASE = s.base; opened = new Set(s.opened || []); marks = new Map(); grown = new Set(s.grown || []);
+  grownAt = new Map([...grown].map(k => [k, s.time || 0]));
   for (const m of (s.marks || [])) marks.set(m.x + ',' + m.y + ',' + m.f, m);
   P.gifts = (s.gifts || []).slice(); P.ended = !!s.ended; P.bombs = s.bombs || 0;
-  ovr = new Map(s.ovr || []); usedHearth = new Set(s.hearth || []);
+  P.runId = s.runId || Date.now(); ovr = new Map(s.ovr || []); usedHearth = new Set(s.hearth || []); litSc = new Map(s.sconces || []); P.lastHit = null;
   setFloor(s.floor || 1);
   Object.assign(P, { x: s.x, y: s.y, a: s.a, pitch: 0, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
   collected = new Set(s.collected || []); exit = s.exit || null; seen = new Map();
@@ -1508,7 +1666,7 @@ function placeThorns() {
   for (const c of cand) { if (pick.length >= 3) break; if (!pick.some(p => p.x === c[0] && p.y === c[1])) pick.push({ x: c[0], y: c[1] }); }
   thorns = pick.map(p => ({ x: p.x + 0.5, y: p.y + 0.5, got: false }));
 }
-const SAVE_KEY = 'redrose_save_v1';
+const SAVE_KEY = 'redrose_save_v1' + PSUF;
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(serialize())); } catch (e) {} }
 function loadSave() { try { const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
@@ -1557,6 +1715,7 @@ function gatherLights(t) {
     else if (it.t === 'altar') add(it.x, it.y, 2.9, 0.8 * (0.92 + 0.08 * Math.sin(t * 9 + it.y * 5)));
   });
   for (const h of hearths) add(h.x, h.y, 2.2, 0.5 * (0.85 + 0.15 * Math.sin(t * 13 + h.x * 3)));
+  for (const s of litSc.values()) add(s.x, s.y, 3.1, 0.85 * (0.88 + 0.12 * Math.sin(t * 11 + s.x * 5)));
   for (const b of beacons) add(b.x, b.y, 3.0, 0.9 * Math.min(1, b.life / 8) * (0.92 + 0.08 * Math.sin(t * 9 + b.y)));
   for (const f of fires) add(f.x, f.y, 2.2 + 2.2 * Math.min(1, f.life / 4), 1.15 * (0.82 + 0.18 * Math.sin(t * 17 + f.x)));
   if (proj) add(proj.x, proj.y, 1.8, 0.9);
@@ -1580,6 +1739,7 @@ function litAt(x, y) {
     const dx = x - it.x, dy = y - it.y, d2 = dx * dx + dy * dy;
     if ((it.t === 'candle' && d2 < 2.6) || (it.t === 'altar' && d2 < 7.3)) lit = true;
   });
+  if (!lit) for (const s of litSc.values()) { const dx = x - s.x, dy = y - s.y; if (dx * dx + dy * dy < 6.2) { lit = true; break; } }
   return lit;
 }
 
@@ -1667,6 +1827,8 @@ function render(t) {
     if (hit === 5) tex = TEX_GATE;
     else if (hit === 6) tex = TEX_GROWN;
     else if (hit === 3 && TH.hearth && usedHearth.has(mx + ',' + my)) tex = TEX_HEARTH_COLD;
+    else if (hit === 7) tex = litSc.has(mx + ',' + my) ? TH.sconceOn : TH.sconceOff;
+    else if (hit === 8) tex = TH.crack;
     else if (side === 0 ? nicheAt(mx - stepX, my) : nicheAt(mx, my - stepY)) tex = TEX_NICHE;
     else tex = TH.tex[hit];
     const k = 64 / lineH;
@@ -1825,6 +1987,8 @@ function drawMini(t) {
     mctx.beginPath(); mctx.arc(66 + (it.x - P.x) * c, 66 + (it.y - P.y) * c, 2, 0, 7); mctx.fill();
   });
   for (const b of beacons) { mctx.fillStyle = '#ffd27a'; mctx.beginPath(); mctx.arc(66 + (b.x - P.x) * c, 66 + (b.y - P.y) * c, 2.6, 0, 7); mctx.fill(); }
+  mctx.fillStyle = '#ffb04a';
+  for (const s of litSc.values()) { if (Math.abs(s.x - P.x) > R || Math.abs(s.y - P.y) > R) continue; mctx.beginPath(); mctx.arc(66 + (s.x - P.x) * c, 66 + (s.y - P.y) * c, 2.4, 0, 7); mctx.fill(); }
   for (const f of fires) { mctx.fillStyle = '#ff7a2a'; mctx.beginPath(); mctx.arc(66 + (f.x - P.x) * c, 66 + (f.y - P.y) * c, 3, 0, 7); mctx.fill(); }
   if (exit) {
     let dx = (exit.x - P.x) * c, dy = (exit.y - P.y) * c; const d = Math.hypot(dx, dy);
@@ -1976,6 +2140,7 @@ addEventListener('keydown', e => {
   keys[e.code] = true; lastInput = 'kb';
   if (state === 'setS' && e.code === 'Escape') return closeSettings();
   if (state === 'chal' && e.code === 'Escape') return closeChal();
+  if (e.code === 'Escape' && BACKS[state]) return $(BACKS[state]).click();
   if (state === 'play') {
     if (e.code === 'Escape') pause();
     else if (e.code === 'KeyM') toggleMap();
@@ -2075,6 +2240,7 @@ function padBack() {
   else if (state === 'journal') closeJournal();
   else if (state === 'setS') closeSettings();
   else if (state === 'chal') closeChal();
+  else if (BACKS[state]) $(BACKS[state]).click();
 }
 function pollPad(dt) {
   const g = getPad();
@@ -2123,7 +2289,19 @@ function tryMove(mx, my) {
   if (mx) { const nx = P.x + mx, ex = nx + Math.sign(mx) * r; if (!solid(ex, P.y - r * 0.9) && !solid(ex, P.y + r * 0.9)) P.x = nx; }
   if (my) { const ny = P.y + my, ey = ny + Math.sign(my) * r; if (!solid(P.x - r * 0.9, ey) && !solid(P.x + r * 0.9, ey)) P.y = ny; }
 }
-const PICK = new Set(['petal', 'keypart', 'oil', 'rag', 'bone', 'wax', 'wick', 'chalk', 'note']);
+const PICK = new Set(['petal', 'keypart', 'oil', 'rag', 'bone', 'wax', 'wick', 'chalk', 'note', 'chest']);
+const LOOT = [['bomb', 3], ['torch', 2], ['candle', 2], ['keys', 2], ['oil', 4], ['rag', 2], ['chalk', 2]];
+function openChest(it) {
+  const r = rng(it.k || 1), got = [], n = 2 + (r() < 0.4 ? 1 : 0), total = LOOT.reduce((s, l) => s + l[1], 0);
+  for (let i = 0; i < n; i++) {
+    let v = r() * total, k = LOOT[0][0];
+    for (const [id, w] of LOOT) { if (v < w) { k = id; break; } v -= w; }
+    if (k === 'chalk') inv.chalk += 8; else inv[k]++;
+    got.push(k === 'chalk' ? 'мел' : INAME[k].toLowerCase());
+  }
+  Snd.forge(); Snd.chime(); buzz([30, 40, 30]);
+  toast('В тайнике: ' + got.join(', ') + '.', 4); save();
+}
 const PICK_MSG = { rag: 'Тряпка. Пригодится для бомбы или факела.', bone: 'Кость. Из неё выйдет рукоять факела.', wax: 'Огарок воска. С фитилём выйдет свеча.', wick: 'Фитиль. С воском выйдет свеча.', oil: 'Склянка масла. Факел возьмёт её сам, когда начнёт гаснуть.' };
 function update(dt, t) {
   P.time += dt;
@@ -2161,7 +2339,7 @@ function update(dt, t) {
   if (moving) { bobPh += moved * 7.5; stepAcc += moved; if (stepAcc > 0.7) { stepAcc = 0; Snd.step(sneak || hasGift('quiet')); } }
   bobY = Math.sin(bobPh) * Math.max(1, H / 150) * (sneak ? 0.5 : 1);
   // шум, который слышат обитатели
-  noiseR = moving ? (sneak ? 2.5 : 9) * (TH.water ? 1.2 : 1) : 0;
+  noiseR = moving ? (sneak ? 2.5 : 9) * (TH.water ? 1.1 : 1) : 0;
   if (pulseT > 0) { pulseT -= dt; noiseR = Math.max(noiseR, pulseR); if (pulseT <= 0) pulseR = 0; }
   if (hasGift('quiet')) noiseR *= 0.5;
 
@@ -2169,8 +2347,25 @@ function update(dt, t) {
   let burning = false;
   if (f > 0.3) {
     const gx = Math.floor(P.x + ca * 0.75), gy = Math.floor(P.y + sa * 0.75), gt = tile(gx, gy);
+    if (gt === 7 && !litSc.has(gx + ',' + gy)) {
+      if (P.fuel > 0 && blackDur <= 0 && !hidden) {
+        const lx = P.x - (gx + 0.5), ly = P.y - (gy + 0.5);
+        const ox = Math.abs(lx) > Math.abs(ly) ? Math.sign(lx) : 0, oy = ox ? 0 : Math.sign(ly);
+        litSc.set(gx + ',' + gy, { x: gx + 0.5 + ox * 0.62, y: gy + 0.5 + oy * 0.62 });
+        P.fuel = Math.max(0, P.fuel - 3); Snd.relight(); Snd.burn(); buzz(25); FS.sconce = (FS.sconce || 0) + 1;
+        toast(meta.tips && meta.tips.sconceLit ? 'Факел на стене зажжён.' : 'Факел на стене вспыхнул. Его свет останется здесь, и Тень сюда не войдёт.', 3);
+        if (!meta.tips) meta.tips = {}; meta.tips.sconceLit = 1; saveMeta(); save();
+      } else if (gateMsg !== 's' + gx + ',' + gy) { gateMsg = 's' + gx + ',' + gy; toast('Чтобы зажечь настенный факел, нужен свой огонь.', 2.5); }
+    }
+    if (gt === 8) {
+      burning = true; crackT2 += dt;
+      if (crackT2 > 0.7) {
+        crackT2 = 0; setOvr(gx, gy, 0); Snd.crumble({ x: gx + 0.5, y: gy + 0.5 }); buzz([40, 30, 60]); makeNoise(8);
+        toast('Кирпичи поддались и осыпались. За стеной тайник!', 3); save();
+      }
+    }
     if (gt === 3 && TH.hearth && !usedHearth.has(gx + ',' + gy)) {
-      usedHearth.add(gx + ',' + gy); P.fuel = Math.min(100, P.fuel + 35); lowWarned = P.fuel < 20; darkWarned = false;
+      usedHearth.add(gx + ',' + gy); P.fuel = Math.min(100, P.fuel + 22); lowWarned = P.fuel < 20; darkWarned = false;
       if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
       Snd.relight(); Snd.burn(); buzz(30); toast('Очаг ещё тлел. Ты подпалил от него факел.', 2.5); save();
     }
@@ -2200,7 +2395,7 @@ function update(dt, t) {
     }
   }
 
-  if (!burning) burnT = 0;
+  if (!burning) { burnT = 0; crackT2 = 0; }
   // факел
   if (P.fuel > 0 && !hidden) {
     P.fuel = Math.max(0, P.fuel - dt * 0.42 * (1 + 0.1 * (FLOOR - 1)) * (hasGift('longburn') ? 0.75 : 1));
@@ -2219,6 +2414,7 @@ function update(dt, t) {
     if (blackT <= 0) {
       preWarn = false; blackDur = (3 + Math.random() * 3) * (hasGift('ember') ? 0.5 : 1); Snd.sputter();
       if (P.fuel > 0 && !hidden) { toast('Ледяной сквозняк задул пламя…', 3); buzz(120); }
+      shadowAmbush();
     }
   }
   const playerLit = lights.length && litAt(P.x, P.y);
@@ -2231,6 +2427,7 @@ function update(dt, t) {
   else P.fear = Math.max(0, P.fear - dt * 2.5);
   if (TH.grow) updRoots(dt);
   if (TH.weak && playerLit) P.fear = Math.max(0, P.fear - dt * 6);
+  updMusic(dt, shD); updCaps(dt);
   if (TH.shift) { shiftT -= dt; if (shiftT < 0) { shiftT = 16 + Math.random() * 12; shiftShelves(); } }
   if (TH.hearth) {
     hearthT -= dt;
@@ -2251,6 +2448,11 @@ function update(dt, t) {
   if (RECIPES.some(canMake)) tip('craft', 'Можно смастерить что-то полезное: открой «Ремесло» (' + ctl('C', 'кнопка внизу', 'Y') + ').');
   if (exit && !isFinale()) tip('rose', 'Стрелка вверху ведёт к Розе. Слушай её звон: он слышен с той стороны, где она растёт.');
   if (SH.on && shD < 9) tip('shadow', 'Красные глаза — это Тень. Она боится света, а в темноте охотится. Не дай факелу погаснуть.');
+  if ((Math.floor(P.time * 4) & 3) === 0) {
+    const fc = castFace(2.6);
+    if (fc && fc.t === 8) tip('crack', 'Трещина в кладке… Кажется, за ней пустота. Упрись в неё, чтобы разбить.');
+    if (fc && fc.t === 7 && !litSc.has(fc.x + ',' + fc.y)) tip('sconce', 'Погасший факел на стене. Подойди и упрись в него: он загорится от твоего огня и будет отгонять Тень.');
+  }
   updTips(dt);
   if (dark || P.fear > 35) { heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); if (P.fear > 45) buzz(25); } }
   flick = 0.9 + 0.06 * Math.sin(t * 13) + 0.04 * Math.sin(t * 29 + 1) + (Math.random() - 0.5) * 0.04;
@@ -2285,6 +2487,8 @@ function update(dt, t) {
     } else if (it.t === 'keypart') {
       inv.parts[it.k]++; Snd.forge(); buzz(15);
       toast('Найдено: ' + PART_NAMES[it.k] + '.' + (canMake(RECIPES[0]) ? ' Можно собрать ключ в «Ремесле».' : ''), 3);
+    } else if (it.t === 'chest') {
+      openChest(it);
     } else if (it.t === 'chalk') {
       inv.chalk += 8; Snd.forge(); toast('Кусок мела. Ещё 8 меток.', 2.5);
     } else if (it.t === 'note') {
@@ -2370,7 +2574,7 @@ function fieldAt(x, y) { const lx = x - fox, ly = y - foy; return (lx < 0 || ly 
 function spawnShadow() {
   const cand = [];
   for (let i = 0; i < WD * WD; i++) {
-    const d = field[i]; if (d < 16 || d > 34) continue;
+    const d = field[i], near = blackDur > 0 || P.fuel <= 0; if (d < (near ? 10 : 16) || d > (near ? 24 : 34)) continue;
     const x = fox + i % WD, y = foy + ((i / WD) | 0);
     if ((x & 1) && (y & 1) && !litAt(x + 0.5, y + 0.5)) cand.push(x, y);
   }
@@ -2380,12 +2584,28 @@ function spawnShadow() {
   SH.on = true; SH.life = 30 + Math.random() * 25; SH.rolled = false; SH.leaving = false;
   return true;
 }
+// во внезапной тьме Тень подкрадывается: оказывается в 7–11 шагах, вне прямой видимости
+function shadowAmbush() {
+  if (hidden || litAt(P.x, P.y)) return;
+  const cur = SH.on ? fieldAt(SH.cx, SH.cy) : -1;
+  if (cur >= 0 && cur <= 11) return;
+  const cand = [];
+  for (let i = 0; i < WD * WD; i++) {
+    const d = field[i]; if (d < 7 || d > 11) continue;
+    const x = fox + i % WD, y = foy + ((i / WD) | 0);
+    if ((x & 1) && (y & 1) && !litAt(x + 0.5, y + 0.5) && !monLOS(x + 0.5, y + 0.5)) cand.push(x, y);
+  }
+  if (!cand.length) return;
+  const k = ((Math.random() * cand.length / 2) | 0) * 2;
+  SH.cx = SH.tx = SH.px = cand[k]; SH.cy = SH.ty = SH.py = cand[k + 1]; SH.x = SH.cx + 0.5; SH.y = SH.cy + 0.5;
+  SH.on = true; SH.life = Math.max(SH.life || 0, 20); SH.rolled = false; SH.leaving = false; SH.seenMsg = false;
+}
 function dissolveShadow(msg) {
   Snd.hiss({ x: SH.x, y: SH.y }); SH.on = false; SH.spawnT = 12 + Math.random() * 10;
   if (msg) toast(msg, 2.5);
 }
 function touchShadow() {
-  fearUp(40); if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
+  fearUp(40); P.lastHit = { src: 'Тень', t: P.time }; if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
   Snd.scream(); buzz([80, 60, 160]); toast('Тень прошла сквозь тебя. Холод сжал сердце.', 3.5);
   SH.on = false; SH.spawnT = 18 + Math.random() * 15;
 }
@@ -2405,7 +2625,7 @@ function updShadow(dt, dark) {
   if (SH.leaving) mode = -1;
   else if (hidden) mode = 2;
   else if (dark) mode = 1;
-  else { const edge = LR + 1.5; mode = pd > edge + 2 ? 1 : pd < edge ? -1 : 0; }
+  else { const edge = LR + 0.9; mode = pd > edge + 2 ? 1 : pd < edge ? -1 : 0; }
   let speed;
   if (mode === 1 && dark) speed = (TH.weak ? 0.85 : 1) * Math.min(2.45,2.2 + 0.06 * (FLOOR - 1) + (TH.hear && moving && !sneak && !hasGift('quiet') ? 0.12 : 0));
   else if (mode === -1) speed = SH.leaving ? 1.4 : 2.4;
@@ -2463,7 +2683,7 @@ function growCell(x, y) {
   if (beacons.some(b => Math.hypot(b.x - cx, b.y - cy) < 2.5) || fires.some(f => Math.hypot(f.x - cx, f.y - cy) < 2.5)) return;
   if (chunkAt(x, y).items.some(it => it.id === id && PICK.has(it.t) && !collected.has(it.id))) return;
   if (SH.on && Math.hypot(SH.x - cx, SH.y - cy) < 1) return;
-  setTile(x, y, 6); grown.add(id);
+  setTile(x, y, 6); grown.add(id); grownAt.set(id, P.time);
   if (!growMsg) { growMsg = true; toast('За спиной что-то хрустнуло: корни затянули коридор. Факелом их можно прожечь.', 4); }
 }
 function updRoots(dt) {
@@ -2478,14 +2698,81 @@ function updRoots(dt) {
       if (Math.hypot(c.x + 0.5 - P.x, c.y + 0.5 - P.y) < 5) continue;
       if (Math.random() < 0.55) growCell(c.x, c.y);
     }
+    // старые заросли увядают: корни давят на тех, кто рядом, но не запечатывают этаж навсегда
+    const life = isFinale() ? 60 : 90, cap = isFinale() ? 40 : 70;
+    for (const k of grown) {
+      const born = grownAt.get(k);
+      if (grown.size > cap || born === undefined || P.time - born > life) {
+        const [gx, gy] = k.split(',').map(Number);
+        if (Math.hypot(gx + 0.5 - P.x, gy + 0.5 - P.y) > 3) { clearGrowth(gx, gy); grownAt.delete(k); }
+      } else break;
+    }
   }
   if (Math.hypot(P.x - anchor.x, P.y - anchor.y) > 1.5) { anchor = { x: P.x, y: P.y }; stillT = 0; grabMsg = false; }
   else {
     stillT += dt;
     if (stillT > 8) {
-      fearUp(dt * 5);
+      fearUp(dt * 5); P.lastHit = { src: 'Корни', t: P.time };
       if (!grabMsg) { grabMsg = true; toast('Корни оплетают ноги. Не стой на месте!', 3); buzz([40, 40, 40]); }
     }
+  }
+}
+
+/* ================= Музыка ================= */
+const MUSIC = {
+  'Покои графа': { notes: [293.7, 349.2, 392, 440, 523.3, 587.3], wave: 'triangle', dur: 1.4, vol: 0.05, gap: [1.6, 3.4], run: 3 },
+  'Темницы': { notes: [110, 130.8, 146.8, 164.8], wave: 'bell', dur: 3.5, vol: 0.06, gap: [4, 7] },
+  'Затопленные склепы': { notes: [880, 1046.5, 1174.7, 1318.5, 1568], wave: 'sine', dur: 2.8, vol: 0.03, gap: [2, 5] },
+  'Корни': { notes: [55, 61.7, 65.4, 73.4], wave: 'sine', dur: 1.8, vol: 0.1, gap: [1.6, 2.2] },
+  'Библиотека графа': { notes: [1046.5, 1174.7, 1318.5, 1568, 1760, 2093], wave: 'triangle', dur: 0.7, vol: 0.025, gap: [0.6, 1.8], run: 4 },
+  'Часовня': { chords: [[220, 261.6, 329.6], [196, 246.9, 293.7], [174.6, 220, 261.6], [164.8, 207.7, 246.9]], wave: 'sawtooth', dur: 5.5, vol: 0.022, gap: [5, 6] },
+  'Кухни и погреба': { notes: [196, 220, 246.9, 293.7, 329.6, 392], wave: 'triangle', dur: 0.9, vol: 0.04, gap: [0.9, 2.2], run: 2 }
+};
+let musT = 3, musIdx = 0, musDuck = 1;
+function updMusic(dt, shD) {
+  if (!Snd.c || !Snd.mus) return;
+  const m = MUSIC[TH.name]; if (!m) return;
+  const monNear = MON.on && Math.hypot(MON.x - P.x, MON.y - P.y) < 7;
+  const duck = (SH.on && shD < 8) || monNear || blackDur > 0 ? 0.1 : 1;
+  if (duck !== musDuck) { musDuck = duck; Snd.mus.gain.setTargetAtTime(meta.set.mus * duck, Snd.c.currentTime, duck < 1 ? 0.25 : 1.5); }
+  musT -= dt; if (musT > 0) return;
+  musT = m.gap[0] + Math.random() * (m.gap[1] - m.gap[0]);
+  if (duck < 1) return;
+  if (m.chords) {
+    const ch = m.chords[musIdx++ % m.chords.length];
+    for (const f of ch) Snd.musNote(f, 'sawtooth', m.dur, m.vol);
+    Snd.musNote(ch[0] / 2, 'sawtooth', m.dur, m.vol * 0.8);
+    return;
+  }
+  const n = m.run ? 1 + Math.floor(Math.random() * m.run) : 1, i = Math.floor(Math.random() * m.notes.length);
+  for (let k = 0; k < n; k++) {
+    const f = m.notes[(i + k * (Math.random() < 0.5 ? 1 : 2)) % m.notes.length];
+    if (m.wave === 'bell') { Snd.musNote(f, 'sine', m.dur, m.vol, k * 0.3); Snd.musNote(f * 2.76, 'sine', m.dur * 0.6, m.vol * 0.3, k * 0.3); }
+    else Snd.musNote(f, m.wave, m.dur, m.vol, k * 0.28);
+  }
+}
+
+/* ================= Значки звуков ================= */
+const capMap = new Map();
+function cap(label, pos, threat) {
+  if (!meta.set.caps || !pos || state !== 'play') return;
+  let c = capMap.get(label);
+  if (!c) {
+    const el = document.createElement('div');
+    el.innerHTML = '<i></i><span></span>'; if (threat) el.classList.add('threat');
+    $('caps').appendChild(el); c = { el, label }; capMap.set(label, c);
+  }
+  c.x = pos.x; c.y = pos.y; c.t = 1.8; c.el.classList.add('on');
+}
+function updCaps(dt) {
+  for (const c of capMap.values()) {
+    if (c.t <= 0) continue;
+    c.t -= dt;
+    if (c.t <= 0 || state !== 'play') { c.t = 0; c.el.classList.remove('on'); continue; }
+    const rel = Math.atan2(c.y - P.y, c.x - P.x) - P.a, d = Math.hypot(c.x - P.x, c.y - P.y);
+    c.el.style.left = (50 + Math.sin(rel) * 40) + '%'; c.el.style.top = (50 - Math.cos(rel) * 34) + '%';
+    c.el.firstElementChild.style.transform = 'rotate(' + rel + 'rad)';
+    c.el.lastElementChild.textContent = c.label + (d < 4 ? ' · рядом' : '');
   }
 }
 
@@ -2540,7 +2827,7 @@ function shiftShelves() {
 /* ================= Обитатели: Тюремщик и Утопленник ================= */
 function monLOS(x, y) {
   const dx = P.x - x, dy = P.y - y, d = Math.hypot(dx, dy);
-  if (d > 8) return false;
+  if (d > 7) return false;
   const n = Math.ceil(d / 0.2);
   for (let i = 1; i < n; i++) {
     const t = tile(Math.floor(x + dx * i / n), Math.floor(y + dy * i / n));
@@ -2584,15 +2871,15 @@ const STEAL = ['keys', 'bomb', 'torch', 'candle', 'oil', 'rag', 'wax', 'wick', '
 function monCatch() {
   const pos = { x: MON.x, y: MON.y };
   if (MON.kind === 'jailer') {
-    FS.caught = true; fearUp(30); Snd.jShout(pos); buzz([90, 50, 120]);
+    FS.caught = true; fearUp(30); P.lastHit = { src: 'Тюремщик', t: P.time }; Snd.jShout(pos); buzz([90, 50, 120]);
     const k = STEAL.find(k => inv[k] > 0);
     if (k) { inv[k]--; toast('Тюремщик схватил тебя и вырвал: ' + INAME[k].toLowerCase() + '. Потом отпустил с хохотом.', 4); }
     else toast('Тюремщик тряхнул тебя за шиворот и отшвырнул, как пустой мешок.', 3.5);
   } else {
-    fearUp(35); P.fuel = Math.max(0, P.fuel - 20); Snd.bigSplash(pos); buzz([120, 60, 120]);
+    fearUp(35); P.lastHit = { src: 'Утопленник', t: P.time }; P.fuel = Math.max(0, P.fuel - 20); Snd.bigSplash(pos); buzz([120, 60, 120]);
     toast('Ледяная рука утянула тебя под воду. Факел зашипел и едва не погас.', 4);
   }
-  MON.stunT = 6; MON.mode = 'patrol'; MON.sawHide = false; save();
+  MON.stunT = 8; MON.mode = 'patrol'; MON.sawHide = false; save();
 }
 function updMon(dt) {
   if (!MON.kind) return;
@@ -2610,14 +2897,14 @@ function updMon(dt) {
       MON.mode = 'chase'; MON.seenT = 4;
     } else if (MON.mode === 'chase' && !(hidden && MON.sawHide)) { MON.seenT -= dt; if (MON.seenT <= 0) MON.mode = 'patrol'; }
     chase = MON.mode === 'chase';
-    speed = chase ? 2.25 : 1.15;
+    speed = chase ? 2.05 : 1.15;
   } else {
     if (ed < noiseR) {
       if (MON.mode !== 'hunt') { Snd.gurgle(pos); if (!MON.msg) { MON.msg = true; toast('Под водой что-то шевельнулось и двинулось на звук.', 3.5); } }
       MON.mode = 'hunt'; MON.hearT = 2.5; FS.woke = true;
     } else if (MON.mode === 'hunt') { MON.hearT -= dt; if (MON.hearT <= 0) MON.mode = 'patrol'; }
     chase = MON.mode === 'hunt';
-    speed = chase ? 2.0 : 0.8;
+    speed = chase ? 1.7 : 0.8;
   }
   const gx = MON.tx + 0.5, gy = MON.ty + 0.5, dx = gx - MON.x, dy = gy - MON.y, dl = Math.hypot(dx, dy);
   if (dl < 0.04) monStep(chase);
@@ -2675,7 +2962,7 @@ $('jList').addEventListener('click', e => { const b = e.target.closest('[data-n]
 function closeJournal() { state = 'pause'; show('menu'); menuState(); }
 
 /* ================= Экраны ================= */
-const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS'];
+const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS', 'runS', 'cardS', 'profS', 'xferS'];
 function show(id) { for (const s of SCREENS) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
 let wake = null;
 function play() {
@@ -2687,6 +2974,8 @@ function closeOverlay() { state = 'play'; show(null); last = performance.now(); 
 function menuState() {
   $('bJournal').hidden = !meta.notes.length;
   const nd = CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).length;
+  $('bRuns').hidden = !(meta.runs && meta.runs.length);
+  $('bProf').textContent = 'Игрок: ' + profName(PROFILE, meta);
   $('bChal').textContent = 'Испытания · ' + nd + ' из ' + CHALLENGES.length;
   const b = $('best'); b.hidden = !meta.best; b.textContent = 'Глубже всего: этаж ' + roman(meta.best || 1);
 }
@@ -2770,6 +3059,7 @@ function ending(kind) {
   hint.textContent = 'Прочитано записок: ' + meta.notes.length + ' из ' + NOTES.length + '. Тот, кто узнает всю правду, увидит у Сердца другой финал.';
   $('endStats').innerHTML = statsHTML();
   $('bEndDeeper').hidden = kind === 'stay';
+  recordRun(kind);
   show('endS');
   if (kind === 'stay') clearSave(); else save();
 }
@@ -2788,12 +3078,214 @@ function descend() {
   const intro = isFinale() ? FINAL_ENTER : TH.intro;
   if (intro) setTimeout(() => { if (state === 'play') toast(intro, 7); }, 2500);
 }
+function deathCause() {
+  const h = P.lastHit;
+  if (h && P.time - h.t < 15) return h.src;
+  if (P.fuel <= 0) return 'Погас факел';
+  return 'Страх';
+}
 function lose() {
   state = 'lose'; releaseInput(); clearSave();
-  meta.best = Math.max(meta.best || 0, FLOOR); saveMeta();
-  $('loseStats').innerHTML = statsHTML() + '<dt>Рекорд</dt><dd>этаж ' + roman(meta.best) + '</dd>';
+  meta.best = Math.max(meta.best || 0, FLOOR);
+  const cause = deathCause();
+  recordRun('death', cause);
+  $('loseStats').innerHTML = statsHTML() + '<dt>Причина</dt><dd>' + cause + '</dd><dt>Рекорд</dt><dd>этаж ' + roman(meta.best) + '</dd>';
   show('lose');
 }
+
+/* ---------- Летопись забегов ---------- */
+let lastRun = null;
+const BACKS = { runs: 'bRunsClose', card: 'bCardClose', prof: 'bProfClose', xfer: 'bXClose' };
+const OUT_TEXT = { death: 'Погиб', plain: 'Остановил Сердце', stop: 'Остановил Сердце и узнал правду', stay: 'Занял место Изольды' };
+function recordRun(out, cause) {
+  if (!meta.runs) meta.runs = [];
+  const id = P.runId || Date.now(), prev = meta.runs.find(r => r.id === id);
+  const e = { id, d: Date.now(), f: FLOOR, th: TH.name, t: Math.round(P.time), st: Math.round(P.dist), g: P.gifts.slice(), out, cause: cause || '',
+    fin: out !== 'death' ? out : (prev && prev.fin) || '' };
+  const i = meta.runs.findIndex(r => r.id === e.id);
+  if (i >= 0) meta.runs.splice(i, 1);
+  meta.runs.unshift(e); if (meta.runs.length > 20) meta.runs.length = 20;
+  saveMeta(); lastRun = e;
+}
+const CAUSE_TEXT = { 'Тень': 'Тень настигла', 'Тюремщик': 'Схвачен Тюремщиком', 'Утопленник': 'Утянут Утопленником', 'Корни': 'Оплетён корнями', 'Погас факел': 'Угас вместе с факелом', 'Страх': 'Сломлен страхом' };
+function runLine(r) {
+  if (r.out === 'death') return (CAUSE_TEXT[r.cause] || r.cause) + (r.fin ? ' · после финала' : '');
+  return OUT_TEXT[r.out] || '';
+}
+function fmtDate(ms) { const d = new Date(ms); return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ', ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }
+function openRuns() {
+  state = 'runs';
+  const runs = meta.runs || [];
+  $('runSum').textContent = 'Забегов: ' + runs.length + ' · глубже всего: этаж ' + roman(Math.max(1, meta.best || 1)) + ' · концовок: ' + (meta.endings || 0);
+  $('runList').innerHTML = runs.map(r => {
+    const gifts = r.g.map(id => (GIFTS.find(x => x.id === id) || {}).name).filter(Boolean).join(', ');
+    return '<div class="' + (r.out !== 'death' || r.fin ? 'win' : '') + '"><b>' + roman(r.f) + '</b><span>' + runLine(r) + '</span><em>' + fmtDate(r.d) + '</em>' +
+      '<small>' + r.th + ' · ' + fmt(r.t) + ' · ' + r.st + ' шагов' + (gifts ? ' · дары: ' + gifts : '') + '</small></div>';
+  }).join('') || '<p class="help">Здесь появятся твои забеги.</p>';
+  show('runS');
+}
+$('bRuns').onclick = openRuns;
+$('bRunsClose').onclick = () => { state = 'menu'; menuState(); show('menu'); };
+
+/* ---------- Карточка итога ---------- */
+let cardUrl = null, cardBlob = null, cardFrom = 'lose';
+function drawRose(g, cx, cy, r) {
+  const gr = g.createRadialGradient(cx, cy, 0, cx, cy, r * 2.2);
+  gr.addColorStop(0, 'rgba(200,20,45,0.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r * 2.2, 0, 7); g.fill();
+  g.strokeStyle = '#2f6a2a'; g.lineWidth = r * 0.08; g.beginPath(); g.moveTo(cx, cy + r * 0.6); g.quadraticCurveTo(cx - r * 0.25, cy + r * 1.4, cx - r * 0.1, cy + r * 2); g.stroke();
+  g.fillStyle = '#3e8a34'; g.beginPath(); g.ellipse(cx - r * 0.45, cy + r * 1.25, r * 0.38, r * 0.15, -0.5, 0, 7); g.ellipse(cx + r * 0.3, cy + r * 1.05, r * 0.38, r * 0.15, 0.5, 0, 7); g.fill();
+  for (const [rr, col] of [[1, '#6e0818'], [0.8, '#a8122c'], [0.58, '#d42a40']]) { g.fillStyle = col; g.beginPath(); g.arc(cx, cy, r * rr, 0, 7); g.fill(); }
+  g.strokeStyle = '#5e0612'; g.lineWidth = r * 0.06;
+  for (const [rr, a0] of [[0.42, 0.3], [0.26, 2.2], [0.12, 4]]) { g.beginPath(); g.arc(cx, cy - r * 0.04, r * rr, a0, a0 + 5); g.stroke(); }
+}
+async function makeCard(e) {
+  try { await Promise.all(['130px UnifrakturMaguntia', '60px Kurale', 'italic 40px "Old Standard TT"'].map(f => document.fonts.load(f))); } catch (err) {}
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+  const g = c.getContext('2d');
+  const bg = g.createRadialGradient(540, 520, 60, 540, 600, 900);
+  bg.addColorStop(0, '#2a0a12'); bg.addColorStop(0.55, '#110609'); bg.addColorStop(1, '#050406');
+  g.fillStyle = bg; g.fillRect(0, 0, 1080, 1350);
+  g.strokeStyle = 'rgba(201,189,168,0.25)'; g.lineWidth = 3; g.strokeRect(40, 40, 1000, 1270);
+  drawRose(g, 540, 330, 120);
+  g.textAlign = 'center'; g.fillStyle = '#d42a40';
+  g.font = '150px UnifrakturMaguntia, serif'; g.fillText('Red Rose', 540, 640);
+  g.fillStyle = '#c9bda8'; g.font = '28px "Old Standard TT", Georgia, serif';
+  g.fillText('ЛАБИРИНТ ЗАМКА РОЗЕНХОЛЛ', 540, 690);
+  g.fillStyle = '#f0b7b7'; g.font = '72px Kurale, Georgia, serif';
+  g.fillText('Этаж ' + roman(e.f), 540, 810);
+  g.fillStyle = '#c9bda8'; g.font = '40px Kurale, Georgia, serif'; g.fillText(e.th, 540, 865);
+  g.fillStyle = e.out === 'death' ? '#e2913f' : '#f0d79a'; g.font = 'italic 44px "Old Standard TT", Georgia, serif';
+  g.fillText(runLine(e), 540, 950);
+  g.fillStyle = '#c9bda8'; g.font = '34px "Old Standard TT", Georgia, serif';
+  g.fillText('Время ' + fmt(e.t) + '   ·   ' + e.st + ' шагов', 540, 1030);
+  const gifts = e.g.map(id => (GIFTS.find(x => x.id === id) || {}).name).filter(Boolean);
+  if (gifts.length) {
+    g.fillStyle = '#7d7266'; g.font = '28px "Old Standard TT", Georgia, serif';
+    const lines = []; let line = 'Дары: ';
+    for (const w of gifts) { const next = line + (line === 'Дары: ' ? '' : ', ') + w; if (g.measureText(next).width > 900) { lines.push(line); line = w; } else line = next; }
+    lines.push(line);
+    lines.slice(0, 3).forEach((l, i) => g.fillText(l, 540, 1100 + i * 40));
+  }
+  g.fillStyle = '#7d7266'; g.font = '24px "Old Standard TT", Georgia, serif';
+  g.fillText(fmtDate(e.d) + '  ·  ' + BUILD + '  ·  kryukovmikhail.github.io/redrose', 540, 1270);
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
+async function openCard(from) {
+  if (!lastRun) return;
+  cardFrom = from; state = 'card';
+  cardBlob = await makeCard(lastRun);
+  if (cardUrl) URL.revokeObjectURL(cardUrl);
+  cardUrl = URL.createObjectURL(cardBlob);
+  $('cardImg').src = cardUrl;
+  let canShare = false;
+  try { canShare = !!(navigator.canShare && navigator.canShare({ files: [new File([cardBlob], 'redrose.png', { type: 'image/png' })] })); } catch (err) {}
+  $('bCardShare').hidden = !canShare;
+  show('cardS');
+}
+$('bLoseCard').onclick = () => openCard('lose');
+$('bEndCard').onclick = () => openCard('endS');
+$('bCardClose').onclick = () => { state = cardFrom === 'lose' ? 'lose' : 'ending'; show(cardFrom); };
+$('bCardSave').onclick = () => {
+  if (!cardUrl) return;
+  const a = document.createElement('a'); a.href = cardUrl; a.download = 'red-rose-' + roman(lastRun.f) + '.png';
+  document.body.appendChild(a); a.click(); a.remove();
+};
+$('bCardShare').onclick = async () => {
+  try { await navigator.share({ files: [new File([cardBlob], 'red-rose.png', { type: 'image/png' })], title: 'Red Rose', text: 'Этаж ' + roman(lastRun.f) + ' в замке Розенхолл' }); } catch (err) {}
+};
+
+/* ---------- Игроки (слоты) ---------- */
+function profMeta(i) { try { return JSON.parse(localStorage.getItem('redrose_meta_v1' + (i ? '_p' + i : '')) || 'null') || {}; } catch (e) { return {}; } }
+function profName(i, m) { return (m && m.name) || 'Игрок ' + (i + 1); }
+function openProf() {
+  state = 'prof';
+  $('profList').innerHTML = [0, 1, 2].map(i => {
+    const m = i === PROFILE ? meta : profMeta(i), cur = i === PROFILE;
+    const stat = m.best ? 'глубже всего: этаж ' + roman(m.best) + ' · записок: ' + (m.notes || []).length + ' · забегов: ' + (m.runs || []).length : 'ещё не играл';
+    return '<div class="prof' + (cur ? ' cur' : '') + '">' + (cur ? '<input id="profName" maxlength="20" value="' + profName(i, m).replace(/"/g, '&quot;') + '" aria-label="Имя игрока">' : '<span>' + profName(i, m) + '</span>') +
+      '<small>' + stat + '</small>' + (cur ? '<button class="btn small" disabled>Сейчас</button>' : '<button class="btn small" data-p="' + i + '">Играть</button>') + '</div>';
+  }).join('');
+  const inp = $('profName');
+  if (inp) inp.addEventListener('input', () => { meta.name = inp.value.trim().slice(0, 20); saveMeta(); menuState(); });
+  show('profS');
+}
+$('profList').addEventListener('click', e => {
+  const b = e.target.closest('[data-p]'); if (!b) return;
+  save(); saveMeta();
+  try { localStorage.setItem('redrose_profile', b.dataset.p); } catch (err) {}
+  location.reload();
+});
+$('bProf').onclick = openProf;
+$('bProfClose').onclick = () => { state = 'menu'; menuState(); show('menu'); };
+
+/* ---------- Перенос прогресса ---------- */
+function b64(buf) { let s = ''; const a = new Uint8Array(buf); for (let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode.apply(null, a.subarray(i, i + 0x8000)); return btoa(s); }
+function unb64(str) { const s = atob(str), a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+async function encodeProgress() {
+  save(); saveMeta();
+  const obj = { v: 1, meta, save: loadSave() };
+  const json = JSON.stringify(obj);
+  if (window.CompressionStream) {
+    const st = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+    return 'RR1:' + b64(await new Response(st).arrayBuffer());
+  }
+  return 'RR0:' + btoa(unescape(encodeURIComponent(json)));
+}
+async function decodeProgress(code) {
+  code = code.trim().replace(/\s+/g, '');
+  let json;
+  if (code.startsWith('RR1:')) {
+    if (!window.DecompressionStream) throw new Error('Этот браузер не умеет распаковывать сжатый код.');
+    const st = new Blob([unb64(code.slice(4))]).stream().pipeThrough(new DecompressionStream('gzip'));
+    json = await new Response(st).text();
+  } else if (code.startsWith('RR0:')) json = decodeURIComponent(escape(atob(code.slice(4))));
+  else throw new Error('Это не код Red Rose: он должен начинаться с RR1: или RR0:.');
+  const obj = JSON.parse(json);
+  if (!obj || obj.v !== 1 || !obj.meta || typeof obj.meta !== 'object') throw new Error('Код повреждён или от другой игры.');
+  return obj;
+}
+let xConfirm = false;
+async function openXfer() {
+  state = 'xfer'; xConfirm = false;
+  $('xMsg').textContent = ''; $('bXLoad').textContent = 'Загрузить прогресс'; $('xIn').value = '';
+  $('xOut').value = 'Готовлю код…';
+  show('xferS');
+  try { $('xOut').value = await encodeProgress(); } catch (e) { $('xOut').value = ''; $('xMsg').textContent = 'Не получилось собрать код: ' + e.message; }
+}
+$('bXfer').onclick = openXfer;
+$('bXClose').onclick = () => { state = 'setS'; syncSettings(); show('setS'); };
+$('bXCopy').onclick = () => {
+  const v = $('xOut').value;
+  const done = () => { $('xMsg').textContent = 'Код скопирован. Вставь его на другом устройстве в «Настройки → Перенести прогресс».'; };
+  try { navigator.clipboard.writeText(v).then(done, () => { $('xOut').select(); $('xMsg').textContent = 'Код выделен: скопируй его вручную.'; }); }
+  catch (e) { $('xOut').select(); $('xMsg').textContent = 'Код выделен: скопируй его вручную.'; }
+};
+$('bXFile').onclick = () => {
+  const blob = new Blob([$('xOut').value], { type: 'text/plain' }), url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'red-rose-progress.txt'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+};
+$('xFileIn').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader(); r.onload = () => { $('xIn').value = String(r.result || ''); $('xMsg').textContent = 'Файл прочитан. Нажми «Загрузить прогресс».'; }; r.readAsText(f);
+});
+$('bXLoad').onclick = async () => {
+  const code = $('xIn').value;
+  if (!code.trim()) { $('xMsg').textContent = 'Сначала вставь код или выбери файл.'; return; }
+  let obj;
+  try { obj = await decodeProgress(code); } catch (e) { $('xMsg').textContent = e.message || 'Код не читается.'; return; }
+  if (!xConfirm) {
+    xConfirm = true; $('bXLoad').textContent = 'Да, заменить прогресс';
+    $('xMsg').textContent = 'В коде: этаж ' + roman(obj.meta.best || 1) + ' (рекорд), записок ' + (obj.meta.notes || []).length + '. Текущий прогресс игрока «' + profName(PROFILE, meta) + '» заменится. Нажми ещё раз, чтобы подтвердить.';
+    return;
+  }
+  try {
+    localStorage.setItem(META_KEY, JSON.stringify(obj.meta));
+    if (obj.save) localStorage.setItem(SAVE_KEY, JSON.stringify(obj.save)); else localStorage.removeItem(SAVE_KEY);
+  } catch (e) { $('xMsg').textContent = 'Не получилось сохранить: хранилище браузера недоступно.'; return; }
+  location.reload();
+};
 let descMode = 'floor';
 function startGifts() { return [...new Set(CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).map(c => c.gift))]; }
 function startNew() {
@@ -2825,11 +3317,11 @@ $('bCraftClose').onclick = closeOverlay;
 let setFrom = 'menu';
 function syncSettings() {
   const s = meta.set;
-  $('sSens').value = s.sens; $('sFx').value = s.fx; $('sAmb').value = s.amb;
-  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0' };
+  $('sSens').value = s.sens; $('sFx').value = s.fx; $('sAmb').value = s.amb; $('sMus').value = s.mus;
+  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0', sCaps: s.caps ? '1' : '0' };
   for (const id in segs) for (const b of $(id).children) b.classList.toggle('on', b.dataset.v === segs[id]);
   document.body.classList.toggle('joyR', s.joy === 'right');
-  if (Snd.c) { Snd.m.gain.value = s.fx; Snd.amb.gain.value = s.amb; }
+  if (Snd.c) { Snd.m.gain.value = s.fx; Snd.amb.gain.value = s.amb; Snd.mus.gain.value = s.mus * musDuck; }
 }
 function openSettings() { setFrom = state; state = 'setS'; syncSettings(); show('setS'); }
 function closeSettings() { saveMeta(); state = setFrom; menuState(); show('menu'); }
@@ -2838,9 +3330,11 @@ $('bSetClose').onclick = closeSettings;
 $('sSens').addEventListener('input', e => { meta.set.sens = +e.target.value; });
 $('sFx').addEventListener('input', e => { meta.set.fx = +e.target.value; syncSettings(); });
 $('sAmb').addEventListener('input', e => { meta.set.amb = +e.target.value; syncSettings(); });
+$('sMus').addEventListener('input', e => { meta.set.mus = +e.target.value; syncSettings(); });
+$('sMus').addEventListener('change', () => { Snd.init(); const m = MUSIC[TH.name] || MUSIC['Покои графа']; Snd.musNote(m.notes ? m.notes[2] : 220, m.wave === 'bell' ? 'sine' : m.wave, 1.2, 0.06); });
 $('sFx').addEventListener('change', () => { Snd.init(); Snd.chime(); });
 const SEG = { sQ: v => { meta.set.q = v; resize(); }, sJoy: v => { meta.set.joy = v; }, sInv: v => { meta.set.invY = v === '1'; },
-  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; } };
+  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; }, sCaps: v => { meta.set.caps = v === '1'; } };
 for (const id in SEG) $(id).addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; SEG[id](b.dataset.v); saveMeta(); syncSettings(); });
 $('bTipsReset').onclick = () => { meta.tips = {}; meta.set.tips = true; saveMeta(); syncSettings(); $('bTipsReset').textContent = 'Подсказки покажутся снова'; };
 
