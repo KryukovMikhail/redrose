@@ -63,7 +63,7 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:
 .trc{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .fsb{display:flex;align-items:center;justify-content:center;padding:6px;min-width:36px}
 .fsb svg{width:20px;height:20px}
-#mini{width:132px;height:132px;border:1px solid rgba(201,189,168,.18);background:rgba(5,4,8,.55);border-radius:50%}
+#mini{pointer-events:auto;cursor:pointer;width:132px;height:132px;border:1px solid rgba(201,189,168,.18);background:rgba(5,4,8,.55);border-radius:50%}
 .ibtn{pointer-events:auto;font-family:var(--f-body);font-size:14px;color:var(--ash);background:rgba(10,8,12,.66);
   border:1px solid rgba(201,189,168,.25);padding:6px 11px;cursor:pointer;min-height:36px;font-variant-numeric:tabular-nums}
 .ibtn:focus-visible,.btn:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
@@ -95,7 +95,7 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--ash);overflow:
 .screen.on{display:flex}
 .panel{max-width:520px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;margin:auto}
 .panel.wide{max-width:620px}
-.build{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;color:var(--dim)}
+.build{cursor:default;user-select:none;padding:4px 8px;position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;color:var(--dim)}
 h1{font-family:var(--f-title);font-weight:400;font-size:clamp(64px,17vw,124px);line-height:.9;margin:0;color:var(--rose);
   text-shadow:0 0 28px rgba(212,42,64,.45),0 2px 0 #2a0008;text-wrap:balance}
 h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line-height:1.05;margin:0;color:var(--rose);text-shadow:0 0 20px rgba(212,42,64,.4);text-wrap:balance}
@@ -152,6 +152,34 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 .seg button{font-family:var(--f-body);font-size:14px;color:var(--ash);background:transparent;border:1px solid rgba(201,189,168,.25);padding:6px 10px;cursor:pointer;min-height:34px}
 .seg button.on{color:#f3e6d2;background:linear-gradient(#3a0d16,#22070d);border-color:#8e2233}
 .seg button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.shop{display:flex;flex-direction:column;gap:8px;width:100%;text-align:left}
+.shop div{display:grid;grid-template-columns:1fr auto;gap:2px 14px;align-items:center;padding:10px 12px;border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6)}
+.shop div.max{border-color:#7a6a2a;background:rgba(48,36,8,.45)}
+.shop b{font-family:var(--f-head);font-weight:400;font-size:18px;color:#f0d79a}
+.shop small{grid-column:1;font-size:13px;color:var(--ash);line-height:1.4}
+.shop em{grid-column:1;font-style:normal;font-size:12px;letter-spacing:.12em;color:var(--dim)}
+.shop .btn{grid-column:2;grid-row:1 / span 3;font-variant-numeric:tabular-nums}
+.bank{margin:0;font-size:16px;color:#ff8a9a;font-variant-numeric:tabular-nums}
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;width:100%;text-align:left}
+.ach div{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:10px 12px;border:1px solid rgba(201,189,168,.12);background:rgba(20,14,16,.55);opacity:.55}
+.ach div.done{opacity:1;border-color:#7a6a2a;background:rgba(48,36,8,.45)}
+.ach i{font-style:normal;grid-row:1 / span 2;font-size:20px;color:#f0d79a}
+.ach b{font-weight:400;font-size:15px;min-width:0}
+.ach small{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+#achPop{position:absolute;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-12px);padding:8px 16px;background:rgba(48,32,8,.92);border:1px solid #b08a3a;
+  color:#f0d79a;font-size:14px;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+#achPop.on{opacity:1;transform:translate(-50%,0)}
+#achPop span{display:block;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#c8a24a}
+.dev{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;width:100%}
+.dev .btn{font-size:14px;padding:9px 10px}
+.devrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.devrow input{width:72px;font:inherit;font-size:16px;padding:8px;background:rgba(255,255,255,.06);color:var(--ash);border:1px solid rgba(201,189,168,.3)}
+#devBadge{position:absolute;left:50%;bottom:calc(6px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-size:10px;letter-spacing:.3em;color:#9fd88a;opacity:.8}
+#mapS .panel{max-width:min(96vw,900px)}
+.mapwrap{width:100%;position:relative;touch-action:none}
+#bigMap{width:100%;height:min(66vh,620px);display:block;cursor:grab;box-shadow:0 0 0 1px rgba(60,40,20,.6),0 18px 50px rgba(0,0,0,.7)}
+.maplegend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-size:12px;color:var(--dim)}
+.maplegend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:2px}
 .chal{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
 .chal div{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:10px 12px;border:1px solid rgba(201,189,168,.14);background:rgba(20,14,16,.6)}
 .chal div.done{border-color:#7a6a2a;background:rgba(48,36,8,.5)}
@@ -240,6 +268,8 @@ body.joyR #chalkPal{right:auto;left:0}
   <button id="updPill" hidden>Новая версия · Обновить</button>
   <div id="tip"><b>Подсказка</b><span id="tipT"></span></div>
   <div id="caps"></div>
+  <div id="achPop"><span>Достижение</span><b id="achPopT"></b></div>
+  <div id="devBadge" hidden>ТЕСТОВЫЙ РЕЖИМ</div>
   <div id="toast"></div>
   <div class="act">
     <div id="chalkPal" hidden>
@@ -248,6 +278,8 @@ body.joyR #chalkPal{right:auto;left:0}
       <button class="ibtn" data-s="2" aria-label="Крест">✕</button>
       <button class="ibtn" data-s="3" aria-label="Число">№</button>
     </div>
+    <button class="ibtn" id="bRope" hidden></button>
+    <button class="ibtn" id="bBell" hidden></button>
     <button class="ibtn" id="bTorch" hidden></button>
     <button class="ibtn" id="bCandle" hidden></button>
     <button class="ibtn" id="bBomb" hidden></button>
@@ -274,16 +306,19 @@ body.joyR #chalkPal{right:auto;left:0}
       <button class="btn" id="bCont" hidden>Продолжить</button>
       <button class="btn" id="bNew">Войти в замок</button>
       <button class="btn ghost small" id="bJournal" hidden>Записки узников</button>
+      <button class="btn ghost small" id="bShop">Сторожка у ворот</button>
       <button class="btn ghost small" id="bChal">Испытания</button>
+      <button class="btn ghost small" id="bAch">Достижения</button>
       <button class="btn ghost small" id="bRuns" hidden>Летопись забегов</button>
       <button class="btn ghost small" id="bProf">Игрок</button>
       <button class="btn ghost small" id="bSet">Настройки</button>
       <button class="btn ghost small" id="bFsMenu" hidden>На весь экран</button>
       <button class="btn ghost small" id="bInstall" hidden>Установить на устройство</button>
+      <button class="btn ghost small" id="bDev" hidden>Тестовый режим</button>
     </div>
-    <div class="help desk">WASD — идти · Shift — тихий шаг · мышь — оглядываться · R / F — вверх и вниз · ← → — поворот<br>C — ремесло · H — спрятаться в нише · 1–4 — мел · O масло · B бомба · V свеча · T факел<br>M — карта · Esc — пауза · щёлкни по экрану, чтобы захватить мышь</div>
+    <div class="help desk">WASD — идти · Shift — тихий шаг · мышь — оглядываться · R / F — вверх и вниз · ← → — поворот<br>C — ремесло · H — спрятаться в нише · 1–4 — мел · O масло · B бомба · V свеча · T факел · Z колокольчик · X верёвка<br>M — карта этажа · Esc — пауза · щёлкни по экрану, чтобы захватить мышь</div>
     <div class="help touch">Левый палец — идти, лёгкое касание — тихий шаг · правый палец — оглядываться<br>Кнопки справа внизу — мел, ремесло и предметы</div>
-    <div class="help">Геймпад: левый стик — идти (слегка — тихо) · правый — обзор · A спрятаться · B бомба · X свеча · Y ремесло · LB масло · RB факел · крестовина — мел · Start — пауза</div>
+    <div class="help">Геймпад: левый стик — идти (слегка — тихо) · правый — обзор · A спрятаться · B бомба · X свеча · Y ремесло · LB масло · RB факел · L3 колокольчик · R3 верёвка · крестовина — мел · Back — карта · Start — пауза</div>
   </div>
 </div>
 
@@ -318,6 +353,7 @@ body.joyR #chalkPal{right:auto;left:0}
       <label class="row" for="sFx"><span>Громкость звуков</span><input type="range" id="sFx" min="0" max="1" step="0.05"></label>
       <label class="row" for="sAmb"><span>Фоновый гул</span><input type="range" id="sAmb" min="0" max="1" step="0.05"></label>
       <label class="row" for="sMus"><span>Музыка</span><input type="range" id="sMus" min="0" max="1" step="0.05"></label>
+      <div class="row"><span>Мини-карта</span><div class="seg" id="sMini"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
       <div class="row"><span>Значки звуков на экране</span><div class="seg" id="sCaps"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
       <div class="row"><span>Качество картинки</span><div class="seg" id="sQ"><button data-v="auto">Авто</button><button data-v="low">Низкое</button><button data-v="mid">Среднее</button><button data-v="high">Высокое</button></div></div>
       <div class="row"><span>Джойстик на телефоне</span><div class="seg" id="sJoy"><button data-v="left">Слева</button><button data-v="right">Справа</button></div></div>
@@ -365,6 +401,63 @@ body.joyR #chalkPal{right:auto;left:0}
     <p class="lore">Последняя искра погасла. Ты ещё слышишь капли воды, но уже не знаешь, где стены. Замок забрал тебя.</p>
     <dl class="stats" id="loseStats"></dl>
     <div class="btns"><button class="btn" id="bAgainL">Новый замок</button><button class="btn ghost" id="bLoseCard">Карточка итога</button></div>
+  </div>
+</div>
+
+<div class="screen" id="shopS">
+  <div class="panel wide">
+    <h2>Сторожка у ворот</h2>
+    <p class="lore">Старый привратник собирает лепестки, что ты выносишь из замка, и меняет их на то, что поможет в следующий раз. Купленное остаётся навсегда.</p>
+    <p class="bank" id="shopBank"></p>
+    <div class="shop" id="shopList"></div>
+    <div class="btns"><button class="btn ghost" id="bShopClose">Назад</button></div>
+  </div>
+</div>
+
+<div class="screen" id="achS">
+  <div class="panel wide">
+    <h2>Достижения</h2>
+    <p class="sub" id="achCount"></p>
+    <div class="ach" id="achList"></div>
+    <div class="btns"><button class="btn ghost" id="bAchClose">Назад</button></div>
+  </div>
+</div>
+
+<div class="screen" id="devS">
+  <div class="panel wide">
+    <h2>Тестовый режим</h2>
+    <p class="help">Для проверки игры. Включается и выключается пятью нажатиями на номер сборки в меню. Испытания и достижения в нём не засчитываются.</p>
+    <div class="devrow"><label for="devFloor">Этаж</label><input type="number" id="devFloor" min="1" max="60" value="8"><button class="btn small" id="devGo">Перейти</button></div>
+    <div class="dev" id="devBtns">
+      <button class="btn small" data-dev="items">Предметы ×5</button>
+      <button class="btn small" data-dev="immortal">Бессмертие</button>
+      <button class="btn small" data-dev="petals">Собрать лепестки</button>
+      <button class="btn small" data-dev="thorns">Собрать шипы</button>
+      <button class="btn small" data-dev="map">Открыть карту</button>
+      <button class="btn small" data-dev="notes">Все записки</button>
+      <button class="btn small" data-dev="gift">Случайный дар</button>
+      <button class="btn small" data-dev="bank">+50 лепестков в сторожку</button>
+      <button class="btn small" data-dev="shadow">Тень рядом</button>
+      <button class="btn small" data-dev="mon">Обитатель рядом</button>
+      <button class="btn small" data-dev="black">Сквозняк</button>
+      <button class="btn small" data-dev="fuel">Полный факел</button>
+      <button class="btn small" data-dev="off">Выключить режим</button>
+    </div>
+    <p class="help" id="devState"></p>
+    <div class="btns"><button class="btn ghost" id="bDevClose">Назад</button></div>
+  </div>
+</div>
+
+<div class="screen" id="mapS">
+  <div class="panel">
+    <h2 id="mapTitle">Карта этажа</h2>
+    <div class="mapwrap"><canvas id="bigMap" aria-label="Карта разведанной части этажа"></canvas></div>
+    <div class="maplegend">
+      <span><i style="background:#3a2a1a"></i>стены</span><span><i style="background:#a0602e"></i>решётки</span><span><i style="background:#4a5a7a"></i>ниши</span>
+      <span><i style="background:#c8213a"></i>лепестки и шипы</span><span><i style="background:#c99a2a"></i>свет</span><span><i style="background:#6a2a1c"></i>корни</span>
+    </div>
+    <p class="help">Видно только то, где ты уже был. Карту можно двигать пальцем или мышью.</p>
+    <div class="btns"><button class="btn ghost" id="bMapClose">Вернуться</button></div>
   </div>
 </div>
 
@@ -453,7 +546,7 @@ body.joyR #chalkPal{right:auto;left:0}
 
 <script>
 'use strict';
-const BUILD = 'R001.008';
+const BUILD = 'R001.009';
 const FINAL = 8;   // этаж с Сердцем замка
 /* ================= Константы и хеш ================= */
 const S = 16, N = 8, NEED = 5;
@@ -886,18 +979,18 @@ const THEMES = [
     enter: 'Стены теплеют, сквозь камень лезут корни. Метки мелом здесь долго не живут. Внизу бьётся что-то большое.' }
 ];
 THEMES.push(
-  { name: 'Библиотека графа', tint: [1, 0.82, 0.6], w: [0.55, 0.85, 0.93], gate: 0.05, oil: 0.9, bone: 0.5, note: 3, shift: 1,
+  { name: 'Библиотека графа', tint: [1, 0.82, 0.6], w: [0.55, 0.85, 0.93], gate: 0.05, oil: 0.9, bone: 0.5, note: 3, shift: 1, mon: 'binder',
     tex: [0, TEX_BOOKS, TEX_BOOKS2, TEX_TAPESTRY, TEX_WAINSCOT], floor: FL_CARPET, ceil: CE_BEAMS,
     enter: 'Лестница выводит в библиотеку графа. Шкафы здесь стоят не там, где стояли минуту назад.',
-    intro: 'Книжные шкафы сдвигаются сами, и коридоры библиотеки меняются. Метки мелом помогут не потеряться. Записок здесь больше.' },
-  { name: 'Часовня', tint: [0.95, 0.88, 0.75], w: [0.55, 0.72, 0.86], gate: 0.06, oil: 1, bone: 0.8, altar: 1, weak: 1,
+    intro: 'Шкафы сдвигаются сами, а между ними бродит Переплётчик. Пока ты смотришь на него, он не шевелится. Отвернёшься — подкрадётся.' },
+  { name: 'Часовня', tint: [0.95, 0.88, 0.75], w: [0.55, 0.72, 0.86], gate: 0.06, oil: 1, bone: 0.8, altar: 1, weak: 1, mon: 'mourner',
     tex: [0, TEX_ASHLAR, TEX_STAINED, TEX_RELIEF, TEX_ASHMOSS], floor: FL_MARBLE, ceil: CE_STARS,
     enter: 'Внизу пахнет воском и ладаном. Замковая часовня, где отпевали графиню.',
-    intro: 'У алтарей Тень слабеет и не может подойти, а страх уходит. Отдыхай у них, прежде чем идти дальше.' },
-  { name: 'Кухни и погреба', tint: [1, 0.8, 0.55], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.3, bone: 1.4, wax: 3, wick: 3, candle: 2, hearth: 1,
+    intro: 'У алтарей Тень слабеет, а страх уходит. Но Плакальщица гасит их один за другим. Погасший алтарь можно зажечь заново своим факелом.' },
+  { name: 'Кухни и погреба', tint: [1, 0.8, 0.55], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.3, bone: 1.4, wax: 3, wick: 3, candle: 2, hearth: 1, mon: 'rats',
     tex: [0, TEX_SOOT, TEX_POTS, TEX_HEARTH, TEX_BARRELS], floor: FL_TERRA, ceil: CE_BEAMS,
     enter: 'Тянет копотью и старым жиром. Кухни и погреба замка: масла здесь почти нет, зато воска хоть отбавляй.',
-    intro: 'Масла почти нет, но очаги ещё тлеют: упрись в очаг, чтобы подпалить факел. Каждый очаг — только раз.' }
+    intro: 'Масла почти нет, но очаги ещё тлеют: упрись в очаг, чтобы подпалить факел. В темноте шныряют крысы и тащат всё из сумки. Они боятся огня.' }
 );
 for (const th of THEMES) {
   const w = [['petal', 0.13], ['keypart', 0.09], ['oil', 0.13 * th.oil], ['rag', 0.08], ['bone', 0.06 * th.bone],
@@ -941,7 +1034,7 @@ function themeFor(f) { return f <= 8 ? THEMES[(f - 1) % 4] : THEMES[DEEP_ORDER[(
 /* ================= Генерация бесконечного лабиринта ================= */
 // Тайлы: 0 пол, 1–4 стены темы, 5 запертая решётка
 const chunks = new Map();
-let opened = new Set(), marks = new Map(), grown = new Set(), ovr = new Map(), usedHearth = new Set(), litSc = new Map(), grownAt = new Map();
+let opened = new Set(), marks = new Map(), grown = new Set(), ovr = new Map(), usedHearth = new Set(), litSc = new Map(), grownAt = new Map(), deadAlt = new Set();
 function genChunk(cx, cy) {
   const g = new Uint8Array(S * S).fill(1), nic = new Uint8Array(S * S);
   const r = rng(h32(cx, cy, 7));
@@ -1296,19 +1389,81 @@ const SPR = {
     g.fillStyle = '#b0122a'; g.beginPath(); g.ellipse(12, 11, 3, 4, -0.4, 0, 7); g.fill();
     g.strokeStyle = '#ff4a5a'; g.lineWidth = 0.8; g.beginPath(); g.moveTo(16, 10); g.quadraticCurveTo(19.5, 14, 17, 20); g.moveTo(13, 14); g.quadraticCurveTo(11, 17, 13, 19); g.stroke();
   }),
-  shadow: sprite(g => {
+  binder: sprite(g => {
+    // высокий сутулый силуэт в лоскутах страниц, глаза зашиты
+    g.fillStyle = '#2a2420'; g.beginPath(); g.moveTo(11, 9); g.quadraticCurveTo(7, 20, 9, 32); g.lineTo(23, 32); g.quadraticCurveTo(25, 20, 21, 9); g.closePath(); g.fill();
+    for (let i = 0; i < 9; i++) {
+      const y = 12 + i * 2.2, x = 9 + (i % 3) * 4 + (i & 1);
+      g.fillStyle = i % 2 ? '#cdbb92' : '#a8946c'; g.save(); g.translate(x, y); g.rotate((i % 4 - 1.5) * 0.35); g.fillRect(-2.5, -1.6, 5, 3.2); g.restore();
+    }
+    g.fillStyle = '#d8c8a0'; g.beginPath(); g.ellipse(16, 6, 4, 5, 0, 0, 7); g.fill();
+    g.strokeStyle = '#3a2016'; g.lineWidth = 0.8; g.beginPath();
+    for (const ex of [13.6, 18.4]) { g.moveTo(ex - 1.6, 6); g.lineTo(ex + 1.6, 6); for (let k = -1; k <= 1; k++) { g.moveTo(ex + k, 5); g.lineTo(ex + k, 7); } }
+    g.moveTo(14, 9); g.lineTo(18, 9); g.stroke();
+    g.strokeStyle = '#2a2420'; g.lineWidth = 1.8; g.beginPath(); g.moveTo(10, 12); g.lineTo(4, 22); g.lineTo(5, 27); g.moveTo(22, 12); g.lineTo(28, 22); g.lineTo(27, 27); g.stroke();
+    g.fillStyle = '#e8dcc0'; g.fillRect(3, 26, 4, 3); g.fillRect(25, 26, 4, 3);
+  }),
+  mourner: sprite(g => {
+    // плакальщица под чёрной вуалью, светлые дорожки слёз
     const gr = g.createLinearGradient(0, 0, 0, 32);
-    gr.addColorStop(0, 'rgba(0,0,0,0.95)'); gr.addColorStop(0.75, 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gr;
-    g.beginPath(); g.ellipse(16, 8, 5, 6, 0, 0, 7); g.fill();
-    g.beginPath(); g.moveTo(10, 12); g.quadraticCurveTo(4, 20, 6, 32); g.lineTo(9, 28); g.lineTo(12, 32); g.lineTo(16, 27);
-    g.lineTo(20, 32); g.lineTo(23, 28); g.lineTo(26, 32); g.quadraticCurveTo(28, 20, 22, 12); g.closePath(); g.fill();
-    g.beginPath(); g.moveTo(9, 14); g.lineTo(2, 24); g.lineTo(5, 25); g.lineTo(11, 18); g.fill();
-    g.beginPath(); g.moveTo(23, 14); g.lineTo(30, 24); g.lineTo(27, 25); g.lineTo(21, 18); g.fill();
-    g.fillStyle = '#ff2030'; g.fillRect(12, 7, 3, 2); g.fillRect(17, 7, 3, 2);
-    g.fillStyle = '#ffb0b0'; g.fillRect(13, 7, 1, 1); g.fillRect(18, 7, 1, 1);
+    gr.addColorStop(0, '#2c2a30'); gr.addColorStop(1, 'rgba(20,18,24,0.6)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(16, 1); g.quadraticCurveTo(7, 6, 6, 32); g.lineTo(26, 32); g.quadraticCurveTo(25, 6, 16, 1); g.fill();
+    g.fillStyle = '#c9c2b8'; g.beginPath(); g.ellipse(16, 9, 3.6, 4.4, 0, 0, 7); g.fill();
+    g.fillStyle = 'rgba(28,26,32,0.85)'; g.beginPath(); g.moveTo(11, 5); g.quadraticCurveTo(16, 2, 21, 5); g.lineTo(21, 9); g.lineTo(11, 9); g.closePath(); g.fill();
+    g.fillStyle = '#ddeeff'; g.fillRect(14, 10, 1, 7); g.fillRect(17.5, 10, 1, 8);
+    g.fillStyle = '#c9c2b8'; g.beginPath(); g.ellipse(13, 19, 2, 1.6, 0.4, 0, 7); g.ellipse(19, 19, 2, 1.6, -0.4, 0, 7); g.fill();
+    g.fillStyle = '#1a1820'; g.fillRect(15.5, 21, 1, 11);
+  }),
+  rats: sprite(g => {
+    const rat = (x, y, s, f) => {
+      g.save(); g.translate(x, y); g.scale(f * s, s);
+      g.fillStyle = '#3a3028'; g.beginPath(); g.ellipse(0, 0, 4, 2.2, 0, 0, 7); g.fill();
+      g.beginPath(); g.moveTo(3, -1); g.lineTo(6.2, 0.3); g.lineTo(3, 1.4); g.fill();
+      g.fillStyle = '#5a4a3c'; g.beginPath(); g.arc(2.6, -1.8, 1, 0, 7); g.fill();
+      g.strokeStyle = '#8a6a5a'; g.lineWidth = 0.6; g.beginPath(); g.moveTo(-4, 0.5); g.quadraticCurveTo(-7, 2, -9, 0); g.stroke();
+      g.fillStyle = '#ff5040'; g.fillRect(4.2, -0.6, 0.9, 0.9);
+      g.restore();
+    };
+    rat(10, 28, 1, 1); rat(22, 29, 0.9, -1); rat(16, 25, 0.8, 1); rat(25, 25.5, 0.7, -1); rat(7, 25, 0.7, -1);
+  }),
+  altarOff: sprite(g => {
+    g.fillStyle = '#5a5650'; g.fillRect(4, 20, 24, 12);
+    g.fillStyle = '#6a665e'; g.fillRect(3, 19, 26, 3);
+    g.fillStyle = '#3a0c12'; g.fillRect(10, 22, 12, 10);
+    g.fillStyle = '#7a6a3a'; g.fillRect(15.5, 23, 1, 6); g.fillRect(13.5, 25, 5, 1);
+    g.fillStyle = '#8a8270'; g.fillRect(8, 13, 2.5, 6); g.fillRect(22, 13, 2.5, 6);
+    g.strokeStyle = 'rgba(140,140,140,0.5)'; g.lineWidth = 0.7; g.beginPath(); g.moveTo(9.2, 12); g.quadraticCurveTo(7, 8, 9.5, 4); g.moveTo(23.2, 12); g.quadraticCurveTo(25, 8, 22.5, 4); g.stroke();
+    g.fillStyle = '#7a6a3a'; g.fillRect(15, 6, 2, 13); g.fillRect(12, 9, 8, 2);
+  }),
+  bell: sprite(g => {
+    glow(g, 16, 22, 10, 'rgba(255,220,140,0.3)');
+    g.fillStyle = '#b8902a'; g.beginPath(); g.moveTo(10, 28); g.quadraticCurveTo(11, 17, 16, 16); g.quadraticCurveTo(21, 17, 22, 28); g.closePath(); g.fill();
+    g.fillStyle = '#e8c860'; g.fillRect(12, 20, 1.5, 7);
+    g.fillStyle = '#6a5014'; g.beginPath(); g.arc(16, 29, 1.6, 0, 7); g.fill();
   })
 };
+// Тень: 4 кадра колыхания и кадр моргания
+function makeShadow(ph, blink) {
+  return sprite(g => {
+    const gr = g.createLinearGradient(0, 0, 0, 32);
+    gr.addColorStop(0, 'rgba(0,0,0,0.96)'); gr.addColorStop(0.72, 'rgba(0,0,0,0.86)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr;
+    const sw = Math.sin(ph) * 1.4, sw2 = Math.cos(ph) * 1.2;
+    g.beginPath(); g.ellipse(16 + sw * 0.3, 8, 5, 6, sw * 0.03, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(10, 12); g.quadraticCurveTo(4 + sw, 20, 5 + sw2, 32);
+    for (let i = 0; i < 6; i++) { const x = 7 + i * 3.6; g.lineTo(x + 1.8, 27 + Math.sin(ph * 1.7 + i * 1.3) * 2.2); g.lineTo(x + 3.6, 32); }
+    g.quadraticCurveTo(28 - sw, 20, 22, 12); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(9, 14); g.lineTo(2 + sw2 * 1.5, 23 + sw); g.lineTo(5 + sw2, 25 + sw); g.lineTo(11, 18); g.fill();
+    g.beginPath(); g.moveTo(23, 14); g.lineTo(30 - sw * 1.5, 23 - sw2); g.lineTo(27 - sw, 25 - sw2); g.lineTo(21, 18); g.fill();
+    if (!blink) {
+      g.fillStyle = '#ff2030'; g.fillRect(12, 7, 3, 2); g.fillRect(17, 7, 3, 2);
+      g.fillStyle = '#ffb0b0'; g.fillRect(13, 7, 1, 1); g.fillRect(18, 7, 1, 1);
+    } else { g.fillStyle = '#5a0a10'; g.fillRect(12, 8, 3, 1); g.fillRect(17, 8, 3, 1); }
+  });
+}
+for (let i = 0; i < 4; i++) SPR['shadow' + i] = makeShadow(i * Math.PI / 2, false);
+SPR.shadowB = makeShadow(0, true);
+SPR.shadow = SPR.shadow0;
 const DEF = {
   petal: { sz: 0.42, lift: 0.22, emit: 0.75, bob: 1 },
   oil: { sz: 0.38, lift: 0, emit: 0 },
@@ -1320,7 +1475,10 @@ const DEF = {
   rag: { sz: 0.38, lift: 0, emit: 0 }, wax: { sz: 0.32, lift: 0, emit: 0 }, wick: { sz: 0.32, lift: 0, emit: 0 },
   chalk: { sz: 0.3, lift: 0, emit: 0.15 }, note: { sz: 0.36, lift: 0, emit: 0.3 },
   fire: { sz: 0.85, lift: 0, emit: 1 }, bombp: { sz: 0.24, lift: 0.45, emit: 1 },
-  shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
+  shadow: { sz: 1.05, lift: 0, emit: 0, dark: 1 }, shadow0: { sz: 1.05, lift: 0, emit: 0, dark: 1 }, shadow1: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
+  shadow2: { sz: 1.05, lift: 0, emit: 0, dark: 1 }, shadow3: { sz: 1.05, lift: 0, emit: 0, dark: 1 }, shadowB: { sz: 1.05, lift: 0, emit: 0, dark: 1 },
+  binder: { sz: 1.25, lift: 0, emit: 0 }, mourner: { sz: 1.1, lift: 0, emit: 0 }, rats: { sz: 0.7, lift: 0, emit: 0 },
+  altarOff: { sz: 0.75, lift: 0, emit: 0 }, bell: { sz: 0.34, lift: 0, emit: 0.2 },
   altar: { sz: 0.75, lift: 0, emit: 0.6 },
   chest: { sz: 0.5, lift: 0, emit: 0.25 },
   jailer: { sz: 1.15, lift: 0, emit: 0, hot: 1 },
@@ -1328,7 +1486,7 @@ const DEF = {
   thorn: { sz: 0.46, lift: 0.08, emit: 0.55, bob: 1 },
   heart: { sz: 1.35, lift: 0.08, emit: 0.9 }
 };
-function sprName(it) { return it.t === 'keypart' ? 'key' + it.k : it.t === 'bone' ? 'bones' : it.t; }
+function sprName(it) { return it.t === 'keypart' ? 'key' + it.k : it.t === 'bone' ? 'bones' : it.t === 'altar' && deadAlt.has(it.id) ? 'altarOff' : it.t; }
 
 /* ================= Звук (с направлением) ================= */
 const Snd = {
@@ -1425,6 +1583,12 @@ const Snd = {
     o.start(t); o.stop(t + dur + 0.05);
   },
   crumble(pos) { this.noise(220, 0.7, 0.9, 0.9, 0.6, 'lowpass', pos); for (let i = 0; i < 5; i++) setTimeout(() => this.noise(900 + Math.random() * 900, 2, 0.25, 0.08, 0.4, 'bandpass', pos), 120 + i * 90); },
+  rustle(pos) { this.noise(2400 + Math.random() * 1600, 1.2, 0.35, 0.18, 0.5, 'bandpass', pos); this.noise(5200, 2, 0.12, 0.1, 0.4, 'highpass', pos); },
+  weep(pos) { const f = 420 + Math.random() * 90; this.tone(f, f * 0.72, 'sine', 0.13, 1.6, 0.9, 0, pos); this.tone(f * 1.5, f * 1.05, 'triangle', 0.04, 1.4, 0.9, 0.1, pos); },
+  snuff(pos) { this.noise(900, 0.6, 0.35, 0.4, 0.5, 'lowpass', pos); this.tone(240, 90, 'sine', 0.08, 0.5, 0.6, 0, pos); },
+  squeak(pos) { const f = 2600 + Math.random() * 1500; this.tone(f, f * 1.25, 'square', 0.025, 0.07, 0.3, 0, pos); this.tone(f * 1.1, f * 0.9, 'square', 0.02, 0.06, 0.3, 0.09, pos); },
+  scurry(pos) { this.noise(3800, 2.5, 0.18, 0.25, 0.3, 'bandpass', pos); },
+  bell() { [1318, 1760, 2637].forEach((f, i) => this.tone(f, f * 0.997, 'sine', 0.12 - i * 0.03, 2.4, 0.8, 0)); this.tone(659, 659, 'triangle', 0.05, 2.6, 0.8, 0); },
   grind(pos) { cap('скрип шкафа', pos); this.noise(160, 1.2, 0.9, 1.4, 0.6, 'bandpass', pos); this.noise(420, 3, 0.25, 1.2, 0.5, 'bandpass', pos); this.tone(70, 55, 'sawtooth', 0.06, 1.3, 0.5, 0, pos); },
   ending() { [262, 330, 392, 523, 659].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 3, 0.7, i * 0.35)); },
   drip(pos) { this.tone(1500 + Math.random() * 600, 480, 'sine', 0.09, 0.09, 0.9, 0, pos); },
@@ -1505,7 +1669,7 @@ const META_KEY = 'redrose_meta_v1' + PSUF;
 let meta = { notes: [], best: 0, vib: true };
 try { const m = JSON.parse(localStorage.getItem(META_KEY) || 'null'); if (m) meta = Object.assign(meta, m); } catch (e) {}
 function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} }
-const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, mus: 0.6, caps: false, q: 'auto', joy: 'left', vib: true, tips: true };
+const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, mus: 0.6, caps: false, mini: true, q: 'auto', joy: 'left', vib: true, tips: true };
 meta.set = Object.assign({}, SET0, meta.set || {});
 if (meta.vib === false) { meta.set.vib = false; delete meta.vib; }
 
@@ -1528,11 +1692,11 @@ const GIFTS = [
   { id: 'keen', name: 'Острый глаз', desc: 'Находки видны в темноте издалека.' }
 ];
 function hasGift(id) { return P.gifts.indexOf(id) >= 0; }
-function fearUp(v) { P.fear += v * (hasGift('brave') ? 0.67 : 1); }
+function fearUp(v) { P.fear += v * (hasGift('brave') ? 0.67 : 1) * (1 - 0.08 * upLv('nerve')); }
 function isFinale() { return FLOOR === FINAL && !P.ended; }
 let gateFree = 0;
 let collected = new Set(), exit = null, seen = new Map();
-const INV0 = { parts: [0, 0, 0], keys: 0, oil: 0, rag: 0, bone: 0, wax: 0, wick: 0, chalk: 15, bomb: 0, candle: 0, torch: 0 };
+const INV0 = { parts: [0, 0, 0], keys: 0, oil: 0, rag: 0, bone: 0, wax: 0, wick: 0, chalk: 15, bomb: 0, candle: 0, torch: 0, bell: 0, pick: 0, rope: 0 };
 let inv = JSON.parse(JSON.stringify(INV0));
 const PART_NAMES = ['кольцо ключа', 'стержень ключа', 'бородка ключа'];
 let beacons = [], fires = [], proj = null;
@@ -1553,7 +1717,8 @@ let thorns = [], thornT = 2, noiseR = 0, pulseR = 0, pulseT = 0, sneak = false;
 function makeNoise(r) { pulseR = Math.max(pulseR, r); pulseT = 0.6; }
 let hearths = [], hearthT = 0, shiftT = 25, shiftMsg = false, crackT2 = 0, crackSeen = false;
 // статистика этажа для испытаний
-let FS = { hid: false, poured: false, caught: false, woke: false, t0: 0 };
+let FS = { hid: false, poured: false, caught: false, woke: false, bound: false, minFuel: 100, t0: 0 };
+let playerLitNow = false, relightT = 0, heartRootT = 6, heartMsg = false;
 
 /* ---------- Испытания ---------- */
 const CHALLENGES = [
@@ -1567,6 +1732,7 @@ const CHALLENGES = [
   { id: 'scholar', name: 'Прочитать все записки узников', gift: 'petalsight' }
 ];
 function chDone(id) {
+  if (DEV) return;
   if (!meta.ch) meta.ch = {};
   if (meta.ch[id]) return;
   meta.ch[id] = true; saveMeta();
@@ -1597,20 +1763,24 @@ function resetFloorState() {
   collected = new Set(); exit = null; seen = new Map(); opened = new Set(); marks = new Map(); markN = 0;
   beacons = []; fires = []; proj = null; hidden = false;
   blackT = blackInterval(); blackDur = 0; preWarn = false; gateMsg = ''; eraseT = 50 + Math.random() * 30; resetShadow();
-  grown = new Set(); grownAt = new Map(); ovr = new Map(); usedHearth = new Set(); litSc = new Map(); resetFloorMisc();
+  grown = new Set(); grownAt = new Map(); ovr = new Map(); usedHearth = new Set(); litSc = new Map(); deadAlt = new Set(); resetFloorMisc();
   if (!solid(2.5, 1.5)) P.a = 0; else if (!solid(1.5, 2.5)) P.a = Math.PI / 2;
   thorns = []; if (isFinale()) placeThorns();
+  if (upLv('scent')) scentPetal();
 }
 function resetFloorMisc() {
   trail = []; lastCell = ''; growT = 1; burnT = 0; stillT = 0; anchor = { x: P.x, y: P.y }; growMsg = grabMsg = burnMsg = false;
   gateFree = hasGift('gatebreak') ? 1 : 0; thornT = 2; pulseR = 0;
   hearths = []; hearthT = 0; shiftT = 20 + Math.random() * 10; shiftMsg = false;
-  FS = { hid: false, poured: false, caught: false, woke: false, t0: P.time };
+  FS = { hid: false, poured: false, caught: false, woke: false, bound: false, minFuel: 100, t0: P.time };
+  relightT = 0; heartRootT = 6; heartMsg = false;
   Object.assign(MON, { on: false, kind: TH.mon || null, respT: TH.mon === 'jailer' ? 8 : 5, msg: false, sawHide: false, rolled: false, stunT: 0 });
 }
 function newGame() {
   BASE = (Math.random() * 1e9) | 0;
   inv = JSON.parse(JSON.stringify(INV0));
+  inv.chalk += 5 * upLv('chalk'); inv.oil += upLv('oil'); inv.keys += upLv('key');
+  if (upLv('bag') >= 1) { inv.rag++; inv.bone++; } if (upLv('bag') >= 2) { inv.wax++; inv.wick++; }
   P.fuel = 100; P.time = 0; P.dist = 0; P.gifts = []; P.ended = false; P.bombs = 0; P.runId = Date.now(); P.lastHit = null; darkWarned = lowWarned = false;
   setFloor(1); resetFloorState();
 }
@@ -1619,7 +1789,7 @@ function serialize() {
     collected: [...collected], exit, opened: [...opened], inv, marks: [...marks.values()], markN,
     beacons: beacons.map(b => ({ x: b.x, y: b.y, life: b.life })),
     gifts: P.gifts, ended: P.ended, grown: [...grown], thorns, gateFree,
-    runId: P.runId, ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS, sconces: [...litSc.entries()], hit: P.lastHit || null };
+    runId: P.runId, ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS, sconces: [...litSc.entries()], hit: P.lastHit || null, deadAlt: [...deadAlt] };
 }
 function restore(s) {
   if (!s.v) { s = { base: s.seed, floor: 1, x: s.x, y: s.y, a: s.a, fuel: s.fuel, petals: s.petals, time: s.time, dist: s.dist, collected: s.collected, exit: s.exit, opened: s.opened,
@@ -1628,7 +1798,7 @@ function restore(s) {
   grownAt = new Map([...grown].map(k => [k, s.time || 0]));
   for (const m of (s.marks || [])) marks.set(m.x + ',' + m.y + ',' + m.f, m);
   P.gifts = (s.gifts || []).slice(); P.ended = !!s.ended; P.bombs = s.bombs || 0;
-  P.runId = s.runId || Date.now(); ovr = new Map(s.ovr || []); usedHearth = new Set(s.hearth || []); litSc = new Map(s.sconces || []); P.lastHit = null;
+  P.runId = s.runId || Date.now(); ovr = new Map(s.ovr || []); usedHearth = new Set(s.hearth || []); litSc = new Map(s.sconces || []); deadAlt = new Set(s.deadAlt || []); P.lastHit = null;
   setFloor(s.floor || 1);
   Object.assign(P, { x: s.x, y: s.y, a: s.a, pitch: 0, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
   collected = new Set(s.collected || []); exit = s.exit || null; seen = new Map();
@@ -1678,7 +1848,10 @@ function spawnExit() {
   if ((((ey % 2) + 2) % 2) === 0) ey++;
   exit = { x: ex + 0.5, y: ey + 0.5 };
   Snd.toll(); buzz([30, 60, 30, 60, 120]);
-  if (isFinale()) toast('Три шипа у тебя. Где-то рядом забилось Сердце замка. Иди на стук.', 6);
+  if (isFinale()) {
+    toast('Сердце почувствовало шипы и забилось. Тень больше не боится твоего огня, а корни тянутся наперерез. Иди на стук!', 7);
+    heartMsg = true; setTimeout(() => { if (state === 'play') shadowAmbush(); }, 1500);
+  }
   else toast('Где-то в замке расцвела Красная Роза. Слушай её звон и иди за стрелкой.', 6);
 }
 
@@ -1712,7 +1885,7 @@ function gatherLights(t) {
   const add = (x, y, r, i) => { const dx = x - P.x, dy = y - P.y, d2 = dx * dx + dy * dy; if (d2 < (r + 9) * (r + 9)) arr.push({ x, y, r2: r * r, i, d2 }); };
   forNearItems(P.x, P.y, it => {
     if (it.t === 'candle') add(it.x, it.y, 2.3, 0.7 * (0.9 + 0.1 * Math.sin(t * 11 + it.x * 7)));
-    else if (it.t === 'altar') add(it.x, it.y, 2.9, 0.8 * (0.92 + 0.08 * Math.sin(t * 9 + it.y * 5)));
+    else if (it.t === 'altar' && !deadAlt.has(it.id)) add(it.x, it.y, 2.9, 0.8 * (0.92 + 0.08 * Math.sin(t * 9 + it.y * 5)));
   });
   for (const h of hearths) add(h.x, h.y, 2.2, 0.5 * (0.85 + 0.15 * Math.sin(t * 13 + h.x * 3)));
   for (const s of litSc.values()) add(s.x, s.y, 3.1, 0.85 * (0.88 + 0.12 * Math.sin(t * 11 + s.x * 5)));
@@ -1737,7 +1910,7 @@ function litAt(x, y) {
   forNearItems(x, y, it => {
     if (lit) return;
     const dx = x - it.x, dy = y - it.y, d2 = dx * dx + dy * dy;
-    if ((it.t === 'candle' && d2 < 2.6) || (it.t === 'altar' && d2 < 7.3)) lit = true;
+    if ((it.t === 'candle' && d2 < 2.6) || (it.t === 'altar' && d2 < 7.3 && !deadAlt.has(it.id))) lit = true;
   });
   if (!lit) for (const s of litSc.values()) { const dx = x - s.x, dy = y - s.y; if (dx * dx + dy * dy < 6.2) { lit = true; break; } }
   return lit;
@@ -1857,7 +2030,7 @@ function render(t) {
   for (const b of beacons) addS(b.x, b.y, 'beacon');
   for (const f of fires) addS(f.x, f.y, 'fire');
   if (proj) addS(proj.x, proj.y, 'bombp');
-  if (SH.on) { const dx = SH.x - P.x, dy = SH.y - P.y, d2 = dx * dx + dy * dy; if (d2 < 400) list.push({ x: SH.x, y: SH.y, t: 'shadow', d2 }); }
+  if (SH.on) { const dx = SH.x - P.x, dy = SH.y - P.y, d2 = dx * dx + dy * dy; if (d2 < 400) list.push({ x: SH.x, y: SH.y, t: (t % 4.3) < 0.14 ? 'shadowB' : 'shadow' + ((t * 5) & 3), d2 }); }
   list.sort((a, b) => b.d2 - a.d2);
   const idet = 1 / (plX * dirY - dirX * plY);
   const pulse = 0.8 + 0.2 * Math.sin(t * 3);
@@ -1904,6 +2077,7 @@ function render(t) {
     }
   }
   ctx.putImageData(img, 0, 0);
+  drawParticles(t, hz);
   drawTorch(t);
 }
 
@@ -2038,6 +2212,8 @@ function updHud() {
   setHid($('bBomb'), !inv.bomb); setTxt($('bBomb'), 'Бомба ' + inv.bomb);
   setHid($('bCandle'), !inv.candle); setTxt($('bCandle'), 'Свеча ' + inv.candle);
   setHid($('bTorch'), !inv.torch); setTxt($('bTorch'), 'Факел ' + inv.torch);
+  setHid($('bBell'), !inv.bell); setTxt($('bBell'), 'Колокольчик ' + inv.bell);
+  setHid($('bRope'), !inv.rope || isFinale()); setTxt($('bRope'), 'Верёвка ' + inv.rope);
   const cp = $('compass');
   if (exit) {
     cp.classList.add('on');
@@ -2056,12 +2232,15 @@ function updHud() {
 }
 
 /* ================= Ремесло ================= */
-const INAME = { oil: 'Масло', rag: 'Тряпка', bone: 'Кость', wax: 'Воск', wick: 'Фитиль', chalk: 'Мел', bomb: 'Огненная бомба', candle: 'Свеча-маячок', torch: 'Запасной факел', keys: 'Ключ', p0: 'Кольцо ключа', p1: 'Стержень ключа', p2: 'Бородка ключа' };
+const INAME = { bell: 'Колокольчик', pick: 'Отмычка', rope: 'Верёвка', oil: 'Масло', rag: 'Тряпка', bone: 'Кость', wax: 'Воск', wick: 'Фитиль', chalk: 'Мел', bomb: 'Огненная бомба', candle: 'Свеча-маячок', torch: 'Запасной факел', keys: 'Ключ', p0: 'Кольцо ключа', p1: 'Стержень ключа', p2: 'Бородка ключа' };
 const RECIPES = [
   { id: 'key', name: 'Ключ', desc: 'Открывает одну запертую решётку. Через решётки можно срезать путь.', need: { p0: 1, p1: 1, p2: 1 }, out: 'keys' },
   { id: 'bomb', name: 'Огненная бомба', desc: 'Летит вперёд и горит 15 секунд. Тень не переступает огонь и сгорает рядом со вспышкой.', need: { oil: 1, rag: 1 }, out: 'bomb' },
   { id: 'torch', name: 'Запасной факел', desc: 'Сразу полный огонь, даже если сквозняк задул пламя.', need: { bone: 1, rag: 1 }, out: 'torch' },
-  { id: 'candle', name: 'Свеча-маячок', desc: 'Ставится на пол и горит две минуты. Тень не заходит в её свет, а на карте она видна издалека.', need: { wax: 1, wick: 1 }, out: 'candle' }
+  { id: 'candle', name: 'Свеча-маячок', desc: 'Ставится на пол и горит две минуты. Тень не заходит в её свет, а на карте она видна издалека.', need: { wax: 1, wick: 1 }, out: 'candle' },
+  { id: 'bell', name: 'Колокольчик', desc: 'Звон сбивает всех с толку: обитатель замирает на 8 секунд, Тень уходит прочь.', need: { bone: 1, wick: 1 }, out: 'bell' },
+  { id: 'pick', name: 'Отмычка', desc: 'Открывает одну решётку, как ключ. Сработает сама, когда упрёшься в решётку без ключа.', need: { bone: 2 }, out: 'pick' },
+  { id: 'rope', name: 'Верёвка', desc: 'Спуститься сразу на этаж ниже, без лепестков. Стоит половины огня. Не работает на дне у Сердца.', need: { rag: 2, wick: 1 }, out: 'rope' }
 ];
 function have(k) { return k[0] === 'p' && k.length === 2 ? inv.parts[+k[1]] : inv[k]; }
 function take(k) { if (k[0] === 'p' && k.length === 2) inv.parts[+k[1]]--; else inv[k]--; }
@@ -2069,12 +2248,12 @@ function canMake(r) { for (const k in r.need) if (have(k) < r.need[k]) return fa
 function make(id) {
   const r = RECIPES.find(x => x.id === id); if (!r || !canMake(r)) return;
   for (const k in r.need) take(k);
-  inv[r.out]++; Snd.forge(); setTimeout(() => Snd.clank(), 220); buzz([15, 30, 15]);
+  inv[r.out]++; Snd.forge(); setTimeout(() => Snd.clank(), 220); buzz([15, 30, 15]); stat('craft');
   if (hasGift('craftsman') && Math.random() < 0.3) { inv[r.out]++; toast('Рука кузнеца: вышло два!', 2.5); }
   save(); renderCraft();
 }
 function renderCraft() {
-  const keys = ['p0', 'p1', 'p2', 'oil', 'rag', 'bone', 'wax', 'wick', 'chalk', 'keys', 'bomb', 'torch', 'candle'];
+  const keys = ['p0', 'p1', 'p2', 'oil', 'rag', 'bone', 'wax', 'wick', 'chalk', 'keys', 'pick', 'bomb', 'torch', 'candle', 'bell', 'rope'];
   $('invGrid').innerHTML = keys.map(k => '<span class="chip' + (have(k) ? '' : ' zero') + '">' + INAME[k] + '<b>' + have(k) + '</b></span>').join('');
   $('recList').innerHTML = RECIPES.map(r => {
     const need = Object.keys(r.need).map(k => '<span class="' + (have(k) >= r.need[k] ? 'ok' : 'no') + '">' + INAME[k] + ' ' + have(k) + '/' + r.need[k] + '</span>').join(' · ');
@@ -2099,6 +2278,22 @@ function useTorch() {
   if (hidden) unhide(true);
   Snd.relight(); Snd.forge(); buzz(30); toast('Новый факел вспыхнул в полную силу.', 2.5); save();
 }
+function ringBell() {
+  if (!inv.bell || state !== 'play') return;
+  inv.bell--; Snd.bell(); buzz([20, 60, 20]); makeNoise(6);
+  if (MON.on) { MON.stunT = Math.max(MON.stunT, 8); MON.mode = 'patrol'; MON.sawHide = false; }
+  if (SH.on) { SH.leaving = true; SH.life = Math.min(SH.life, 6); }
+  toast('Чистый звон раскатился по коридорам. Всё живое в замке замерло и прислушалось.', 3); save();
+}
+function useRope() {
+  if (!inv.rope || state !== 'play') return;
+  if (isFinale()) return toast('Здесь некуда спускаться: под ногами только корни и Сердце.', 3);
+  inv.rope--; P.fuel = Math.max(5, P.fuel * 0.5); stat('rope');
+  Snd.whoosh(); Snd.descend(); buzz([40, 80, 40]);
+  meta.best = Math.max(meta.best || 0, FLOOR + 1); saveMeta();
+  FS.rope = true; descend();
+  setTimeout(() => toast('Ты спустился по верёвке в пролом. Огня осталось вдвое меньше.', 4), 400);
+}
 function throwBomb() {
   if (!inv.bomb || proj || hidden) return;
   inv.bomb--; P.bombs = (P.bombs || 0) + 1; proj ={ x: P.x, y: P.y, dx: Math.cos(P.a), dy: Math.sin(P.a), d: 0 };
@@ -2110,8 +2305,12 @@ function explode(x, y) {
   Snd.boom({ x: fx, y: fy }); buzz(70); makeNoise(14);
   if (SH.on && Math.hypot(SH.x - fx, SH.y - fy) < 3.2) dissolveShadow('Огонь охватил Тень, и она растаяла с визгом.');
   if (MON.on && Math.hypot(MON.x - fx, MON.y - fy) < 3.2) {
-    MON.stunT = MON.kind === 'drowned' ? 8 : 5; MON.mode = 'patrol'; MON.sawHide = false;
-    toast(MON.kind === 'drowned' ? 'Утопленник ушёл под воду от вспышки.' : 'Тюремщик отшатнулся от огня.', 2.5);
+    if (MON.kind === 'rats') scatterRats(true);
+    else {
+      MON.stunT = MON.kind === 'drowned' ? 8 : MON.kind === 'binder' ? 7 : 5; MON.mode = 'patrol'; MON.sawHide = false;
+      toast({ drowned: 'Утопленник ушёл под воду от вспышки.', jailer: 'Тюремщик отшатнулся от огня.', binder: 'Страницы Переплётчика вспыхнули, и он отпрянул.',
+        mourner: 'Плакальщица отшатнулась от огня и замолкла.' }[MON.kind], 2.5);
+    }
   }
   for (const k of [...grown]) {
     const [gx, gy] = k.split(',').map(Number);
@@ -2143,13 +2342,15 @@ addEventListener('keydown', e => {
   if (e.code === 'Escape' && BACKS[state]) return $(BACKS[state]).click();
   if (state === 'play') {
     if (e.code === 'Escape') pause();
-    else if (e.code === 'KeyM') toggleMap();
+    else if (e.code === 'KeyM') openBigMap();
     else if (e.code === 'KeyC') openCraft();
     else if (e.code === 'KeyH') hidden ? unhide() : hide();
     else if (e.code === 'KeyO') pourOil();
     else if (e.code === 'KeyB') throwBomb();
     else if (e.code === 'KeyV') placeCandle();
     else if (e.code === 'KeyT') useTorch();
+    else if (e.code === 'KeyZ') ringBell();
+    else if (e.code === 'KeyX') useRope();
     else if (e.code === 'KeyG') $('chalkPal').hidden = !$('chalkPal').hidden;
     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'ControlLeft') e.preventDefault();
     else if (/^Digit[1-4]$/.test(e.code)) placeMark(+e.code[5] - 1);
@@ -2259,12 +2460,14 @@ function pollPad(dt) {
     if (edge(3)) openCraft();
     if (edge(4)) pourOil();
     if (edge(5)) useTorch();
+    if (edge(10)) ringBell();
+    if (edge(11)) useRope();
     if (edge(7)) placeMark(3);
     if (edge(12)) placeMark(3);
     if (edge(13)) placeMark(2);
     if (edge(14)) placeMark(0);
     if (edge(15)) placeMark(1);
-    if (edge(8)) toggleMap();
+    if (edge(8)) openBigMap();
     if (edge(9)) pause();
     return;
   }
@@ -2299,7 +2502,7 @@ function openChest(it) {
     if (k === 'chalk') inv.chalk += 8; else inv[k]++;
     got.push(k === 'chalk' ? 'мел' : INAME[k].toLowerCase());
   }
-  Snd.forge(); Snd.chime(); buzz([30, 40, 30]);
+  Snd.forge(); Snd.chime(); buzz([30, 40, 30]); stat('chests');
   toast('В тайнике: ' + got.join(', ') + '.', 4); save();
 }
 const PICK_MSG = { rag: 'Тряпка. Пригодится для бомбы или факела.', bone: 'Кость. Из неё выйдет рукоять факела.', wax: 'Огарок воска. С фитилём выйдет свеча.', wick: 'Фитиль. С воском выйдет свеча.', oil: 'Склянка масла. Факел возьмёт её сам, когда начнёт гаснуть.' };
@@ -2330,7 +2533,7 @@ function update(dt, t) {
   sneak = !!(keys.ShiftLeft || keys.ShiftRight || keys.ControlLeft || (joy && Math.hypot(joy.x, joy.y) > 0.08 && Math.hypot(joy.x, joy.y) < 0.55) ||
     (PAD.on && (PAD.lt || (padMag > 0.05 && padMag < 0.55))));
   if ((joy || padMag > 0.05) && sneak) { const jl = Math.hypot(f, s); if (jl > 0) { f /= jl; s /= jl; } }
-  const sp = (hasGift('swift') ? 2.95 : 2.6) * (sneak ? 0.45 : 1) * dt, ca = Math.cos(P.a), sa = Math.sin(P.a);
+  const sp = (hasGift('swift') ? 2.95 : 2.6) * (1 + 0.04 * upLv('boots')) * (sneak ? 0.45 : 1) * dt, ca = Math.cos(P.a), sa = Math.sin(P.a);
   const ox = P.x, oy = P.y;
   tryMove((ca * f - sa * s) * sp, (sa * f + ca * s) * sp);
   const moved = Math.hypot(P.x - ox, P.y - oy);
@@ -2351,7 +2554,7 @@ function update(dt, t) {
       if (P.fuel > 0 && blackDur <= 0 && !hidden) {
         const lx = P.x - (gx + 0.5), ly = P.y - (gy + 0.5);
         const ox = Math.abs(lx) > Math.abs(ly) ? Math.sign(lx) : 0, oy = ox ? 0 : Math.sign(ly);
-        litSc.set(gx + ',' + gy, { x: gx + 0.5 + ox * 0.62, y: gy + 0.5 + oy * 0.62 });
+        stat('sconces'); litSc.set(gx + ',' + gy, { x: gx + 0.5 + ox * 0.62, y: gy + 0.5 + oy * 0.62 });
         P.fuel = Math.max(0, P.fuel - 3); Snd.relight(); Snd.burn(); buzz(25); FS.sconce = (FS.sconce || 0) + 1;
         toast(meta.tips && meta.tips.sconceLit ? 'Факел на стене зажжён.' : 'Факел на стене вспыхнул. Его свет останется здесь, и Тень сюда не войдёт.', 3);
         if (!meta.tips) meta.tips = {}; meta.tips.sconceLit = 1; saveMeta(); save();
@@ -2381,13 +2584,14 @@ function update(dt, t) {
     }
     if (gt === 5) {
       const id = gx + ',' + gy;
-      if (inv.keys > 0 || gateFree > 0) {
-        const free = inv.keys <= 0;
-        if (free) gateFree--; else inv.keys--;
+      if (inv.keys > 0 || gateFree > 0 || inv.pick > 0) {
+        const free = inv.keys <= 0 && gateFree > 0, picked = inv.keys <= 0 && !free;
+        if (free) gateFree--; else if (picked) inv.pick--; else inv.keys--;
+        stat('gates');
         opened.add(id);
         getChunk(gx >> 4, gy >> 4).g[((gy & 15) << 4) | (gx & 15)] = 0;
         Snd.clank(); buzz(40); makeNoise(10);
-        toast(free ? 'Ржавые петли поддались без ключа.' : 'Ключ повернулся. Решётка поднялась.', 2.5); save();
+        toast(free ? 'Ржавые петли поддались без ключа.' : picked ? 'Отмычка щёлкнула в замке. Решётка поднялась.' : 'Ключ повернулся. Решётка поднялась.', 2.5); save();
       } else if (gateMsg !== id) {
         gateMsg = id;
         toast(RECIPES[0] && canMake(RECIPES[0]) ? 'Решётка заперта. Собери ключ в «Ремесле».' : 'Решётка заперта. Нужен ключ: кольцо, стержень и бородка.', 3.5);
@@ -2398,7 +2602,7 @@ function update(dt, t) {
   if (!burning) { burnT = 0; crackT2 = 0; }
   // факел
   if (P.fuel > 0 && !hidden) {
-    P.fuel = Math.max(0, P.fuel - dt * 0.42 * (1 + 0.1 * (FLOOR - 1)) * (hasGift('longburn') ? 0.75 : 1));
+    P.fuel = Math.max(0, P.fuel - dt * 0.42 * (1 + 0.1 * (FLOOR - 1)) * (hasGift('longburn') ? 0.75 : 1) * (1 - 0.08 * upLv('torch')));
     if (P.fuel < 20 && !lowWarned) { lowWarned = true; if (!inv.oil) toast('Факел слабеет. Ищи склянки с маслом в тупиках.'); }
     if (P.fuel === 0 && !darkWarned && !inv.oil) { darkWarned = true; toast('Факел погас. Тьма подбирается ближе.', 5); }
     if (blackDur <= 0) { crackT -= dt; if (crackT < 0) { crackT = 0.15 + Math.random() * 0.6; Snd.crackle(); } }
@@ -2418,6 +2622,8 @@ function update(dt, t) {
     }
   }
   const playerLit = lights.length && litAt(P.x, P.y);
+  playerLitNow = !!playerLit;
+  if (P.fuel < FS.minFuel) FS.minFuel = P.fuel;
   const dark = (P.fuel <= 0 || blackDur > 0 || hidden) && !playerLit;
   const shD = SH.on ? Math.hypot(SH.x - P.x, SH.y - P.y) : 99;
   if (hidden) { if (shD < 3) fearUp(dt * 4); else P.fear = Math.max(0, P.fear - dt * 3); }
@@ -2426,6 +2632,19 @@ function update(dt, t) {
   else if (blackDur > 0) fearUp(dt * 2);
   else P.fear = Math.max(0, P.fear - dt * 2.5);
   if (TH.grow) updRoots(dt);
+  if (isFinale() && exit) updHeartRoots(dt);
+  // погасший алтарь можно зажечь своим факелом
+  if (TH.altar && deadAlt.size && P.fuel > 5 && blackDur <= 0 && !hidden) {
+    let near = null;
+    forNearItems(P.x, P.y, it => { if (!near && it.t === 'altar' && deadAlt.has(it.id) && Math.hypot(it.x - P.x, it.y - P.y) < 0.95) near = it; });
+    if (near) {
+      relightT += dt;
+      if (relightT > 1.2) {
+        relightT = 0; deadAlt.delete(near.id); P.fuel = Math.max(0, P.fuel - 5);
+        Snd.relight(); Snd.chime(); buzz(25); stat('altars'); toast('Ты зажёг свечи на алтаре заново.', 2.5); save();
+      }
+    } else relightT = 0;
+  }
   if (TH.weak && playerLit) P.fear = Math.max(0, P.fear - dt * 6);
   updMusic(dt, shD); updCaps(dt);
   if (TH.shift) { shiftT -= dt; if (shiftT < 0) { shiftT = 16 + Math.random() * 12; shiftShelves(); } }
@@ -2461,6 +2680,7 @@ function update(dt, t) {
   updShadow(dt, dark);
   updMon(dt);
   if (state !== 'play') return;
+  if (DEVI) P.fear = Math.min(P.fear, 85);
   if (P.fear >= 100) return lose();
 
   // бомба и огонь
@@ -2481,7 +2701,7 @@ function update(dt, t) {
     if (Math.hypot(it.x - P.x, it.y - P.y) > 0.6) return;
     collected.add(it.id);
     if (it.t === 'petal') {
-      P.petals++; Snd.chime(); buzz([20, 40, 20]);
+      P.petals++; Snd.chime(); buzz([20, 40, 20]); bankAdd(1); stat('petals');
       if (P.petals < NEED) toast('Лепесток Красной Розы. Осталось ' + (NEED - P.petals) + '.');
       else if (!exit) spawnExit();
     } else if (it.t === 'keypart') {
@@ -2502,7 +2722,7 @@ function update(dt, t) {
   // шипы на дне
   for (const th of thorns) {
     if (th.got || Math.hypot(th.x - P.x, th.y - P.y) > 0.6) continue;
-    th.got = true; Snd.chime(); Snd.thornChime(th); buzz([30, 50, 30]);
+    th.got = true; Snd.chime(); Snd.thornChime(th); buzz([30, 50, 30]); bankAdd(2);
     const left = thorns.filter(x => !x.got).length;
     if (left) toast('Шип Розы. Осталось ' + left + '.', 3); else if (!exit) spawnExit();
     save();
@@ -2601,6 +2821,7 @@ function shadowAmbush() {
   SH.on = true; SH.life = Math.max(SH.life || 0, 20); SH.rolled = false; SH.leaving = false; SH.seenMsg = false;
 }
 function dissolveShadow(msg) {
+  stat('burn');
   Snd.hiss({ x: SH.x, y: SH.y }); SH.on = false; SH.spawnT = 12 + Math.random() * 10;
   if (msg) toast(msg, 2.5);
 }
@@ -2620,14 +2841,17 @@ function updShadow(dt, dark) {
   const pd = fieldAt(SH.cx, SH.cy);
   if (pd < 0 || (SH.life <= 0 && (!dark || SH.leaving))) { SH.on = false; SH.spawnT = 15 + Math.random() * 25; return; }
   if (litAt(SH.x, SH.y)) return dissolveShadow('Тень зашипела и растаяла в свете.');
-  if (!dark && !hidden && pd < LR * 0.5) return dissolveShadow('Тень зашипела и растаяла в свете факела.');
+  const heartAwake = isFinale() && !!exit;
+  if (heartAwake) SH.life = Math.max(SH.life, 5);
+  if (!dark && !hidden && !heartAwake && pd < LR * 0.5) return dissolveShadow('Тень зашипела и растаяла в свете факела.');
   let mode;
   if (SH.leaving) mode = -1;
   else if (hidden) mode = 2;
-  else if (dark) mode = 1;
+  else if (dark || heartAwake) mode = 1;
   else { const edge = LR + 0.9; mode = pd > edge + 2 ? 1 : pd < edge ? -1 : 0; }
   let speed;
-  if (mode === 1 && dark) speed = (TH.weak ? 0.85 : 1) * Math.min(2.45,2.2 + 0.06 * (FLOOR - 1) + (TH.hear && moving && !sneak && !hasGift('quiet') ? 0.12 : 0));
+  if (mode === 1 && heartAwake && !dark) speed = 1.75;
+  else if (mode === 1 && dark) speed = (TH.weak ? 0.85 : 1) * Math.min(2.45,2.2 + 0.06 * (FLOOR - 1) + (TH.hear && moving && !sneak && !hasGift('quiet') ? 0.12 : 0));
   else if (mode === -1) speed = SH.leaving ? 1.4 : 2.4;
   else if (mode === 2) speed = 1.0;
   else speed = 1.1;
@@ -2685,6 +2909,37 @@ function growCell(x, y) {
   if (SH.on && Math.hypot(SH.x - cx, SH.y - cy) < 1) return;
   setTile(x, y, 6); grown.add(id); grownAt.set(id, P.time);
   if (!growMsg) { growMsg = true; toast('За спиной что-то хрустнуло: корни затянули коридор. Факелом их можно прожечь.', 4); }
+}
+function pathTo(gx, gy, limit) {
+  const sx = Math.floor(P.x), sy = Math.floor(P.y), prev = new Map([[sx + ',' + sy, null]]), q = [[sx, sy]];
+  for (let h = 0; h < q.length && h < limit; h++) {
+    const [x, y] = q[h];
+    if (x === gx && y === gy) {
+      const path = []; let k = x + ',' + y;
+      while (k) { const [a, b] = k.split(',').map(Number); path.push([a, b]); k = prev.get(k); }
+      return path.reverse();
+    }
+    for (const [ox, oy] of DIRS) {
+      const nx = x + ox, ny = y + oy, k = nx + ',' + ny, t = tile(nx, ny);
+      if (prev.has(k) || (t !== 0 && t !== 6)) continue;
+      prev.set(k, x + ',' + y); q.push([nx, ny]);
+    }
+  }
+  return null;
+}
+// пробудившееся Сердце: корни перекрывают путь к нему
+function updHeartRoots(dt) {
+  heartRootT -= dt;
+  if (heartRootT > 0) return;
+  heartRootT = 4.5 + Math.random() * 2;
+  if (P.fuel < 12) return;
+  const path = pathTo(Math.floor(exit.x), Math.floor(exit.y), 6000);
+  if (!path || path.length < 10) return;
+  const i = 5 + ((Math.random() * 4) | 0), c = path[i];
+  if (tile(c[0], c[1]) !== 0) return;
+  const before = grown.size;
+  growCell(c[0], c[1]);
+  if (grown.size > before) { Snd.grind({ x: c[0] + 0.5, y: c[1] + 0.5 }); cap('Корни', { x: c[0] + 0.5, y: c[1] + 0.5 }, true); }
 }
 function updRoots(dt) {
   const cx = Math.floor(P.x), cy = Math.floor(P.y), ck = cx + ',' + cy;
@@ -2868,63 +3123,165 @@ function monStep(chase) {
   if (best) { MON.tx = best[0]; MON.ty = best[1]; }
 }
 const STEAL = ['keys', 'bomb', 'torch', 'candle', 'oil', 'rag', 'wax', 'wick', 'bone'];
+const RAT_STEAL = ['wax', 'wick', 'rag', 'bone', 'oil', 'candle', 'bomb', 'torch', 'bell', 'pick', 'rope', 'keys'];
+const MON_NAME = { jailer: 'Тюремщик', drowned: 'Утопленник', binder: 'Переплётчик', mourner: 'Плакальщица', rats: 'Крысы' };
+function scatterRats(byFire) {
+  MON.on = false; MON.respT = 10 + Math.random() * 6;
+  Snd.squeak({ x: MON.x, y: MON.y }); Snd.scurry({ x: MON.x, y: MON.y });
+  stat('rats'); toast(byFire ? 'Крысы с визгом бросились от огня.' : 'Крысы с писком разбежались от факела.', 2.5);
+}
 function monCatch() {
-  const pos = { x: MON.x, y: MON.y };
-  if (MON.kind === 'jailer') {
-    FS.caught = true; fearUp(30); P.lastHit = { src: 'Тюремщик', t: P.time }; Snd.jShout(pos); buzz([90, 50, 120]);
+  const pos = { x: MON.x, y: MON.y }, k0 = MON.kind;
+  P.lastHit = { src: MON_NAME[k0], t: P.time };
+  if (k0 === 'jailer') {
+    FS.caught = true; fearUp(30); Snd.jShout(pos); buzz([90, 50, 120]);
     const k = STEAL.find(k => inv[k] > 0);
     if (k) { inv[k]--; toast('Тюремщик схватил тебя и вырвал: ' + INAME[k].toLowerCase() + '. Потом отпустил с хохотом.', 4); }
     else toast('Тюремщик тряхнул тебя за шиворот и отшвырнул, как пустой мешок.', 3.5);
-  } else {
-    fearUp(35); P.lastHit = { src: 'Утопленник', t: P.time }; P.fuel = Math.max(0, P.fuel - 20); Snd.bigSplash(pos); buzz([120, 60, 120]);
+  } else if (k0 === 'drowned') {
+    fearUp(35); P.fuel = Math.max(0, P.fuel - 20); Snd.bigSplash(pos); buzz([120, 60, 120]);
     toast('Ледяная рука утянула тебя под воду. Факел зашипел и едва не погас.', 4);
+  } else if (k0 === 'binder') {
+    FS.bound = true; fearUp(35); P.fuel = Math.max(0, P.fuel - 10); Snd.rustle(pos); Snd.scream(); buzz([100, 50, 140]);
+    let n = 0;
+    for (const [key, m] of [...marks]) if (Math.hypot(m.x + 0.5 - P.x, m.y + 0.5 - P.y) < 9) { eraseMark(key); n++; }
+    toast('Сухие пальцы сомкнулись на горле. Переплётчик отпустил тебя и растворился меж шкафов' + (n ? ', стерев твои метки.' : '.'), 4);
+    MON.on = false; MON.respT = 20; save(); return;
+  } else if (k0 === 'mourner') {
+    fearUp(25); P.fuel = Math.max(0, P.fuel - 25); Snd.weep(pos); buzz([80, 80, 80]);
+    toast('Плакальщица коснулась тебя. Её слёзы залили факел.', 3.5);
+    MON.stunT = 6; MON.mode = 'patrol'; save(); return;
+  } else if (k0 === 'rats') {
+    const got = [];
+    for (let n = 0; n < 2; n++) { const k = RAT_STEAL.find(k => inv[k] > 0); if (!k) break; inv[k]--; got.push(INAME[k].toLowerCase()); }
+    fearUp(15); Snd.squeak(pos); Snd.scurry(pos); buzz([40, 30, 40, 30, 40]);
+    toast(got.length ? 'Крысы облепили сумку и утащили: ' + got.join(', ') + '.' : 'Крысы обнюхали пустую сумку и разбежались.', 3.5);
+    MON.on = false; MON.respT = 9; save(); return;
   }
   MON.stunT = 8; MON.mode = 'patrol'; MON.sawHide = false; save();
+}
+// видит ли игрок точку: в поле зрения, без стен на пути и при свете
+function playerSees(x, y) {
+  if (hidden) return false;
+  const dx = x - P.x, dy = y - P.y, d = Math.hypot(dx, dy);
+  if (d > 14) return false;
+  let rel = Math.atan2(dy, dx) - P.a; rel = Math.atan2(Math.sin(rel), Math.cos(rel));
+  if (Math.abs(rel) > Math.atan(W / (2 * F)) + 0.06) return false;
+  if (!(d < LR + 0.8 || lightAt(x, y) > 0.12)) return false;
+  const n = Math.ceil(d / 0.2);
+  for (let i = 1; i < n; i++) { const t = tile(Math.floor(P.x + dx * i / n), Math.floor(P.y + dy * i / n)); if (t && t !== 5) return false; }
+  return true;
+}
+function nearestAltar(x, y) {
+  let best = null, bd = 1e9;
+  forNearItems(x, y, it => { if (it.t !== 'altar' || deadAlt.has(it.id)) return; const d = Math.hypot(it.x - x, it.y - y); if (d < bd) { bd = d; best = it; } });
+  return best;
+}
+function mournerStep() {
+  MON.px = MON.cx; MON.py = MON.cy; MON.cx = MON.tx; MON.cy = MON.ty;
+  const opts = DIRS.map(([ox, oy]) => [MON.cx + ox, MON.cy + oy]).filter(o => monPass(o[0], o[1]) && !fires.some(f => Math.hypot(f.x - o[0] - 0.5, f.y - o[1] - 0.5) < 1.6));
+  const tgt = MON.alt, nb = opts.filter(o => o[0] !== MON.px || o[1] !== MON.py), pool = nb.length ? nb : opts;
+  let best = null;
+  if (tgt && Math.random() < 0.72) { let bd = 1e9; for (const o of pool) { const d = Math.hypot(o[0] + 0.5 - tgt.x, o[1] + 0.5 - tgt.y); if (d < bd) { bd = d; best = o; } } }
+  if (!best && pool.length) best = pool[(Math.random() * pool.length) | 0];
+  if (best) { MON.tx = best[0]; MON.ty = best[1]; }
 }
 function updMon(dt) {
   if (!MON.kind) return;
   if (!MON.on) { MON.respT -= dt; if (MON.respT <= 0 && !spawnMon()) MON.respT = 2; return; }
   const pd = fieldBAt(MON.cx, MON.cy);
   if (pd < 0) { MON.farT += dt; if (MON.farT > 4) { MON.on = false; MON.respT = 3; return; } } else MON.farT = 0;
-  const ed = Math.hypot(MON.x - P.x, MON.y - P.y), pos = { x: MON.x, y: MON.y };
+  const ed = Math.hypot(MON.x - P.x, MON.y - P.y), pos = { x: MON.x, y: MON.y }, kind = MON.kind;
   if (ed > 1.5) MON.rolled = false;
   if (MON.stunT > 0) { MON.stunT -= dt; return; }
-  let chase = false, speed;
-  if (MON.kind === 'jailer') {
+  const torchOn = P.fuel > 0 && blackDur <= 0 && !hidden;
+  let chase = false, speed = 1, frozen = false, custom = false;
+  if (kind === 'jailer') {
     const sees = !hidden && monLOS(MON.x, MON.y);
     if (sees) {
       if (MON.mode !== 'chase') { Snd.jShout(pos); buzz(50); if (!MON.msg) { MON.msg = true; toast('Тюремщик заметил тебя! Беги за решётку или в нишу.', 3.5); } }
       MON.mode = 'chase'; MON.seenT = 4;
     } else if (MON.mode === 'chase' && !(hidden && MON.sawHide)) { MON.seenT -= dt; if (MON.seenT <= 0) MON.mode = 'patrol'; }
-    chase = MON.mode === 'chase';
-    speed = chase ? 2.05 : 1.15;
-  } else {
+    chase = MON.mode === 'chase'; speed = chase ? 2.05 : 1.15;
+  } else if (kind === 'drowned') {
     if (ed < noiseR) {
       if (MON.mode !== 'hunt') { Snd.gurgle(pos); if (!MON.msg) { MON.msg = true; toast('Под водой что-то шевельнулось и двинулось на звук.', 3.5); } }
       MON.mode = 'hunt'; MON.hearT = 2.5; FS.woke = true;
     } else if (MON.mode === 'hunt') { MON.hearT -= dt; if (MON.hearT <= 0) MON.mode = 'patrol'; }
-    chase = MON.mode === 'hunt';
-    speed = chase ? 1.7 : 0.8;
+    chase = MON.mode === 'hunt'; speed = chase ? 1.7 : 0.8;
+  } else if (kind === 'binder') {
+    // пока на него смотрят — замирает
+    frozen = playerSees(MON.x, MON.y + 0);
+    if (frozen && !MON.msg && ed < 9) { MON.msg = true; toast('Среди шкафов стоит высокая фигура в лоскутах страниц. Не отводи взгляд.', 4); }
+    chase = pd >= 0 && pd < 13; speed = chase ? 1.8 : 0.9;
+    if (!frozen && chase && pd < 4 && !hidden) fearUp(dt * 4);
+  } else if (kind === 'mourner') {
+    custom = true; speed = 0.95;
+    MON.altT = (MON.altT || 0) - dt;
+    if (!MON.alt || deadAlt.has(MON.alt.id) || MON.altT <= 0) { MON.alt = nearestAltar(MON.x, MON.y); MON.altT = 3; }
+    if (MON.alt && Math.hypot(MON.alt.x - MON.x, MON.alt.y - MON.y) < 0.9) {
+      MON.workT = (MON.workT || 0) + dt;
+      if (MON.workT > 2) {
+        deadAlt.add(MON.alt.id); Snd.snuff(MON.alt);
+        if (ed < 14) toast('Плакальщица склонилась над алтарём, и свечи погасли.', 3);
+        MON.alt = null; MON.workT = 0; save();
+      }
+      frozen = true;
+    } else MON.workT = 0;
+    MON.weepT = (MON.weepT || 0) - dt;
+    if (!hidden && monLOS(MON.x, MON.y) && MON.weepT <= 0) {
+      MON.weepT = 7; Snd.weep(pos); fearUp(8);
+      if (!MON.msg) { MON.msg = true; toast('Плакальщица увидела тебя. Её плач зовёт Тень.', 3.5); }
+      shadowAmbush(true);
+    }
+  } else if (kind === 'rats') {
+    custom = true;
+    if (torchOn && !playerLitNow) {
+      const edge = LR * 0.62;
+      if (pd >= 0 && pd < LR * 0.42) return scatterRats(false);
+      MON.mode = pd > edge + 1.5 ? 'hunt' : pd < edge ? 'flee' : 'wait';
+    } else if (playerLitNow) MON.mode = pd < 4 ? 'flee' : 'wait';
+    else MON.mode = 'hunt';
+    speed = MON.mode === 'hunt' ? (torchOn ? 1.6 : 2.3) : MON.mode === 'flee' ? 2.4 : 0;
+    if (MON.mode === 'wait') frozen = true;
   }
   const gx = MON.tx + 0.5, gy = MON.ty + 0.5, dx = gx - MON.x, dy = gy - MON.y, dl = Math.hypot(dx, dy);
-  if (dl < 0.04) monStep(chase);
-  else { const st = Math.min(dl, speed * dt); MON.x += dx / dl * st; MON.y += dy / dl * st; }
-  if (ed < 0.6) {
+  if (!frozen) {
+    if (dl < 0.04) {
+      if (kind === 'mourner') mournerStep();
+      else if (kind === 'rats') {
+        MON.px = MON.cx; MON.py = MON.cy; MON.cx = MON.tx; MON.cy = MON.ty;
+        let best = null, bd = fieldBAt(MON.cx, MON.cy);
+        for (const [ox, oy] of DIRS) {
+          const nx = MON.cx + ox, ny = MON.cy + oy, n = fieldBAt(nx, ny);
+          if (n < 0 || fires.some(f => Math.hypot(f.x - nx - 0.5, f.y - ny - 0.5) < 2) || litAt(nx + 0.5, ny + 0.5)) continue;
+          if (MON.mode === 'hunt' ? n < bd : n > bd) { bd = n; best = [nx, ny]; }
+        }
+        if (best) { MON.tx = best[0]; MON.ty = best[1]; }
+      } else monStep(chase);
+    } else { const st = Math.min(dl, speed * dt); MON.x += dx / dl * st; MON.y += dy / dl * st; }
+  }
+  const moving2 = !frozen && speed > 0;
+  if (ed < 0.6 && !(kind === 'binder' && frozen)) {
     if (hidden) {
       if (!MON.rolled) {
         MON.rolled = true;
-        const found = MON.kind === 'jailer' && MON.sawHide && !hasGift('nichesafe') && Math.random() < 0.5;
-        if (found) { unhide(true); monCatch(); return; }
+        const chance = kind === 'jailer' ? (MON.sawHide ? 0.5 : 0) : kind === 'binder' ? 0.3 : kind === 'rats' ? 0.5 : 0;
+        if (!hasGift('nichesafe') && Math.random() < chance) { unhide(true); monCatch(); return; }
         MON.mode = 'patrol'; MON.sawHide = false;
-        toast(MON.kind === 'jailer' ? 'Фонарь скользнул по нише… и ушёл дальше.' : 'Вода колыхнулась у самых ног. Он проплыл мимо.', 3);
+        toast({ jailer: 'Фонарь скользнул по нише… и ушёл дальше.', drowned: 'Вода колыхнулась у самых ног. Он проплыл мимо.', binder: 'Шелест страниц у самого уха… и тишина.',
+          mourner: 'Плач прошёл совсем рядом и затих в коридоре.', rats: 'Крысы пробежали по ногам и умчались дальше.' }[kind], 3);
       }
     } else { monCatch(); return; }
   }
-  if (ed < 2.5 && !hidden) fearUp(dt * 3);
+  if (ed < 2.5 && !hidden) fearUp(dt * (kind === 'rats' ? 1.5 : 3));
   MON.stepT -= dt;
   if (ed < 16 && MON.stepT <= 0) {
-    if (MON.kind === 'jailer') { MON.stepT = chase ? 0.42 : 0.7; Snd.jStep(pos); if (Math.random() < 0.6) Snd.jKeys(pos); }
-    else { MON.stepT = chase ? 0.6 : 1.3; Snd.gurgle(pos); }
+    if (kind === 'jailer') { MON.stepT = chase ? 0.42 : 0.7; Snd.jStep(pos); if (Math.random() < 0.6) Snd.jKeys(pos); }
+    else if (kind === 'drowned') { MON.stepT = chase ? 0.6 : 1.3; Snd.gurgle(pos); }
+    else if (kind === 'binder') { MON.stepT = 0.45; if (moving2) Snd.rustle(pos); }
+    else if (kind === 'mourner') { MON.stepT = 3 + Math.random() * 2; if (ed < 12) Snd.weep(pos); }
+    else if (kind === 'rats') { MON.stepT = 0.5 + Math.random() * 0.5; Snd.squeak(pos); if (moving2) Snd.scurry(pos); }
   }
 }
 
@@ -2943,7 +3300,7 @@ function openNote() {
   let idx = -1;
   for (let i = 0; i < NOTES.length; i++) if (!meta.notes.includes(i)) { idx = i; break; }
   if (idx < 0) idx = (Math.random() * NOTES.length) | 0;
-  else { meta.notes.push(idx); saveMeta(); if (meta.notes.length >= NOTES.length) chDone('scholar'); }
+  else { meta.notes.push(idx); saveMeta(); if (meta.notes.length >= NOTES.length) chDone('scholar'); if (meta.notes.length >= 10) achGet('reader'); }
   showNote(idx, 'play');
 }
 function closeNote() {
@@ -2962,7 +3319,7 @@ $('jList').addEventListener('click', e => { const b = e.target.closest('[data-n]
 function closeJournal() { state = 'pause'; show('menu'); menuState(); }
 
 /* ================= Экраны ================= */
-const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS', 'runS', 'cardS', 'profS', 'xferS'];
+const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS', 'runS', 'cardS', 'profS', 'xferS', 'shopS', 'achS', 'devS', 'mapS'];
 function show(id) { for (const s of SCREENS) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
 let wake = null;
 function play() {
@@ -2972,6 +3329,9 @@ function play() {
 }
 function closeOverlay() { state = 'play'; show(null); last = performance.now(); }
 function menuState() {
+  $('bShop').textContent = 'Сторожка у ворот' + (meta.bank ? ' · ' + meta.bank + ' ' + petalWord(meta.bank) : '');
+  $('bAch').textContent = 'Достижения · ' + ACH.filter(a => meta.ach && meta.ach[a.id]).length + ' из ' + ACH.length;
+  $('bDev').hidden = !DEV; $('devBadge').hidden = !DEV;
   $('bJournal').hidden = !meta.notes.length;
   const nd = CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).length;
   $('bRuns').hidden = !(meta.runs && meta.runs.length);
@@ -3023,6 +3383,9 @@ function checkFloorChallenges() {
   if (P.time - FS.t0 < 240 && FLOOR >= 2) chDone('fast');
   if (TH.mon === 'jailer' && !FS.caught) chDone('jailer');
   if (TH.mon === 'drowned' && !FS.woke) chDone('silent');
+  if (TH.mon === 'binder' && !FS.bound) achGet('binder');
+  if (FS.minFuel >= 25 && FLOOR >= 2) achGet('steady');
+  if (FLOOR === 1) achGet('floor1');
 }
 function floorDone() {
   if (isFinale()) return reachHeart();
@@ -3049,6 +3412,7 @@ function reachHeart() {
 function ending(kind) {
   state = 'ending'; releaseInput(); Snd.ending(); buzz([60, 120, 60, 120, 300]);
   meta.endings = (meta.endings || 0) + 1; meta.best = Math.max(meta.best || 0, FLOOR);
+  achGet('heart'); if (kind !== 'plain') achGet('truth');
   if (kind === 'stop') meta.endStop = true;
   if (kind === 'stay') meta.endStay = true;
   saveMeta();
@@ -3074,6 +3438,8 @@ function descend() {
   setFloor(FLOOR + 1); resetFloorState();
   P.fuel = Math.min(100, P.fuel + 25); lowWarned = P.fuel < 20; darkWarned = false;
   if (FLOOR >= 12) chDone('deep');
+  if (FLOOR >= 5) achGet('floor5');
+  if (FLOOR >= 15) achGet('floor15');
   save(); play(); floorCard();
   const intro = isFinale() ? FINAL_ENTER : TH.intro;
   if (intro) setTimeout(() => { if (state === 'play') toast(intro, 7); }, 2500);
@@ -3095,7 +3461,7 @@ function lose() {
 
 /* ---------- Летопись забегов ---------- */
 let lastRun = null;
-const BACKS = { runs: 'bRunsClose', card: 'bCardClose', prof: 'bProfClose', xfer: 'bXClose' };
+const BACKS = { runs: 'bRunsClose', card: 'bCardClose', prof: 'bProfClose', xfer: 'bXClose', shop: 'bShopClose', ach: 'bAchClose', dev: 'bDevClose', map: 'bMapClose' };
 const OUT_TEXT = { death: 'Погиб', plain: 'Остановил Сердце', stop: 'Остановил Сердце и узнал правду', stay: 'Занял место Изольды' };
 function recordRun(out, cause) {
   if (!meta.runs) meta.runs = [];
@@ -3299,7 +3665,7 @@ function startNew() {
   begin();
 }
 function begin() {
-  descMode = 'floor';
+  descMode = 'floor'; stat('runs');
   save(); play(); floorCard();
   toast('Найди пять лепестков Красной Розы. Береги огонь.', 5);
 }
@@ -3313,14 +3679,290 @@ $('bJournal').onclick = () => openJournal('menu');
 $('bJClose').onclick = closeJournal;
 $('bNoteClose').onclick = closeNote;
 $('bCraftClose').onclick = closeOverlay;
+/* ---------- Достижения ---------- */
+const ACH = [
+  { id: 'floor1', name: 'Первые ступени', desc: 'Пройти этаж I' },
+  { id: 'floor5', name: 'Глубже некуда?', desc: 'Спуститься на этаж V' },
+  { id: 'floor15', name: 'Бездонный', desc: 'Спуститься на этаж XV' },
+  { id: 'heart', name: 'Сердце остановлено', desc: 'Дойти до Сердца замка' },
+  { id: 'truth', name: 'Вся правда', desc: 'Увидеть истинную концовку' },
+  { id: 'reader', name: 'Книжный червь', desc: 'Прочитать 10 записок' },
+  { id: 'binder', name: 'Не моргая', desc: 'Пройти Библиотеку, не попавшись Переплётчику' },
+  { id: 'steady', name: 'Неугасимый', desc: 'Пройти этаж, ни разу не опустив факел ниже четверти' },
+  { id: 'chests', name: 'Кладоискатель', desc: 'Найти 10 тайников', stat: 'chests', n: 10 },
+  { id: 'sconces', name: 'Фонарщик', desc: 'Зажечь 20 настенных факелов', stat: 'sconces', n: 20 },
+  { id: 'burn', name: 'Огнём по тьме', desc: 'Сжечь Тень светом или огнём 5 раз', stat: 'burn', n: 5 },
+  { id: 'craft', name: 'Подмастерье', desc: 'Смастерить 30 предметов', stat: 'craft', n: 30 },
+  { id: 'gates', name: 'Ключник', desc: 'Открыть 15 решёток', stat: 'gates', n: 15 },
+  { id: 'altars', name: 'Хранитель огня', desc: 'Заново зажечь 5 алтарей', stat: 'altars', n: 5 },
+  { id: 'rats', name: 'Крысолов', desc: 'Разогнать крыс 5 раз', stat: 'rats', n: 5 },
+  { id: 'rope', name: 'Короткий путь', desc: 'Спуститься по верёвке', stat: 'rope', n: 1 },
+  { id: 'runs', name: 'Упрямец', desc: 'Начать 10 забегов', stat: 'runs', n: 10 },
+  { id: 'garden', name: 'Садовник', desc: 'Собрать 100 лепестков за всё время', stat: 'petals', n: 100 },
+  { id: 'keeper', name: 'Хозяин сторожки', desc: 'Купить все улучшения в сторожке' }
+];
+const achQ = []; let achT = 0;
+function stat(k, n) {
+  if (DEV) return;
+  meta.stat = meta.stat || {}; meta.stat[k] = (meta.stat[k] || 0) + (n || 1);
+  for (const a of ACH) if (a.stat === k && meta.stat[k] >= a.n) achGet(a.id);
+  saveMeta();
+}
+function achGet(id) {
+  if (DEV) return;
+  meta.ach = meta.ach || {};
+  if (meta.ach[id]) return;
+  meta.ach[id] = Date.now(); saveMeta();
+  const a = ACH.find(x => x.id === id); if (a) achQ.push(a.name);
+}
+function updAchPop(dt) {
+  if (achT > 0) { achT -= dt; if (achT <= 0) $('achPop').classList.remove('on'); return; }
+  if (achQ.length && state === 'play') { $('achPopT').textContent = achQ.shift(); $('achPop').classList.add('on'); achT = 4; Snd.chime(); }
+}
+function openAch() {
+  achFrom = state; state = 'ach';
+  const got = ACH.filter(a => meta.ach && meta.ach[a.id]).length;
+  $('achCount').textContent = 'Получено ' + got + ' из ' + ACH.length;
+  $('achList').innerHTML = ACH.map(a => {
+    const ok = meta.ach && meta.ach[a.id], v = a.stat ? Math.min(a.n, (meta.stat && meta.stat[a.stat]) || 0) : 0;
+    return '<div class="' + (ok ? 'done' : '') + '"><i>' + (ok ? '✦' : '·') + '</i><b>' + a.name + '</b><small>' + a.desc + (a.stat && !ok ? ' · ' + v + ' из ' + a.n : '') + '</small></div>';
+  }).join('');
+  show('achS');
+}
+let achFrom = 'menu';
+$('bAch').onclick = openAch;
+$('bAchClose').onclick = () => { state = achFrom === 'pause' ? 'pause' : 'menu'; menuState(); show('menu'); };
+
+/* ---------- Сторожка у ворот ---------- */
+const UPG = [
+  { id: 'torch', name: 'Просмолённый факел', desc: 'Масло расходуется на 8% медленнее за уровень.', cost: [8, 16, 28] },
+  { id: 'nerve', name: 'Крепкие нервы', desc: 'Страх растёт на 8% медленнее за уровень.', cost: [10, 20, 32] },
+  { id: 'boots', name: 'Разношенные сапоги', desc: 'Шаг на 4% быстрее за уровень.', cost: [12, 24] },
+  { id: 'chalk', name: 'Мешочек мела', desc: 'В начале забега ещё 5 мела за уровень.', cost: [4, 8, 14] },
+  { id: 'oil', name: 'Фляга масла', desc: 'В начале забега склянка масла за уровень.', cost: [10, 22] },
+  { id: 'bag', name: 'Сумка подмастерья', desc: 'В начале забега тряпка и кость, а на втором уровне ещё воск и фитиль.', cost: [12, 20] },
+  { id: 'key', name: 'Связка ключника', desc: 'В начале забега у тебя есть ключ.', cost: [25] },
+  { id: 'scent', name: 'Чутьё садовника', desc: 'На каждом этаже ближайший лепесток сразу виден на карте.', cost: [30] }
+];
+function upLv(id) { return (meta.up && meta.up[id]) || 0; }
+function bankAdd(n) { if (DEV) return; meta.bank = (meta.bank || 0) + n; saveMeta(); }
+function petalWord(n) { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? 'лепесток' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'лепестка' : 'лепестков'; }
+let shopFrom = 'menu';
+function renderShop() {
+  const bank = meta.bank || 0;
+  $('shopBank').textContent = 'В копилке: ' + bank + ' ' + petalWord(bank);
+  $('shopList').innerHTML = UPG.map(u => {
+    const lv = upLv(u.id), max = lv >= u.cost.length, price = max ? 0 : u.cost[lv];
+    return '<div class="' + (max ? 'max' : '') + '"><b>' + u.name + '</b><small>' + u.desc + '</small><em>уровень ' + lv + ' из ' + u.cost.length + '</em>' +
+      '<button class="btn small" data-up="' + u.id + '"' + (max || bank < price ? ' disabled' : '') + '>' + (max ? 'Изучено' : 'Купить · ' + price) + '</button></div>';
+  }).join('');
+}
+function openShop() { shopFrom = state; state = 'shop'; renderShop(); show('shopS'); }
+$('shopList').addEventListener('click', e => {
+  const b = e.target.closest('[data-up]'); if (!b) return;
+  const u = UPG.find(x => x.id === b.dataset.up), lv = upLv(u.id);
+  if (lv >= u.cost.length || (meta.bank || 0) < u.cost[lv]) return;
+  meta.bank -= u.cost[lv]; meta.up = meta.up || {}; meta.up[u.id] = lv + 1; saveMeta();
+  Snd.init(); Snd.forge(); Snd.chime(); buzz(30);
+  if (UPG.every(x => upLv(x.id) >= x.cost.length)) achGet('keeper');
+  renderShop();
+});
+$('bShop').onclick = openShop;
+$('bShopClose').onclick = () => { state = shopFrom === 'pause' ? 'pause' : 'menu'; menuState(); show('menu'); };
+function seeCell(x, y) {
+  const k = (x >> 4) + ',' + (y >> 4);
+  let a = seen.get(k); if (!a) { a = new Uint8Array(S * S); seen.set(k, a); }
+  a[((y & 15) << 4) | (x & 15)] = 1;
+}
+function scentPetal() {
+  if (isFinale()) return;
+  let best = null, bd = 1e9;
+  const cx = Math.floor(P.x) >> 4, cy = Math.floor(P.y) >> 4;
+  for (let j = cy - 2; j <= cy + 2; j++) for (let i = cx - 2; i <= cx + 2; i++) for (const it of getChunk(i, j).items) {
+    if (it.t !== 'petal') continue;
+    const d = Math.hypot(it.x - P.x, it.y - P.y); if (d < bd) { bd = d; best = it; }
+  }
+  if (best) seeCell(Math.floor(best.x), Math.floor(best.y));
+}
+
+/* ---------- Тестовый режим ---------- */
+let DEV = false, DEVI = false, devTaps = [];
+try { DEV = localStorage.getItem('redrose_dev') === '1'; } catch (e) {}
+function setDev(on) {
+  DEV = on; if (!on) DEVI = false;
+  try { if (on) localStorage.setItem('redrose_dev', '1'); else localStorage.removeItem('redrose_dev'); } catch (e) {}
+  $('devBadge').hidden = !DEV; menuState();
+}
+$('buildN').addEventListener('click', () => {
+  const now = performance.now(); devTaps = devTaps.filter(t => now - t < 2500); devTaps.push(now);
+  if (devTaps.length >= 5) {
+    devTaps = []; setDev(!DEV);
+    const b = $('best'); b.hidden = false; b.textContent = DEV ? 'Тестовый режим включён. Кнопка внизу меню.' : 'Тестовый режим выключен.';
+  }
+});
+let devFrom = 'menu';
+function devStateText() {
+  return 'Сейчас: этаж ' + roman(FLOOR) + ' · ' + TH.name + ' · бессмертие ' + (DEVI ? 'вкл' : 'выкл') + ' · в сторожке ' + (meta.bank || 0) + ' ' + petalWord(meta.bank || 0);
+}
+function openDev() { devFrom = state; state = 'dev'; $('devFloor').value = FLOOR; $('devState').textContent = devStateText(); show('devS'); }
+$('bDev').onclick = openDev;
+$('bDevClose').onclick = () => { state = devFrom === 'pause' ? 'pause' : 'menu'; menuState(); show('menu'); };
+function devRunActive() { return !!loadSave(); }
+$('devGo').onclick = () => {
+  const f = Math.max(1, Math.min(60, Math.round(+$('devFloor').value || 1)));
+  if (!devRunActive()) newGame();
+  P.ended = f > FINAL; setFloor(f); resetFloorState(); P.fuel = 100;
+  descMode = 'floor'; save(); play(); floorCard();
+  const intro = isFinale() ? FINAL_ENTER : TH.intro;
+  if (intro) setTimeout(() => { if (state === 'play') toast(intro, 6); }, 1500);
+};
+function devNear(fld, lo, hi) {
+  buildField();
+  const cand = [];
+  for (let i = 0; i < WD * WD; i++) { const d = fld[i]; if (d < lo || d > hi) continue; const x = fox + i % WD, y = foy + ((i / WD) | 0); if ((x & 1) && (y & 1)) cand.push([x, y]); }
+  return cand.length ? cand[(Math.random() * cand.length) | 0] : null;
+}
+$('devBtns').addEventListener('click', e => {
+  const b = e.target.closest('[data-dev]'); if (!b) return;
+  const a = b.dataset.dev;
+  if (a === 'off') { setDev(false); $('bDevClose').click(); return; }
+  if (a === 'notes') { meta.notes = NOTES.map((_, i) => i); saveMeta(); }
+  else if (a === 'bank') { meta.bank = (meta.bank || 0) + 50; saveMeta(); }
+  else if (a === 'immortal') DEVI = !DEVI;
+  else {
+    if (!devRunActive()) { $('devState').textContent = 'Сначала начни забег или перейди на этаж.'; return; }
+    if (a === 'items') { for (const k of ['oil', 'rag', 'bone', 'wax', 'wick', 'keys', 'pick', 'bomb', 'torch', 'candle', 'bell', 'rope']) inv[k] += 5; inv.chalk += 20; inv.parts = inv.parts.map(v => v + 5); }
+    else if (a === 'petals') { P.petals = NEED; if (!exit && !isFinale()) spawnExit(); }
+    else if (a === 'thorns') { for (const th of thorns) th.got = true; if (isFinale() && !exit) spawnExit(); }
+    else if (a === 'map') { const px = Math.floor(P.x), py = Math.floor(P.y); for (let y = py - 40; y <= py + 40; y++) for (let x = px - 40; x <= px + 40; x++) seeCell(x, y); }
+    else if (a === 'gift') { const pool = GIFTS.filter(g => !hasGift(g.id)); if (pool.length) P.gifts.push(pool[(Math.random() * pool.length) | 0].id); }
+    else if (a === 'shadow') { const c = devNear(field, 6, 9); if (c) Object.assign(SH, { on: true, cx: c[0], cy: c[1], tx: c[0], ty: c[1], px: c[0], py: c[1], x: c[0] + 0.5, y: c[1] + 0.5, life: 30, leaving: false, rolled: false }); }
+    else if (a === 'mon') { if (MON.kind) { const c = devNear(fieldB, 5, 8); if (c) Object.assign(MON, { on: true, cx: c[0], cy: c[1], tx: c[0], ty: c[1], px: c[0], py: c[1], x: c[0] + 0.5, y: c[1] + 0.5, stunT: 0, mode: 'patrol', farT: 0 }); } }
+    else if (a === 'black') blackT = 0.05;
+    else if (a === 'fuel') P.fuel = 100;
+    save();
+  }
+  $('devState').textContent = devStateText() + ' · готово: ' + b.textContent.toLowerCase();
+});
+
+/* ---------- Полная карта этажа ---------- */
+const bigMap = $('bigMap'), bctx = bigMap.getContext('2d');
+let mapPan = { x: 0, y: 0 }, mapDrag = null;
+function openBigMap() {
+  if (state !== 'play') return;
+  state = 'map'; releaseInput(); mapPan = { x: 0, y: 0 };
+  $('mapTitle').textContent = 'Этаж ' + roman(FLOOR) + ' · ' + (isFinale() ? 'Сердце замка' : TH.name);
+  show('mapS'); requestAnimationFrame(drawBigMap);
+}
+$('bMapClose').onclick = closeOverlay;
+function drawBigMap() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), cw = bigMap.clientWidth, ch = bigMap.clientHeight;
+  if (!cw || !ch) return;
+  bigMap.width = Math.round(cw * dpr); bigMap.height = Math.round(ch * dpr);
+  const g = bctx; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const bg = g.createRadialGradient(cw * 0.4, ch * 0.3, 10, cw * 0.5, ch * 0.5, Math.max(cw, ch) * 0.8);
+  bg.addColorStop(0, '#dcc9a0'); bg.addColorStop(0.6, '#c6ae80'); bg.addColorStop(1, '#8e7448');
+  g.fillStyle = bg; g.fillRect(0, 0, cw, ch);
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const [k, a] of seen) {
+    const [cx, cy] = k.split(',').map(Number);
+    for (let i = 0; i < S * S; i++) if (a[i]) { const x = cx * S + (i & 15), y = cy * S + (i >> 4); if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  const px = P.x, py = P.y;
+  if (x0 > x1) { x0 = x1 = Math.floor(px); y0 = y1 = Math.floor(py); }
+  const bw = x1 - x0 + 3, bh = y1 - y0 + 3;
+  const c = Math.max(4, Math.min(14, Math.min(cw / bw, ch / bh)));
+  let ox, oy;
+  if (bw * c <= cw && bh * c <= ch) { ox = (cw - (x1 + x0 + 1) * c) / 2; oy = (ch - (y1 + y0 + 1) * c) / 2; }
+  else { ox = cw / 2 - px * c; oy = ch / 2 - py * c; }
+  ox += mapPan.x; oy += mapPan.y;
+  const vx0 = Math.floor(-ox / c) - 1, vy0 = Math.floor(-oy / c) - 1, vx1 = Math.ceil((cw - ox) / c) + 1, vy1 = Math.ceil((ch - oy) / c) + 1;
+  for (let y = Math.max(vy0, y0 - 1); y <= Math.min(vy1, y1 + 1); y++) for (let x = Math.max(vx0, x0 - 1); x <= Math.min(vx1, x1 + 1); x++) {
+    if (!isSeen(x, y)) continue;
+    const t = tile(x, y), X = ox + x * c, Y = oy + y * c;
+    if (t === 0) { g.fillStyle = nicheAt(x, y) ? 'rgba(74,90,122,0.55)' : 'rgba(250,240,215,0.35)'; g.fillRect(X, Y, c, c); continue; }
+    g.fillStyle = t === 5 ? '#a0602e' : t === 6 ? '#6a2a1c' : t === 7 ? (litSc.has(x + ',' + y) ? '#c99a2a' : '#4a3a2a') : t === 8 ? '#5a4a3a' : '#3a2a1a';
+    g.fillRect(X, Y, c + 0.5, c + 0.5);
+  }
+  // метки мела
+  g.fillStyle = '#f4ead6'; g.font = Math.max(8, c * 0.9) + 'px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (const m of marks.values()) { if (!isSeen(m.x, m.y)) continue; g.fillText(m.s === 3 ? String(m.n) : ['←', '→', '✕'][m.s], ox + (m.x + 0.5) * c, oy + (m.y + 0.5) * c); }
+  const dot = (x, y, r, col) => { g.fillStyle = col; g.beginPath(); g.arc(ox + x * c, oy + y * c, r, 0, 7); g.fill(); };
+  const r = Math.max(2, c * 0.32);
+  const cx0 = Math.floor(px) >> 4, cy0 = Math.floor(py) >> 4;
+  for (let j = cy0 - 3; j <= cy0 + 3; j++) for (let i = cx0 - 3; i <= cx0 + 3; i++) {
+    if (!chunks.has(i + ',' + j)) continue;
+    for (const it of chunks.get(i + ',' + j).items) {
+      if (collected.has(it.id) || !isSeen(Math.floor(it.x), Math.floor(it.y))) continue;
+      const col = { petal: '#c8213a', oil: '#c9781e', keypart: '#b08a2a', note: '#6d5636', chest: '#7a5a2a', altar: deadAlt.has(it.id) ? '#6a665e' : '#e8b030', candle: '#e8b030' }[it.t];
+      if (col) dot(it.x, it.y, it.t === 'altar' ? r * 1.3 : r, col);
+    }
+  }
+  for (const b of beacons) dot(b.x, b.y, r * 1.2, '#e8b030');
+  for (const th of thorns) if (!th.got && (isSeen(Math.floor(th.x), Math.floor(th.y)) || hasGift('petalsight'))) dot(th.x, th.y, r * 1.3, '#c8213a');
+  if (exit) { dot(exit.x, exit.y, r * 2, 'rgba(200,20,45,0.35)'); dot(exit.x, exit.y, r * 1.2, '#c8213a'); }
+  // игрок
+  g.save(); g.translate(ox + px * c, oy + py * c); g.rotate(P.a);
+  const s2 = Math.max(5, c * 0.8);
+  g.fillStyle = '#2b1c10'; g.beginPath(); g.moveTo(s2, 0); g.lineTo(-s2 * 0.7, -s2 * 0.6); g.lineTo(-s2 * 0.35, 0); g.lineTo(-s2 * 0.7, s2 * 0.6); g.fill();
+  g.restore();
+  // роза ветров и рамка
+  g.strokeStyle = 'rgba(60,40,20,0.55)'; g.lineWidth = 2; g.strokeRect(6, 6, cw - 12, ch - 12);
+  g.fillStyle = 'rgba(60,40,20,0.7)'; g.font = '13px Georgia, serif'; g.textAlign = 'left'; g.fillText('С', cw - 28, 22);
+  g.beginPath(); g.moveTo(cw - 24, 30); g.lineTo(cw - 20, 44); g.lineTo(cw - 28, 44); g.fill();
+}
+bigMap.addEventListener('pointerdown', e => { mapDrag = { x: e.clientX, y: e.clientY, px: mapPan.x, py: mapPan.y }; bigMap.setPointerCapture(e.pointerId); });
+bigMap.addEventListener('pointermove', e => { if (!mapDrag) return; mapPan.x = mapDrag.px + e.clientX - mapDrag.x; mapPan.y = mapDrag.py + e.clientY - mapDrag.y; drawBigMap(); });
+bigMap.addEventListener('pointerup', () => { mapDrag = null; });
+addEventListener('resize', () => { if (state === 'map') drawBigMap(); });
+
+/* ---------- Пыль, пепел и капли в свете факела ---------- */
+const PARTS = [];
+function partKind() { return TH.water ? 'drop' : (TH.grow || TH.hearth) ? 'ash' : 'dust'; }
+function newPart(k) {
+  const a = Math.random() * 6.283, r = 0.35 + Math.random() * 2.8;
+  const p = { k, x: P.x + Math.cos(a) * r, y: P.y + Math.sin(a) * r, z: Math.random(), vx: 0, vy: 0, vz: 0, ph: Math.random() * 6.28, ember: false };
+  if (k === 'drop') { p.z = 0.85 + Math.random() * 0.15; p.vz = -1.6 - Math.random() * 0.8; }
+  else if (k === 'ash') { p.vz = -0.05 - Math.random() * 0.06; p.vx = (Math.random() - 0.5) * 0.06; p.vy = (Math.random() - 0.5) * 0.06; p.ember = Math.random() < 0.15; }
+  else { p.vz = (Math.random() - 0.5) * 0.03; p.vx = (Math.random() - 0.5) * 0.04; p.vy = (Math.random() - 0.5) * 0.04; }
+  return p;
+}
+function updParticles(dt) {
+  const n = meta.set.q === 'low' ? 16 : 36, k = partKind();
+  while (PARTS.length < n) PARTS.push(newPart(k));
+  if (PARTS.length > n) PARTS.length = n;
+  for (let i = 0; i < PARTS.length; i++) {
+    const p = PARTS[i];
+    p.ph += dt; p.x += (p.vx + Math.sin(p.ph * 0.7) * 0.02) * dt; p.y += (p.vy + Math.cos(p.ph * 0.6) * 0.02) * dt; p.z += p.vz * dt;
+    if (p.k !== k || p.z < 0 || p.z > 1 || Math.hypot(p.x - P.x, p.y - P.y) > 3.3 || solid(p.x, p.y)) PARTS[i] = newPart(k);
+  }
+}
+function drawParticles(t, hz) {
+  if (P.fuel <= 0 && !lights.length) return;
+  const dirX = Math.cos(P.a), dirY = Math.sin(P.a), pp = W / (2 * F), plX = -dirY * pp, plY = dirX * pp, idet = 1 / (plX * dirY - dirX * plY);
+  for (const p of PARTS) {
+    const sx = p.x - P.x, sy = p.y - P.y, tX = idet * (dirY * sx - dirX * sy), tY = idet * (-plY * sx + plX * sy);
+    if (tY < 0.2) continue;
+    const X = Math.floor((W / 2) * (1 + tX / tY));
+    if (X < 0 || X >= W || tY >= zbuf[X]) continue;
+    let l = light(tY); if (lights.length) l = Math.max(l, Math.min(1, lightAt(p.x, p.y)));
+    if (l < 0.05) continue;
+    const Y = hz + (0.5 - p.z) * F / tY, sz = Math.max(1, 0.012 * F / tY);
+    if (p.k === 'drop') { ctx.fillStyle = 'rgba(190,215,230,' + (0.55 * l) + ')'; ctx.fillRect(X, Y, 1, Math.max(2, 0.06 * F / tY)); }
+    else if (p.k === 'ash') { ctx.fillStyle = p.ember ? 'rgba(255,140,50,' + (0.9 * l * (0.6 + 0.4 * Math.sin(t * 9 + p.ph))) + ')' : 'rgba(170,160,150,' + (0.6 * l) + ')'; ctx.fillRect(X, Y, sz, sz); }
+    else { ctx.fillStyle = 'rgba(255,232,190,' + (0.5 * l * (0.6 + 0.4 * Math.sin(t * 2 + p.ph))) + ')'; ctx.fillRect(X, Y, sz, sz); }
+  }
+}
+
 /* ---------- Настройки ---------- */
 let setFrom = 'menu';
 function syncSettings() {
   const s = meta.set;
   $('sSens').value = s.sens; $('sFx').value = s.fx; $('sAmb').value = s.amb; $('sMus').value = s.mus;
-  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0', sCaps: s.caps ? '1' : '0' };
+  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0', sCaps: s.caps ? '1' : '0', sMini: s.mini ? '1' : '0' };
   for (const id in segs) for (const b of $(id).children) b.classList.toggle('on', b.dataset.v === segs[id]);
   document.body.classList.toggle('joyR', s.joy === 'right');
+  showMap = s.mini !== false; mini.style.display = showMap ? '' : 'none';
   if (Snd.c) { Snd.m.gain.value = s.fx; Snd.amb.gain.value = s.amb; Snd.mus.gain.value = s.mus * musDuck; }
 }
 function openSettings() { setFrom = state; state = 'setS'; syncSettings(); show('setS'); }
@@ -3334,7 +3976,7 @@ $('sMus').addEventListener('input', e => { meta.set.mus = +e.target.value; syncS
 $('sMus').addEventListener('change', () => { Snd.init(); const m = MUSIC[TH.name] || MUSIC['Покои графа']; Snd.musNote(m.notes ? m.notes[2] : 220, m.wave === 'bell' ? 'sine' : m.wave, 1.2, 0.06); });
 $('sFx').addEventListener('change', () => { Snd.init(); Snd.chime(); });
 const SEG = { sQ: v => { meta.set.q = v; resize(); }, sJoy: v => { meta.set.joy = v; }, sInv: v => { meta.set.invY = v === '1'; },
-  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; }, sCaps: v => { meta.set.caps = v === '1'; } };
+  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; }, sCaps: v => { meta.set.caps = v === '1'; }, sMini: v => { meta.set.mini = v === '1'; } };
 for (const id in SEG) $(id).addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; SEG[id](b.dataset.v); saveMeta(); syncSettings(); });
 $('bTipsReset').onclick = () => { meta.tips = {}; meta.set.tips = true; saveMeta(); syncSettings(); $('bTipsReset').textContent = 'Подсказки покажутся снова'; };
 
@@ -3355,7 +3997,10 @@ $('bChal').onclick = openChal;
 $('bChalClose').onclick = closeChal;
 syncSettings();
 function toggleMap() { showMap = !showMap; mini.style.display = showMap ? '' : 'none'; }
-$('bMap').onclick = toggleMap;
+$('bMap').onclick = () => openBigMap();
+mini.addEventListener('click', () => openBigMap());
+$('bBell').onclick = ringBell;
+$('bRope').onclick = useRope;
 $('bCraft').onclick = openCraft;
 $('bHide').onclick = () => { hidden ? unhide() : hide(); };
 $('bOil').onclick = () => pourOil();
@@ -3460,7 +4105,7 @@ function frame(now) {
   const t = now / 1000;
   lights = gatherLights(t);
   pollPad(dt);
-  if (state === 'play') { update(dt, t); if (state === 'play') { updHud(); if (showMap) drawMini(t); } }
+  if (state === 'play') { update(dt, t); if (state === 'play') { updHud(); updParticles(dt); updAchPop(dt); if (showMap) drawMini(t); } }
   else { flick = 0.92 + 0.05 * Math.sin(t * 11); }
   render(t);
   requestAnimationFrame(frame);
