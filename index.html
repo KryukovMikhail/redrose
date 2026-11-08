@@ -102,6 +102,22 @@ h2{font-family:var(--f-head);font-weight:400;font-size:clamp(34px,8vw,52px);line
 .sub{margin:0;font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
 .lore{margin:4px 0 6px;font-size:17px;line-height:1.55;font-style:italic;max-width:34em;text-wrap:pretty}
 .best{margin:0;font-size:14px;color:var(--ember);font-variant-numeric:tabular-nums}
+.codeline{margin:0;font-size:14px;color:var(--ash);font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:center}
+.codeline b{font-weight:400;letter-spacing:.12em;color:#f0d79a}
+.codeline button{font:inherit;font-size:13px;color:var(--ash);background:transparent;border:1px solid rgba(201,189,168,.3);padding:4px 10px;cursor:pointer}
+.codein{font:inherit;font-size:22px;letter-spacing:.12em;text-align:center;width:min(320px,100%);padding:10px;background:rgba(255,255,255,.06);color:#f0d79a;border:1px solid rgba(201,189,168,.35)}
+#timer{font-size:13px;color:var(--ash);font-variant-numeric:tabular-nums;text-shadow:0 0 6px #000}
+#timer small{color:var(--dim);font-size:12px}
+body.big .tl,body.big .tr,body.big .act,body.big #toast,body.big #tip,body.big #compass,body.big #caps,body.big #fcard,body.big #achPop{zoom:1.22}
+body.big .screen .panel{zoom:1.15}
+body.big .help{font-size:15px}
+body.hc .ibtn{background:#000;color:#fff;border-color:rgba(255,255,255,.7)}
+body.hc #toast{background:rgba(0,0,0,.82);padding:8px 14px;color:#fff;font-style:normal}
+body.hc #tip{background:#000;border-color:#fff;color:#fff}
+body.hc .lore,body.hc .help,body.hc .sub{color:#f2ece0}
+body.hc .flr,body.hc .fuel,body.hc .inv b,body.hc #cdist{color:#fff;text-shadow:0 0 3px #000,0 0 6px #000}
+body.hc .btn.ghost{color:#fff;border-color:rgba(255,255,255,.65)}
+body.hc #vign{opacity:.55}
 .btns{display:flex;flex-direction:column;gap:10px;width:min(290px,100%)}
 .btn{font-family:var(--f-body);font-size:18px;color:#f3e6d2;background:linear-gradient(#3a0d16,#22070d);
   border:1px solid #6e1a27;padding:12px 18px;cursor:pointer;letter-spacing:.04em}
@@ -247,6 +263,7 @@ body.joyR #chalkPal{right:auto;left:0}
     <div class="flr" id="flr"></div>
     <div class="petals" id="petals"></div>
     <div class="fuel">Факел <div class="bar" id="fuelbar"><i></i></div></div>
+    <div id="timer" hidden></div>
     <div class="sneak" id="sneakL" hidden>тихий шаг</div>
     <div class="inv" aria-label="Части ключа">
       <span id="p0" title="Кольцо ключа"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="none" stroke="#b9a37a" stroke-width="2.4"/></svg><b>0</b></span>
@@ -297,6 +314,7 @@ body.joyR #chalkPal{right:auto;left:0}
     <p class="sub">Лабиринт замка Розенхолл</p>
     <p class="lore">Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она откроет путь глубже. Держись ближе к огню: в темноте бродит Тень.</p>
     <p class="best" id="best" hidden></p>
+    <p class="codeline" id="codeLine" hidden><span id="codeLbl">Код замка:</span> <b id="codeVal"></b> <button id="bCodeCopy">Скопировать</button></p>
     <div class="upd" id="updBox" hidden>
       <p id="updText">Вышла новая версия игры</p>
       <button class="btn small" id="bUpdate">Обновить</button>
@@ -305,6 +323,8 @@ body.joyR #chalkPal{right:auto;left:0}
       <button class="btn" id="bResume" hidden>Вернуться в замок</button>
       <button class="btn" id="bCont" hidden>Продолжить</button>
       <button class="btn" id="bNew">Войти в замок</button>
+      <button class="btn ghost small" id="bDaily">Замок дня</button>
+      <button class="btn ghost small" id="bCode">Сыграть по коду</button>
       <button class="btn ghost small" id="bJournal" hidden>Записки узников</button>
       <button class="btn ghost small" id="bShop">Сторожка у ворот</button>
       <button class="btn ghost small" id="bChal">Испытания</button>
@@ -353,6 +373,13 @@ body.joyR #chalkPal{right:auto;left:0}
       <label class="row" for="sFx"><span>Громкость звуков</span><input type="range" id="sFx" min="0" max="1" step="0.05"></label>
       <label class="row" for="sAmb"><span>Фоновый гул</span><input type="range" id="sAmb" min="0" max="1" step="0.05"></label>
       <label class="row" for="sMus"><span>Музыка</span><input type="range" id="sMus" min="0" max="1" step="0.05"></label>
+      <div class="row"><span>Сложность</span><div class="seg" id="sEasy"><button data-v="0">Обычная</button><button data-v="1">Облегчённая</button></div></div>
+      <p class="help" id="easyNote">В облегчённом режиме страх не убивает, масло тратится медленнее, сквозняки реже. Испытания и рекорд замка дня в нём не засчитываются.</p>
+      <div class="row"><span>Таймер забега</span><div class="seg" id="sTimer"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
+      <div class="row"><span>Размер текста</span><div class="seg" id="sBig"><button data-v="0">Обычный</button><button data-v="1">Крупный</button></div></div>
+      <div class="row"><span>Контрастный интерфейс</span><div class="seg" id="sHc"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
+      <div class="row"><span>Режим для дальтоников</span><div class="seg" id="sCb"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
+      <div class="row"><span>Язык · Language</span><div class="seg" id="sLang"><button data-v="ru">Русский</button><button data-v="en">English</button></div></div>
       <div class="row"><span>Мини-карта</span><div class="seg" id="sMini"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
       <div class="row"><span>Значки звуков на экране</span><div class="seg" id="sCaps"><button data-v="1">Вкл</button><button data-v="0">Выкл</button></div></div>
       <div class="row"><span>Качество картинки</span><div class="seg" id="sQ"><button data-v="auto">Авто</button><button data-v="low">Низкое</button><button data-v="mid">Среднее</button><button data-v="high">Высокое</button></div></div>
@@ -400,6 +427,7 @@ body.joyR #chalkPal{right:auto;left:0}
     <h2>Тьма</h2>
     <p class="lore">Последняя искра погасла. Ты ещё слышишь капли воды, но уже не знаешь, где стены. Замок забрал тебя.</p>
     <dl class="stats" id="loseStats"></dl>
+    <p class="codeline" id="loseCode"></p>
     <div class="btns"><button class="btn" id="bAgainL">Новый замок</button><button class="btn ghost" id="bLoseCard">Карточка итога</button></div>
   </div>
 </div>
@@ -458,6 +486,16 @@ body.joyR #chalkPal{right:auto;left:0}
     </div>
     <p class="help">Видно только то, где ты уже был. Карту можно двигать пальцем или мышью.</p>
     <div class="btns"><button class="btn ghost" id="bMapClose">Вернуться</button></div>
+  </div>
+</div>
+
+<div class="screen" id="codeS">
+  <div class="panel">
+    <h2>Сыграть по коду</h2>
+    <p class="lore">У каждого замка есть код. Введи код, которым с тобой поделились, и пройди тот же лабиринт. Улучшения сторожки и дары на старте в таком забеге не действуют, чтобы сравнение было честным.</p>
+    <input class="codein" id="codeIn" inputmode="numeric" autocomplete="off" placeholder="РОЗА-0000-0000" aria-label="Код замка">
+    <p class="help" id="codeMsg"></p>
+    <div class="btns"><button class="btn" id="bCodeGo">Войти в этот замок</button><button class="btn ghost" id="bCodeClose">Назад</button></div>
   </div>
 </div>
 
@@ -546,7 +584,26 @@ body.joyR #chalkPal{right:auto;left:0}
 
 <script>
 'use strict';
-const BUILD = 'R001.009';
+/* ================= Язык ================= */
+const LANG = (() => { try { return localStorage.getItem('redrose_lang') === 'en' ? 'en' : 'ru'; } catch (e) { return 'ru'; } })();
+const EN = {"Покои графа": "The Count's Chambers", "Лестница выводит в знакомые покои. Но гобелены другие, и Роза на них темнее.": "The stairs lead into familiar chambers. But the tapestries are different, and the Rose on them is darker.", "Темницы": "The Dungeons", "Где-то звенят ключи. Тюремщик обходит темницы, и огня он не боится. Прячься в нишах или уходи за решётки.": "Keys jingle somewhere. The Jailer walks the dungeons, and he does not fear fire. Hide in niches or slip behind the gates.", "Внизу звякают цепи. Здесь держали узников графа, когда замок ещё был просто замком. Решёток больше, масла меньше.": "Chains clink below. The Count kept his prisoners here, back when the castle was just a castle. More gates, less oil.", "Затопленные склепы": "The Flooded Crypts", "Под водой кто-то есть. Он слеп, но идёт на звук шагов. Иди тихо: Shift на клавиатуре или лёгкое касание джойстика.": "Something lives under the water. It is blind, but it follows the sound of footsteps. Walk quietly: hold Shift, or barely tilt the joystick.", "Ступени уходят в чёрную воду. Каждый шаг здесь слышно далеко, и Тень приходит на звук.": "The steps sink into black water. Every footstep carries far here, and the Shadow comes to the sound.", "Корни": "The Roots", "Корни затягивают коридоры за спиной, а тех, кто стоит на месте, оплетают. Заросли можно прожечь факелом.": "Roots close the corridors behind you and bind anyone who stands still. A torch can burn through the growth.", "Стены теплеют, сквозь камень лезут корни. Метки мелом здесь долго не живут. Внизу бьётся что-то большое.": "The walls grow warm and roots push through the stone. Chalk marks do not last here. Something large is beating below.", "Библиотека графа": "The Count's Library", "Лестница выводит в библиотеку графа. Шкафы здесь стоят не там, где стояли минуту назад.": "The stairs lead into the Count's library. The shelves here are not where they stood a minute ago.", "Шкафы сдвигаются сами, а между ними бродит Переплётчик. Пока ты смотришь на него, он не шевелится. Отвернёшься — подкрадётся.": "The shelves move on their own, and the Bookbinder wanders between them. While you look at him, he does not move. Look away and he creeps closer.", "Часовня": "The Chapel", "Внизу пахнет воском и ладаном. Замковая часовня, где отпевали графиню.": "It smells of wax and incense down here. The castle chapel, where the Countess was mourned.", "У алтарей Тень слабеет, а страх уходит. Но Плакальщица гасит их один за другим. Погасший алтарь можно зажечь заново своим факелом.": "By the altars the Shadow grows weak and fear fades. But the Mourner snuffs them out one by one. Your torch can relight a dark altar.", "Кухни и погреба": "Kitchens and Cellars", "Тянет копотью и старым жиром. Кухни и погреба замка: масла здесь почти нет, зато воска хоть отбавляй.": "It reeks of soot and old fat. The castle kitchens and cellars: barely any oil, but wax to spare.", "Масла почти нет, но очаги ещё тлеют: упрись в очаг, чтобы подпалить факел. В темноте шныряют крысы и тащат всё из сумки. Они боятся огня.": "There is barely any oil, but the hearths still smoulder: push into a hearth to rekindle your torch. In the dark, rats scurry about and drag everything out of your bag. They fear fire.", "Мел кончился. Куски мела лежат в тупиках.": "You are out of chalk. Pieces of chalk lie in dead ends.", "Подойди ближе к стене.": "Get closer to the wall.", "звон ключей": "jingling keys", "бульканье": "gurgling", "всплеск": "splash", "звон шипа": "thorn chime", "стук Сердца": "heartbeat", "скрип шкафа": "shelf creaking", "звон Розы": "Rose chime", "сквозняк": "draught", "шёпот": "whisper", "шорох": "rustle", "Третий день. Дверь, через которую я вошёл, исчезла. Не заперта, а исчезла: на её месте сухой холодный камень.": "Third day. The door I came in through is gone. Not locked. Gone: there is only dry, cold stone where it stood.", "Мартин, подмастерье": "Martin, apprentice", "Отец учил: держись за стену правой рукой и выйдешь из любого лабиринта. Здесь это не работает. Стены идут следом.": "Father taught me: keep your right hand on the wall and you will leave any maze. It does not work here. The walls follow you.", "без подписи": "unsigned", "Лепестки тёплые, будто их сорвали минуту назад. Я нашёл два и спал, сжимая их в кулаке. Тень в ту ночь не подошла.": "The petals are warm, as if picked a minute ago. I found two and slept with them clenched in my fist. The Shadow did not come that night.", "Агнесса": "Agnes", "Кто-то до меня рисовал мелом стрелки. Они ведут в тупик. Может, замок их передвинул. А может, он был таким же глупцом, как я.": "Someone before me drew chalk arrows. They lead into a dead end. Maybe the castle moved them. Or maybe he was as big a fool as I am.", "Мартин": "Martin", "Кухарка рассказывала: граф Розенхолл посадил Розу для жены. Графиня угасала, а Роза цвела. Потом графиня умерла. Роза — нет.": "The cook used to say: Count Rosenhall planted the Rose for his wife. The Countess wasted away while the Rose bloomed. Then the Countess died. The Rose did not.", "Масло в склянках свежее. Кто его оставляет? Думаю, замку не нужны мёртвые у порога. Ему нужны идущие.": "The oil in the flasks is fresh. Who leaves it? I think the castle has no use for the dead at its threshold. It wants those who keep walking.", "брат Ульрих": "Brother Ulrich", "Она не любит огонь. Стоит там, где кончается свет, и ждёт. Я видел её глаза. Они не злые. Они голодные.": "She does not like fire. She stands where the light ends and waits. I have seen her eyes. They are not cruel. They are hungry.", "Когда сквозняк задул пламя, я забился в нишу и не дышал. Она прошла мимо. Почти всегда проходит мимо. Почти.": "When the draught blew out my flame, I crammed myself into a niche and did not breathe. She passed by. She almost always passes by. Almost.", "Нашёл кольцо от ключа у скелета. Он сжимал его так, что пришлось ломать пальцы. Прости, брат. Тебе оно уже не нужно.": "Found the bow of a key on a skeleton. He gripped it so hard I had to break his fingers. Forgive me, brother. You do not need it anymore.", "Масло и тряпка — и огонь можно бросить. Тень шипит и отступает, пока он горит. Жаль, что горит недолго.": "Oil and a rag, and fire can be thrown. The Shadow hisses and backs away while it burns. A pity it does not burn for long.", "Йохан, кузнец": "Johann, blacksmith", "Решётки старше стен. Их ставили для узников графа, когда замок был просто замком, а темницы — просто темницами.": "The gates are older than the walls. They were set for the Count's prisoners, when the castle was just a castle and the dungeons were just dungeons.", "Я собрал пять. Роза раскрылась, и пол ушёл вниз. Ступени. Пахнет водой. Значит, это не выход, а дверь глубже.": "I gathered five. The Rose opened and the floor gave way. Stairs. It smells of water. So it is not a way out, but a door deeper down.", "В склепах каждый шаг слышно за сотню саженей. Иду медленно. Вода чёрная, и факел в ней не отражается.": "In the crypts every step can be heard a hundred fathoms away. I walk slowly. The water is black, and the torch does not reflect in it.", "Графиню звали Изольда. Её имя выцарапано на каждой плите склепа. Тысячи раз, разными руками. Нашими руками.": "The Countess was called Isolde. Her name is scratched into every slab of the crypt. Thousands of times, by different hands. By our hands.", "Корни в стенах, под полом, над головой. Они тёплые. Мои метки исчезают, стоит отвернуться.": "Roots in the walls, under the floor, overhead. They are warm. My marks vanish as soon as I turn away.", "Я понял, кто она, Тень. Она тоже собирала лепестки. Слишком долго. Её огонь погас, и она осталась, чтобы не быть одной.": "I know now who she is, the Shadow. She gathered petals too. For too long. Her fire went out, and she stayed so as not to be alone.", "Если ты читаешь это, не жди выхода. Роза ведёт только вниз. Но там, внизу, бьётся что-то большое. Может быть, сердце. Может, его можно остановить.": "If you are reading this, do not wait for a way out. The Rose leads only down. But down there something large is beating. Maybe a heart. Maybe it can be stopped.", "М.": "M.", "Тюремщик всё ещё обходит темницы. Фонарь у него не гаснет, и огня он не боится. Боится только решёток: свои ключи он давно потерял.": "The Jailer still walks the dungeons. His lantern never goes out, and he does not fear fire. He fears only the gates: he lost his keys long ago.", "В склепах кто-то ходит под водой. Он слеп. Я шёл медленно, почти не поднимая ног, и он проплыл в шаге от меня.": "Someone walks beneath the water in the crypts. He is blind. I moved slowly, barely lifting my feet, and he drifted past a step away from me.", "Три шипа. Роза растила их, чтобы никто не тронул её сердце. Они лежат на самом дне, там, где сходятся корни.": "Three thorns. The Rose grew them so that no one would touch her heart. They lie at the very bottom, where the roots converge.", "Неугасимый фитиль": "Undying Wick", "Факел горит на четверть дольше.": "Your torch burns a quarter longer.", "Мягкая поступь": "Soft Tread", "Шаги вдвое тише: Утопленник и Тень слышат тебя хуже.": "Your steps are half as loud: the Drowned One and the Shadow hear you worse.", "Чутьё Розы": "Rose Sense", "Лепестки и шипы видны на карте издалека, даже в неизведанных коридорах.": "Petals and thorns show on the map from afar, even in unexplored corridors.", "Объятия камня": "Embrace of Stone", "В нише тебя не найдёт никто.": "No one will find you in a niche.", "Ржавые петли": "Rusty Hinges", "Одна решётка на каждом этаже открывается без ключа.": "One gate on each floor opens without a key.", "Густое масло": "Thick Oil", "Каждая склянка масла даёт почти вдвое больше огня.": "Each flask of oil gives almost twice as much fire.", "Стальное сердце": "Heart of Steel", "Страх растёт на треть медленнее.": "Fear grows a third slower.", "Лёгкий шаг": "Light Step", "Ты ходишь заметно быстрее.": "You walk noticeably faster.", "Меловой след": "Chalk Trail", "Сразу 10 мела, и корни больше не стирают твои метки.": "10 chalk right away, and the roots no longer erase your marks.", "Тлеющий уголь": "Smouldering Ember", "Сквозняки реже, а пламя после них возвращается вдвое быстрее.": "Draughts come less often, and your flame returns twice as fast after them.", "Рука кузнеца": "Smith's Hand", "Иногда ремесло даёт два предмета вместо одного.": "Sometimes crafting gives two items instead of one.", "Острый глаз": "Sharp Eye", "Находки видны в темноте издалека.": "Finds are visible in the dark from afar.", "кольцо ключа": "key bow", "стержень ключа": "key shank", "бородка ключа": "key bit", "Пройти этаж III или глубже, ни разу не спрятавшись в нише": "Clear floor III or deeper without hiding in a niche even once", "Пройти этаж III или глубже, ни разу не подлив масла": "Clear floor III or deeper without pouring oil even once", "Пройти этаж II или глубже быстрее чем за 4 минуты": "Clear floor II or deeper in under 4 minutes", "Пройти Темницы, не попавшись Тюремщику": "Clear the Dungeons without being caught by the Jailer", "Пройти Склепы, не разбудив Утопленника": "Clear the Crypts without waking the Drowned One", "Дойти до Сердца замка, не бросив ни одной бомбы": "Reach the Heart of the Castle without throwing a single bomb", "Спуститься на XII этаж": "Descend to floor XII", "Прочитать все записки узников": "Read every prisoner's note", "Испытание пройдено: «": "Challenge complete: “", "». Новый дар на старте: ": "”. New starting gift: ", "Сердце почувствовало шипы и забилось. Тень больше не боится твоего огня, а корни тянутся наперерез. Иди на стук!": "The Heart felt the thorns and began to pound. The Shadow no longer fears your fire, and the roots reach to cut you off. Follow the beat!", "Где-то в замке расцвела Красная Роза. Слушай её звон и иди за стрелкой.": "Somewhere in the castle the Red Rose has bloomed. Listen for its chime and follow the arrow.", "Этаж ": "Floor ", "Сердце замка": "Heart of the Castle", " <small>· всего ": " <small>· total ", " · рекорд этажа ": " · floor record ", "Мел ": "Chalk ", "Выйти из ниши": "Leave niche", "Спрятаться": "Hide", "Масло ": "Oil ", "Бомба ": "Bomb ", "Свеча ": "Candle ", "Факел ": "Torch ", "Колокольчик ": "Bell ", "Верёвка ": "Rope ", " шагов": " steps", "шип рядом": "thorn nearby", "Колокольчик": "Bell", "Отмычка": "Lockpick", "Верёвка": "Rope", "Масло": "Oil", "Тряпка": "Rag", "Кость": "Bone", "Воск": "Wax", "Фитиль": "Wick", "Мел": "Chalk", "Огненная бомба": "Fire bomb", "Свеча-маячок": "Beacon candle", "Запасной факел": "Spare torch", "Ключ": "Key", "Кольцо ключа": "Key bow", "Стержень ключа": "Key shank", "Бородка ключа": "Key bit", "Открывает одну запертую решётку. Через решётки можно срезать путь.": "Opens one locked gate. Gates let you cut the way short.", "Летит вперёд и горит 15 секунд. Тень не переступает огонь и сгорает рядом со вспышкой.": "Flies forward and burns for 15 seconds. The Shadow will not cross the fire and burns up near the blast.", "Сразу полный огонь, даже если сквозняк задул пламя.": "Full fire at once, even if a draught blew out the flame.", "Ставится на пол и горит две минуты. Тень не заходит в её свет, а на карте она видна издалека.": "Placed on the floor, it burns for two minutes. The Shadow will not enter its light, and it shows on the map from afar.", "Звон сбивает всех с толку: обитатель замирает на 8 секунд, Тень уходит прочь.": "Its ringing throws everyone off: the dweller freezes for 8 seconds and the Shadow goes away.", "Открывает одну решётку, как ключ. Сработает сама, когда упрёшься в решётку без ключа.": "Opens one gate, like a key. Works by itself when you push into a gate without a key.", "Спуститься сразу на этаж ниже, без лепестков. Стоит половины огня. Не работает на дне у Сердца.": "Drop straight to the floor below, no petals needed. Costs half your fire. Does not work at the bottom, by the Heart.", "Рука кузнеца: вышло два!": "Smith's Hand: you made two!", ">Сделать</button></div>": ">Make</button></div>", "Пламя почти погасло, и ты подлил масла.": "The flame nearly died, and you poured in more oil.", "Масло. Факел разгорается ярче.": "Oil. The torch flares brighter.", "Новый факел вспыхнул в полную силу.": "A fresh torch blazes at full strength.", "Чистый звон раскатился по коридорам. Всё живое в замке замерло и прислушалось.": "A clear chime rolls through the corridors. Every living thing in the castle froze and listened.", "Здесь некуда спускаться: под ногами только корни и Сердце.": "There is nowhere to descend here: only roots and the Heart below.", "Ты спустился по верёвке в пролом. Огня осталось вдвое меньше.": "You climbed down the rope through a breach. Half your fire is gone.", "Огонь охватил Тень, и она растаяла с визгом.": "Fire engulfed the Shadow, and it melted away with a shriek.", "Утопленник ушёл под воду от вспышки.": "The Drowned One sank beneath the water from the blast.", "Тюремщик отшатнулся от огня.": "The Jailer recoiled from the fire.", "Страницы Переплётчика вспыхнули, и он отпрянул.": "The Bookbinder's pages caught fire, and he staggered back.", "Плакальщица отшатнулась от огня и замолкла.": "The Mourner shrank from the fire and fell silent.", "Здесь уже горит свеча.": "A candle is already burning here.", "Свеча-маячок горит. Тень не войдёт в её свет.": "The beacon candle is lit. The Shadow will not enter its light.", "Ты прижался к камню и прикрыл огонь. Масло не тратится. Не двигайся.": "You pressed against the stone and covered your flame. No oil is used. Do not move.", "Ты вышел из ниши.": "You left the niche.", "Геймпад подключён: ": "Gamepad connected: ", "Геймпад отключён.": "Gamepad disconnected.", "мел": "chalk", "В тайнике: ": "In the hiding place: ", "Тряпка. Пригодится для бомбы или факела.": "A rag. Useful for a bomb or a torch.", "Кость. Из неё выйдет рукоять факела.": "A bone. It will make a torch handle.", "Огарок воска. С фитилём выйдет свеча.": "A stub of wax. With a wick it makes a candle.", "Фитиль. С воском выйдет свеча.": "A wick. With wax it makes a candle.", "Склянка масла. Факел возьмёт её сам, когда начнёт гаснуть.": "A flask of oil. The torch will take it by itself when it starts to fade.", "Факел на стене зажжён.": "The wall torch is lit.", "Факел на стене вспыхнул. Его свет останется здесь, и Тень сюда не войдёт.": "The wall torch flared up. Its light will stay here, and the Shadow will not come in.", "Чтобы зажечь настенный факел, нужен свой огонь.": "You need a flame of your own to light a wall torch.", "Кирпичи поддались и осыпались. За стеной тайник!": "The bricks gave way and crumbled. A hiding place behind the wall!", "Очаг ещё тлел. Ты подпалил от него факел.": "The hearth was still smouldering. You rekindled your torch from it.", "Корни вспыхнули и осыпались пеплом. Это стоило немного огня.": "The roots flared and fell to ash. It cost a little fire.", "Без огня корни не прожечь.": "Without fire you cannot burn through the roots.", "Ржавые петли поддались без ключа.": "The rusty hinges gave way without a key.", "Отмычка щёлкнула в замке. Решётка поднялась.": "The lockpick clicked in the lock. The gate rose.", "Ключ повернулся. Решётка поднялась.": "The key turned. The gate rose.", "Решётка заперта. Собери ключ в «Ремесле».": "The gate is locked. Assemble a key in Crafting.", "Решётка заперта. Нужен ключ: кольцо, стержень и бородка.": "The gate is locked. You need a key: a bow, a shank and a bit.", "Факел слабеет. Ищи склянки с маслом в тупиках.": "The torch is fading. Look for flasks of oil in dead ends.", "Факел погас. Тьма подбирается ближе.": "The torch went out. The darkness creeps closer.", "Пламя снова занялось.": "The flame caught again.", "Пламя дрожит: сейчас ледяной сквозняк задует факел на несколько секунд. Держись подальше от Тени.": "The flame trembles: an icy draught is about to blow out your torch for a few seconds. Keep away from the Shadow.", "Ледяной сквозняк задул пламя…": "An icy draught blew out the flame…", "Ты зажёг свечи на алтаре заново.": "You lit the altar candles again.", "WASD — идти, мышь — оглядываться. Щёлкни по экрану, чтобы захватить мышь. Shift — тихий шаг.": "WASD to walk, mouse to look around. Click the screen to capture the mouse. Shift to sneak.", "Левый палец — идти, правый — оглядываться. Лёгкое касание джойстика — тихий шаг.": "Left finger to walk, right finger to look around. A light touch on the joystick to sneak.", "Левый стик — идти, правый — оглядываться. Слегка наклони стик, чтобы идти тихо.": "Left stick to walk, right stick to look around. Tilt the stick slightly to walk quietly.", "На мини-карте видно всё, где ты уже был. Синие клетки — ниши, рыжие — решётки.": "The minimap shows everywhere you have been. Blue cells are niches, rust-coloured ones are gates.", "Заблудился? Ставь метки мелом на стенах: ": "Lost? Leave chalk marks on the walls: ", "клавиши 1–4.": "keys 1–4.", "кнопка «Мел».": "the Chalk button.", "крестовина геймпада.": "the gamepad d-pad.", "Это ниша. Здесь можно спрятаться (": "This is a niche. You can hide here (", "кнопка «Спрятаться»": "the Hide button", "): огонь прикрыт, масло не тратится, Тень чаще проходит мимо.": "): your flame is covered, no oil is used, and the Shadow usually passes by.", "Масло кончается. Склянки лежат в тупиках, факел возьмёт их сам.": "Oil is running out. Flasks lie in dead ends; the torch will take them by itself.", "Можно смастерить что-то полезное: открой «Ремесло» (": "You can make something useful: open Crafting (", "кнопка внизу": "the button below", "Стрелка вверху ведёт к Розе. Слушай её звон: он слышен с той стороны, где она растёт.": "The arrow at the top leads to the Rose. Listen for its chime: you hear it from the side where it grows.", "Красные глаза — это Тень. Она боится света, а в темноте охотится. Не дай факелу погаснуть.": "Red eyes mean the Shadow. It fears light and hunts in the dark. Do not let your torch go out.", "Трещина в кладке… Кажется, за ней пустота. Упрись в неё, чтобы разбить.": "A crack in the masonry… There seems to be a hollow behind it. Push into it to break through.", "Погасший факел на стене. Подойди и упрись в него: он загорится от твоего огня и будет отгонять Тень.": "A dead torch on the wall. Walk up and push into it: it will catch from your flame and keep the Shadow away.", "Где-то догорела свеча-маячок.": "Somewhere a beacon candle burned out.", "Лепесток Красной Розы. Осталось ": "A petal of the Red Rose. Remaining: ", "Найдено: ": "Found: ", " Можно собрать ключ в «Ремесле».": " You can assemble a key in Crafting.", "Кусок мела. Ещё 8 меток.": "A piece of chalk. 8 more marks.", "Шип Розы. Осталось ": "A thorn of the Rose. Remaining: ", "Корни шевельнулись. Где-то за спиной стёрлась метка мелом.": "The roots stirred. Somewhere behind you a chalk mark was erased.", "Тень": "The Shadow", "Тень прошла сквозь тебя. Холод сжал сердце.": "The Shadow passed through you. Cold gripped your heart.", "Тень зашипела и растаяла в свете.": "The Shadow hissed and melted in the light.", "Тень зашипела и растаяла в свете факела.": "The Shadow hissed and melted in the torchlight.", "Тень замерла рядом… и прошла мимо.": "The Shadow froze beside you… and passed by.", "Что-то движется в темноте… Слушай, с какой стороны.": "Something moves in the dark… Listen to which side.", "За спиной что-то хрустнуло: корни затянули коридор. Факелом их можно прожечь.": "Something crunched behind you: the roots closed the corridor. A torch can burn through them.", "Корни оплетают ноги. Не стой на месте!": "The roots are binding your legs. Do not stand still!", " · рядом": " · close", "Где-то с тяжёлым скрипом сдвинулся книжный шкаф. Коридоры библиотеки меняются.": "Somewhere a bookcase shifted with a heavy groan. The library's corridors are changing.", "Тюремщик": "The Jailer", "Утопленник": "The Drowned One", "Переплётчик": "The Bookbinder", "Плакальщица": "The Mourner", "Крысы": "Rats", "Крысы с визгом бросились от огня.": "The rats fled the fire, squealing.", "Крысы с писком разбежались от факела.": "The rats scattered from the torch, squeaking.", "Тюремщик схватил тебя и вырвал: ": "The Jailer grabbed you and tore away: ", ". Потом отпустил с хохотом.": ". Then he let you go, laughing.", "Тюремщик тряхнул тебя за шиворот и отшвырнул, как пустой мешок.": "The Jailer shook you by the collar and tossed you aside like an empty sack.", "Ледяная рука утянула тебя под воду. Факел зашипел и едва не погас.": "An icy hand dragged you under the water. The torch hissed and nearly went out.", "Сухие пальцы сомкнулись на горле. Переплётчик отпустил тебя и растворился меж шкафов": "Dry fingers closed around your throat. The Bookbinder let go and dissolved among the shelves", ", стерев твои метки.": ", erasing your marks.", "Плакальщица коснулась тебя. Её слёзы залили факел.": "The Mourner touched you. Her tears drowned your torch.", "Крысы облепили сумку и утащили: ": "The rats swarmed your bag and made off with: ", "Крысы обнюхали пустую сумку и разбежались.": "The rats sniffed your empty bag and scattered.", "Тюремщик заметил тебя! Беги за решётку или в нишу.": "The Jailer has seen you! Run behind a gate or into a niche.", "Под водой что-то шевельнулось и двинулось на звук.": "Something stirred under the water and moved toward the sound.", "Среди шкафов стоит высокая фигура в лоскутах страниц. Не отводи взгляд.": "A tall figure in tatters of pages stands among the shelves. Do not look away.", "Плакальщица склонилась над алтарём, и свечи погасли.": "The Mourner bent over the altar, and the candles went out.", "Плакальщица увидела тебя. Её плач зовёт Тень.": "The Mourner has seen you. Her weeping calls the Shadow.", "Фонарь скользнул по нише… и ушёл дальше.": "The lantern slid across the niche… and moved on.", "Вода колыхнулась у самых ног. Он проплыл мимо.": "The water stirred at your feet. He drifted past.", "Шелест страниц у самого уха… и тишина.": "A rustle of pages right by your ear… and silence.", "Плач прошёл совсем рядом и затих в коридоре.": "The weeping passed close by and faded down the corridor.", "Крысы пробежали по ногам и умчались дальше.": "The rats ran over your feet and raced on.", "Записка ": "Note ", " из ": " of ", "К списку": "Back to list", "Дальше": "Next", "Прочитано ": "Read ", "Сторожка у ворот": "The Gatehouse", "Достижения · ": "Achievements · ", "Замок дня:": "Castle of the day:", "Код замка:": "Castle code:", "Игрок: ": "Player: ", "Испытания · ": "Challenges · ", "Глубже всего: этаж ": "Deepest: floor ", "Новый замок": "New castle", "<dt>Этаж</dt><dd>": "<dt>Floor</dt><dd>", "</dd><dt>Время</dt><dd>": "</dd><dt>Time</dt><dd>", "</dd><dt>Пройдено</dt><dd>": "</dd><dt>Walked</dt><dd>", " шагов</dd>": " steps</dd>", "<dt>Записки</dt><dd>": "<dt>Notes</dt><dd>", "<dt>Дары</dt><dd>": "<dt>Gifts</dt><dd>", "Корни сходятся в одну точку. Здесь, на самом дне, бьётся Сердце замка. Найди три Шипа Розы, и его можно будет остановить.": "The roots converge on a single point. Here, at the very bottom, beats the Heart of the Castle. Find three Thorns of the Rose and it can be stopped.", "Начать без дара": "Start without a gift", "Спуститься на этаж ": "Descend to floor ", "<dt>Этаж за</dt><dd>": "<dt>Floor in</dt><dd>", " · новый рекорд!": " · new record!", " · рекорд ": " · record ", " пройден": " cleared", "Роза раскрылась, и камень под ногами ушёл вниз. ": "The Rose opened, and the stone gave way beneath your feet. ", " Роза дарит тебе силу на дорогу.": " The Rose grants you strength for the road.", "Ты вонзаешь три шипа в живое, тёплое сердце. Удар. Ещё один, тише. Тишина. Корни разжимаются, стены оседают, и впервые за всё это время сквозняк пахнет не камнем, а травой. Где-то наверху открылась дверь, которой не было.": "You drive the three thorns into the living, warm heart. A beat. Another, quieter. Silence. The roots loosen, the walls settle, and for the first time in all this while the draught smells not of stone but of grass. Somewhere above, a door that was never there has opened.", "Ты выбрался из замка Розенхолл.": "You escaped from Rosenhall Castle.", "Три шипа входят в живое. Изольда вздыхает, впервые за двести лет, и замок рушится вслед за её последним ударом. Тень на краю света гаснет вместе с ней, и тебе кажется, что она улыбалась.": "Three thorns sink into living flesh. Isolde sighs, for the first time in two hundred years, and the castle crumbles after her last beat. The Shadow at the edge of the light fades with her, and it seems to you that she was smiling.", "Ты выходишь на траву. Позади — только холм, тихий и пустой, и одна красная роза у самой вершины.": "You step out onto the grass. Behind you there is only a hill, quiet and empty, and a single red rose near the very top.", "Ты опускаешь шипы. Корни обнимают тебя бережно, как ребёнка. Изольда выходит из Сердца и, не оглядываясь, уходит наверх: к нему, к свету, к тому, кто ждал её на краю огня.": "You lower the thorns. The roots embrace you gently, like a child. Isolde steps out of the Heart and, without looking back, walks upward: to him, to the light, to the one who waited for her at the edge of the fire.", "А замок затихает, привыкая к новому сердцу. Следующему гостю тоже понадобятся лепестки.": "And the castle falls quiet, growing used to its new heart. The next guest will need petals too.", "Новое сердце": "A New Heart", "Последний удар": "The Last Beat", "Прочитано записок: ": "Notes read: ", ". Тот, кто узнает всю правду, увидит у Сердца другой финал.": ". Whoever learns the whole truth will see another ending at the Heart.", "Бесконечный спуск": "Endless Descent", "Замок отпустил тебя, но лестница вниз осталась. Говорят, глубже Роза растёт снова, и Тень по-прежнему ждёт на краю света.": "The castle let you go, but the stairs down remain. They say the Rose grows again deeper down, and the Shadow still waits at the edge of the light.", "Погас факел": "The torch went out", "Страх": "Fear", "<dt>Причина</dt><dd>": "<dt>Cause</dt><dd>", "</dd><dt>Рекорд</dt><dd>этаж ": "</dd><dt>Record</dt><dd>floor ", "Замок дня": "Castle of the Day", "Код этого замка": "This castle's code", "</b> <span>— поделись, чтобы друг прошёл тот же лабиринт.</span>": "</b> <span>— share it so a friend can walk the same maze.</span>", "Погиб": "Died", "Остановил Сердце": "Stopped the Heart", "Остановил Сердце и узнал правду": "Stopped the Heart and learned the truth", "Занял место Изольды": "Took Isolde's place", "Тень настигла": "Caught by the Shadow", "Схвачен Тюремщиком": "Seized by the Jailer", "Утянут Утопленником": "Dragged down by the Drowned One", "Задушен Переплётчиком": "Strangled by the Bookbinder", "Оплакан Плакальщицей": "Mourned by the Mourner", "Заеден крысами": "Eaten by rats", "Оплетён корнями": "Bound by roots", "Угас вместе с факелом": "Faded with the torch", "Сломлен страхом": "Broken by fear", " · после финала": " · after the finale", "Забегов: ": "Runs: ", " · глубже всего: этаж ": " · deepest: floor ", " · концовок: ": " · endings: ", " · замок дня": " · castle of the day", " · по коду ": " · by code ", " · облегчённый": " · easy", " · дары: ": " · gifts: ", "<p class=\"help\">Здесь появятся твои забеги.</p>": "<p class=\"help\">Your runs will appear here.</p>", "ЛАБИРИНТ ЗАМКА РОЗЕНХОЛЛ": "THE MAZE OF ROSENHALL CASTLE", "Время ": "Time ", "Дары: ": "Gifts: ", "Замок дня · ": "Castle of the day · ", "Код замка: ": "Castle code: ", " в замке Розенхолл": " in Rosenhall Castle", "Игрок ": "Player ", "глубже всего: этаж ": "deepest: floor ", " · записок: ": " · notes: ", " · забегов: ": " · runs: ", "ещё не играл": "has not played yet", "\" aria-label=\"Имя игрока\">": "\" aria-label=\"Player name\">", "<button class=\"btn small\" disabled>Сейчас</button>": "<button class=\"btn small\" disabled>Current</button>", "\">Играть</button>": "\">Play</button>", "Этот браузер не умеет распаковывать сжатый код.": "This browser cannot unpack a compressed code.", "Это не код Red Rose: он должен начинаться с RR1: или RR0:.": "This is not a Red Rose code: it must start with RR1: or RR0:.", "Код повреждён или от другой игры.": "The code is damaged or from another game.", "Загрузить прогресс": "Load progress", "Готовлю код…": "Preparing code…", "Не получилось собрать код: ": "Could not build the code: ", "Код скопирован. Вставь его на другом устройстве в «Настройки → Перенести прогресс».": "Code copied. Paste it on another device in “Settings → Transfer progress”.", "Код выделен: скопируй его вручную.": "Code selected: copy it manually.", "Файл прочитан. Нажми «Загрузить прогресс».": "File read. Press “Load progress”.", "Сначала вставь код или выбери файл.": "First paste a code or choose a file.", "Код не читается.": "The code cannot be read.", "Да, заменить прогресс": "Yes, replace progress", "В коде: этаж ": "In the code: floor ", " (рекорд), записок ": " (record), notes ", ". Текущий прогресс игрока «": ". The current progress of player “", "» заменится. Нажми ещё раз, чтобы подтвердить.": "” will be replaced. Press again to confirm.", "Не получилось сохранить: хранилище браузера недоступно.": "Could not save: browser storage is unavailable.", "Дар на дорогу": "A Gift for the Road", "Пройденные испытания не забыты. Роза позволяет взять с собой одну силу с самого начала.": "Completed challenges are not forgotten. The Rose lets you take one power with you from the very start.", "Найди пять лепестков Красной Розы. Береги огонь.": "Find five petals of the Red Rose. Guard your fire.", "РОЗА-": "ROSE-", "Скопировано": "Copied", "Замок дня: сегодня этот лабиринт один для всех. Без улучшений сторожки и стартовых даров.": "Castle of the day: today this maze is the same for everyone. No gatehouse upgrades or starting gifts.", "Ты вошёл в замок ": "You entered castle ", ". Без улучшений сторожки и стартовых даров.": ". No gatehouse upgrades or starting gifts.", "Текущий забег будет заменён новым.": "The current run will be replaced with a new one.", "В коде должно быть 8 цифр, например ": "The code must have 8 digits, for example ", " · рекорд: этаж ": " · record: floor ", "спереди": "ahead", "сзади": "behind", "справа": "to the right", "слева": "to the left", "Колокол": "Bell", "Где-то далеко ударил колокол. Раз, другой, третий… и тишина.": "A bell tolled somewhere far away. Once, twice, three times… and silence.", "Сквозняк": "Draught", "Потянуло холодом ": "A cold draught blows from ", ", со стороны Розы.": ", from the Rose's side.", ". Где-то там есть проход.": ". There is a passage somewhere there.", "Шаги": "Footsteps", "За стеной чьи-то шаги. Неторопливые, человеческие. Ты здесь не один.": "Footsteps behind the wall. Unhurried, human. You are not alone here.", " А на стене рядом кто-то только что оставил крест мелом.": " And on the wall nearby someone has just left a chalk cross.", "Крик": "Scream", "Далеко внизу кто-то закричал. Крик оборвался.": "Far below someone screamed. The scream broke off.", "Дверь": "Door", "Где-то с грохотом захлопнулась тяжёлая дверь. Замок перестраивается.": "Somewhere a heavy door slammed shut. The castle is rebuilding itself.", "Шёпот": "Whisper", "Кто-то шепнул прямо за спиной. Обернёшься?": "Someone whispered right behind you. Will you turn around?", "Первые ступени": "First Steps", "Пройти этаж I": "Clear floor I", "Глубже некуда?": "Nowhere Deeper?", "Спуститься на этаж V": "Descend to floor V", "Бездонный": "Bottomless", "Спуститься на этаж XV": "Descend to floor XV", "Сердце остановлено": "Heart Stopped", "Дойти до Сердца замка": "Reach the Heart of the Castle", "Вся правда": "The Whole Truth", "Увидеть истинную концовку": "See the true ending", "Книжный червь": "Bookworm", "Прочитать 10 записок": "Read 10 notes", "Не моргая": "Unblinking", "Пройти Библиотеку, не попавшись Переплётчику": "Clear the Library without being caught by the Bookbinder", "Неугасимый": "Unquenchable", "Пройти этаж, ни разу не опустив факел ниже четверти": "Clear a floor without your torch ever dropping below a quarter", "Кладоискатель": "Treasure Hunter", "Найти 10 тайников": "Find 10 hiding places", "Фонарщик": "Lamplighter", "Зажечь 20 настенных факелов": "Light 20 wall torches", "Огнём по тьме": "Fire Against the Dark", "Сжечь Тень светом или огнём 5 раз": "Burn the Shadow with light or fire 5 times", "Подмастерье": "Apprentice", "Смастерить 30 предметов": "Craft 30 items", "Ключник": "Keymaster", "Открыть 15 решёток": "Open 15 gates", "Хранитель огня": "Keeper of the Flame", "Заново зажечь 5 алтарей": "Relight 5 altars", "Крысолов": "Ratcatcher", "Разогнать крыс 5 раз": "Scatter the rats 5 times", "Короткий путь": "Shortcut", "Спуститься по верёвке": "Descend by rope", "Упрямец": "Stubborn", "Начать 10 забегов": "Start 10 runs", "Садовник": "Gardener", "Собрать 100 лепестков за всё время": "Collect 100 petals in total", "Хозяин сторожки": "Master of the Gatehouse", "Купить все улучшения в сторожке": "Buy every upgrade in the gatehouse", "Получено ": "Unlocked ", "Просмолённый факел": "Tarred Torch", "Масло расходуется на 8% медленнее за уровень.": "Oil burns 8% slower per level.", "Крепкие нервы": "Steady Nerves", "Страх растёт на 8% медленнее за уровень.": "Fear grows 8% slower per level.", "Разношенные сапоги": "Worn-in Boots", "Шаг на 4% быстрее за уровень.": "4% faster steps per level.", "Мешочек мела": "Pouch of Chalk", "В начале забега ещё 5 мела за уровень.": "5 more chalk at the start of a run per level.", "Фляга масла": "Oil Flask", "В начале забега склянка масла за уровень.": "A flask of oil at the start of a run per level.", "Сумка подмастерья": "Apprentice's Bag", "В начале забега тряпка и кость, а на втором уровне ещё воск и фитиль.": "A rag and a bone at the start of a run, plus wax and a wick at level two.", "Связка ключника": "Keymaster's Ring", "В начале забега у тебя есть ключ.": "You start the run with a key.", "Чутьё садовника": "Gardener's Instinct", "На каждом этаже ближайший лепесток сразу виден на карте.": "On every floor the nearest petal shows on the map right away.", "лепесток": "petal", "лепестка": "petals", "лепестков": "petals", "В копилке: ": "Banked: ", "</small><em>уровень ": "</small><em>level ", "Изучено": "Learned", "Купить · ": "Buy · ", "Тестовый режим включён. Кнопка внизу меню.": "Test mode on. The button is at the bottom of the menu.", "Тестовый режим выключен.": "Test mode off.", "Сейчас: этаж ": "Now: floor ", " · бессмертие ": " · immortality ", "вкл": "on", "выкл": "off", " · в сторожке ": " · in the gatehouse ", "Сначала начни забег или перейди на этаж.": "Start a run or go to a floor first.", " · готово: ": " · done: ", "С": "N", "Подсказки покажутся снова": "Tips will show again", "Пройдено ": "Cleared ", "</b><small>Дар на старте: ": "</b><small>Starting gift: ", "Браузер не дал развернуть игру. Открой её с сайта kryukovmikhail.github.io/redrose.": "The browser would not let the game go fullscreen. Open it from kryukovmikhail.github.io/redrose.", "Выйти из полноэкранного режима": "Exit fullscreen", "На весь экран": "Fullscreen", "Вышла новая версия игры": "A new version of the game is out", ". Прогресс сохранится.": ". Your progress will be kept.", "Вышла новая версия игры. Нажми «Обновить» вверху.": "A new version of the game is out. Press “Update” at the top.", "Игра обновлена до ": "Game updated to ", ". Нажми «Продолжить».": ". Press “Continue”.", "Факел": "Torch", "тихий шаг": "quiet step", "Пауза": "Pause", "Карта": "Map", "Новая версия · Обновить": "New version · Update", "Подсказка": "Tip", "Достижение": "Achievement", "ТЕСТОВЫЙ РЕЖИМ": "TEST MODE", "Ремесло": "Crafting", "Лабиринт замка Розенхолл": "The Maze of Rosenhall Castle", "Замок не отпускает тех, кто вошёл. Коридоры меняются, едва за спиной гаснет свет. Собери пять лепестков Красной Розы, и она откроет путь глубже. Держись ближе к огню: в темноте бродит Тень.": "The castle does not let go of those who enter. The corridors change as soon as the light dies behind you. Gather five petals of the Red Rose and it will open the way deeper. Stay close to the fire: the Shadow roams in the dark.", "Скопировать": "Copy", "Обновить": "Update", "Вернуться в замок": "Return to the castle", "Продолжить": "Continue", "Войти в замок": "Enter the castle", "Сыграть по коду": "Play by code", "Записки узников": "Prisoners' notes", "Испытания": "Challenges", "Достижения": "Achievements", "Летопись забегов": "Chronicle of runs", "Игрок": "Player", "Настройки": "Settings", "Установить на устройство": "Install on device", "Тестовый режим": "Test mode", "WASD — идти · Shift — тихий шаг · мышь — оглядываться · R / F — вверх и вниз · ← → — поворот": "WASD — walk · Shift — quiet step · mouse — look around · R / F — up and down · ← → — turn", "C — ремесло · H — спрятаться в нише · 1–4 — мел · O масло · B бомба · V свеча · T факел · Z колокольчик · X верёвка": "C — crafting · H — hide in a niche · 1–4 — chalk · O oil · B bomb · V candle · T torch · Z bell · X rope", "M — карта этажа · Esc — пауза · щёлкни по экрану, чтобы захватить мышь": "M — floor map · Esc — pause · click the screen to capture the mouse", "Левый палец — идти, лёгкое касание — тихий шаг · правый палец — оглядываться": "Left finger — walk, a light touch — quiet step · right finger — look around", "Кнопки справа внизу — мел, ремесло и предметы": "Buttons at the bottom right — chalk, crafting and items", "Геймпад: левый стик — идти (слегка — тихо) · правый — обзор · A спрятаться · B бомба · X свеча · Y ремесло · LB масло · RB факел · L3 колокольчик · R3 верёвка · крестовина — мел · Back — карта · Start — пауза": "Gamepad: left stick — walk (gently — quietly) · right stick — look · A hide · B bomb · X candle · Y crafting · LB oil · RB torch · L3 bell · R3 rope · d-pad — chalk · Back — map · Start — pause", "Выбери дар Розы": "Choose a gift of the Rose", "Спуститься": "Descend", "Ты прочёл их всех: Мартина, Агнессу, брата Ульриха, Йохана. И теперь понимаешь. Изольда не умерла. Граф отдал её Розе, чтобы она жила вечно, и Роза сдержала слово: Сердце замка — это её сердце. А Тень на краю света — сам граф. Он так и не решился войти в огонь, чтобы забрать её назад.": "You have read them all: Martin, Agnes, Brother Ulrich, Johann. And now you understand. Isolde did not die. The Count gave her to the Rose so that she would live forever, and the Rose kept its word: the Heart of the Castle is her heart. And the Shadow at the edge of the light is the Count himself. He never dared to step into the fire to take her back.", "Три шипа в твоей руке. Сердце бьётся медленно, будто ждёт.": "Three thorns in your hand. The Heart beats slowly, as if waiting.", "Остановить Сердце": "Stop the Heart", "Занять её место": "Take her place", "Чувствительность обзора": "Look sensitivity", "Громкость звуков": "Sound volume", "Фоновый гул": "Ambient hum", "Музыка": "Music", "Сложность": "Difficulty", "Обычная": "Normal", "Облегчённая": "Easy", "В облегчённом режиме страх не убивает, масло тратится медленнее, сквозняки реже. Испытания и рекорд замка дня в нём не засчитываются.": "In easy mode fear does not kill, oil burns slower and draughts come less often. Challenges and the castle of the day record do not count in it.", "Таймер забега": "Run timer", "Вкл": "On", "Выкл": "Off", "Размер текста": "Text size", "Обычный": "Normal", "Крупный": "Large", "Контрастный интерфейс": "High-contrast interface", "Режим для дальтоников": "Colour-blind mode", "Мини-карта": "Minimap", "Значки звуков на экране": "Sound icons on screen", "Качество картинки": "Picture quality", "Авто": "Auto", "Низкое": "Low", "Среднее": "Medium", "Высокое": "High", "Джойстик на телефоне": "Joystick on phone", "Слева": "Left", "Справа": "Right", "Инверсия вертикали": "Invert vertical", "Нет": "No", "Да": "Yes", "Вибрация": "Vibration", "Подсказки": "Tips", "Показать подсказки заново": "Show tips again", "Перенести прогресс": "Transfer progress", "Готово": "Done", "За каждое испытание открывается дар, который можно взять с собой в начале нового забега.": "Each challenge unlocks a gift you can take with you at the start of a new run.", "Назад": "Back", "Red Rose · игра Михаила Крюкова": "Red Rose · a game by Mikhail Kryukov", "Спуститься глубже": "Descend deeper", "Карточка итога": "Run summary card", "Тьма": "Darkness", "Последняя искра погасла. Ты ещё слышишь капли воды, но уже не знаешь, где стены. Замок забрал тебя.": "The last spark went out. You can still hear dripping water, but you no longer know where the walls are. The castle has taken you.", "Старый привратник собирает лепестки, что ты выносишь из замка, и меняет их на то, что поможет в следующий раз. Купленное остаётся навсегда.": "The old gatekeeper collects the petals you carry out of the castle and trades them for things that will help next time. What you buy stays forever.", "Для проверки игры. Включается и выключается пятью нажатиями на номер сборки в меню. Испытания и достижения в нём не засчитываются.": "For testing the game. Turned on and off by tapping the build number in the menu five times. Challenges and achievements do not count in it.", "Этаж": "Floor", "Перейти": "Go", "Предметы ×5": "Items ×5", "Бессмертие": "Immortality", "Собрать лепестки": "Collect petals", "Собрать шипы": "Collect thorns", "Открыть карту": "Reveal map", "Все записки": "All notes", "Случайный дар": "Random gift", "+50 лепестков в сторожку": "+50 petals to the gatehouse", "Тень рядом": "Shadow nearby", "Обитатель рядом": "Dweller nearby", "Полный факел": "Full torch", "Выключить режим": "Turn off test mode", "Карта этажа": "Floor map", "стены": "walls", "решётки": "gates", "ниши": "niches", "лепестки и шипы": "petals and thorns", "свет": "light", "корни": "roots", "Видно только то, где ты уже был. Карту можно двигать пальцем или мышью.": "Only places you have been are shown. Drag the map with a finger or the mouse.", "Вернуться": "Return", "У каждого замка есть код. Введи код, которым с тобой поделились, и пройди тот же лабиринт. Улучшения сторожки и дары на старте в таком забеге не действуют, чтобы сравнение было честным.": "Every castle has a code. Enter a code someone shared with you and walk the same maze. Gatehouse upgrades and starting gifts do not apply in such a run, so the comparison is fair.", "Войти в этот замок": "Enter this castle", "На телефоне картинку можно сохранить долгим нажатием.": "On a phone you can save the picture with a long press.", "Поделиться": "Share", "Сохранить картинку": "Save picture", "Игроки": "Players", "У каждого игрока свой забег, записки, испытания, летопись и настройки. Удобно, если на одном устройстве играют несколько человек.": "Each player has their own run, notes, challenges, chronicle and settings. Handy when several people play on one device.", "Перенос прогресса": "Progress transfer", "Скопируй код или сохрани файл здесь, а на другом устройстве вставь его в поле ниже. Переносится всё: забег, записки, испытания, летопись и настройки текущего игрока.": "Copy the code or save a file here, then paste it into the field below on another device. Everything is transferred: the current player's run, notes, challenges, chronicle and settings.", "Скопировать код": "Copy code", "Сохранить файлом": "Save as file", "Загрузить с другого устройства": "Load from another device", "Выбрать файл": "Choose file", "Safari на iPhone не умеет разворачивать сайты на весь экран. Добавь игру на экран «Домой»: кнопка «Поделиться» внизу Safari, затем «На экран „Домой“». С иконки Red Rose откроется без панелей браузера, и прогресс сохранится.": "Safari on iPhone cannot show websites fullscreen. Add the game to the Home Screen: the Share button at the bottom of Safari, then “Add to Home Screen”. From the icon, Red Rose opens without browser bars, and your progress is kept.", "Понятно": "Got it", "Игровое поле": "Game field", "Части ключа": "Key parts", "Ключи": "Keys", "Показать или скрыть карту": "Show or hide map", "Стрелка влево": "Left arrow", "Стрелка вправо": "Right arrow", "Крест": "Cross", "Число": "Number", "Карта разведанной части этажа": "Map of the explored part of the floor", "РОЗА-0000-0000": "ROSE-0000-0000", "Код замка": "Castle code", "Код прогресса": "Progress code", "Вставь код сюда": "Paste the code here", "Вставить код прогресса": "Paste progress code"};
+function L(s) { return LANG === 'en' ? (EN[s] ?? s) : s; }
+function setLang(v) { try { localStorage.setItem('redrose_lang', v); } catch (e) {} location.reload(); }
+(function translateDOM() {
+  document.documentElement.lang = LANG;
+  if (LANG !== 'en') return;
+  const cy = /[А-Яа-яЁё]/;
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = w.nextNode(); n; n = w.nextNode()) {
+    const v = n.nodeValue; if (!cy.test(v)) continue;
+    const k = v.split(/\s+/).filter(Boolean).join(' '), t = EN[k];
+    if (t != null) n.nodeValue = v.match(/^\s*/)[0] + t + v.match(/\s*$/)[0];
+  }
+  for (const el of document.querySelectorAll('[aria-label],[title],[placeholder]'))
+    for (const a of ['aria-label', 'title', 'placeholder']) { const v = el.getAttribute(a); if (v && EN[v] != null) el.setAttribute(a, EN[v]); }
+})();
+
+const BUILD = 'R001.010';
 const FINAL = 8;   // этаж с Сердцем замка
 /* ================= Константы и хеш ================= */
 const S = 16, N = 8, NEED = 5;
@@ -962,35 +1019,35 @@ const FL_TERRA = mk((x, y) => {
 
 /* ================= Этажи (темы) ================= */
 const THEMES = [
-  { name: 'Покои графа', tint: [1, 0.84, 0.62], w: [0.6, 0.8, 0.9], gate: 0.06, oil: 1, bone: 0.6,
+  { name: L('Покои графа'), tint: [1, 0.84, 0.62], w: [0.6, 0.8, 0.9], gate: 0.06, oil: 1, bone: 0.6,
     tex: [0, TEX_STONE, TEX_WAINSCOT, TEX_BANNER, TEX_TAPESTRY], floor: FL_WOOD, ceil: CE_BEAMS,
-    enter: 'Лестница выводит в знакомые покои. Но гобелены другие, и Роза на них темнее.' },
-  { name: 'Темницы', tint: [1, 0.8, 0.56], w: [0.5, 0.72, 0.88], gate: 0.13, oil: 0.55, bone: 1.3, mon: 'jailer',
-    intro: 'Где-то звенят ключи. Тюремщик обходит темницы, и огня он не боится. Прячься в нишах или уходи за решётки.',
+    enter: L('Лестница выводит в знакомые покои. Но гобелены другие, и Роза на них темнее.') },
+  { name: L('Темницы'), tint: [1, 0.8, 0.56], w: [0.5, 0.72, 0.88], gate: 0.13, oil: 0.55, bone: 1.3, mon: 'jailer',
+    intro: L('Где-то звенят ключи. Тюремщик обходит темницы, и огня он не боится. Прячься в нишах или уходи за решётки.'),
     tex: [0, TEX_ROUGH, TEX_MOSS, TEX_CHAINS, TEX_CELL], floor: FL_STRAW, ceil: CE_VAULT,
-    enter: 'Внизу звякают цепи. Здесь держали узников графа, когда замок ещё был просто замком. Решёток больше, масла меньше.' },
-  { name: 'Затопленные склепы', tint: [0.88, 0.86, 0.8], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.9, bone: 1.6, hear: 1, water: 1, mon: 'drowned',
-    intro: 'Под водой кто-то есть. Он слеп, но идёт на звук шагов. Иди тихо: Shift на клавиатуре или лёгкое касание джойстика.',
+    enter: L('Внизу звякают цепи. Здесь держали узников графа, когда замок ещё был просто замком. Решёток больше, масла меньше.') },
+  { name: L('Затопленные склепы'), tint: [0.88, 0.86, 0.8], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.9, bone: 1.6, hear: 1, water: 1, mon: 'drowned',
+    intro: L('Под водой кто-то есть. Он слеп, но идёт на звук шагов. Иди тихо: Shift на клавиатуре или лёгкое касание джойстика.'),
     tex: [0, TEX_WET, TEX_OSSUARY, TEX_PLAQUE, TEX_WETMOSS], floor: FL_WATER, ceil: CE_WET,
-    enter: 'Ступени уходят в чёрную воду. Каждый шаг здесь слышно далеко, и Тень приходит на звук.' },
-  { name: 'Корни', tint: [1, 0.72, 0.58], w: [0.5, 0.75, 0.9], gate: 0.07, oil: 0.8, bone: 1, erase: 1, grow: 1,
-    intro: 'Корни затягивают коридоры за спиной, а тех, кто стоит на месте, оплетают. Заросли можно прожечь факелом.',
+    enter: L('Ступени уходят в чёрную воду. Каждый шаг здесь слышно далеко, и Тень приходит на звук.') },
+  { name: L('Корни'), tint: [1, 0.72, 0.58], w: [0.5, 0.75, 0.9], gate: 0.07, oil: 0.8, bone: 1, erase: 1, grow: 1,
+    intro: L('Корни затягивают коридоры за спиной, а тех, кто стоит на месте, оплетают. Заросли можно прожечь факелом.'),
     tex: [0, TEX_EARTH, TEX_ROOTSTONE, TEX_VEINS, TEX_DENSE], floor: FL_EARTH, ceil: CE_ROOTS,
-    enter: 'Стены теплеют, сквозь камень лезут корни. Метки мелом здесь долго не живут. Внизу бьётся что-то большое.' }
+    enter: L('Стены теплеют, сквозь камень лезут корни. Метки мелом здесь долго не живут. Внизу бьётся что-то большое.') }
 ];
 THEMES.push(
-  { name: 'Библиотека графа', tint: [1, 0.82, 0.6], w: [0.55, 0.85, 0.93], gate: 0.05, oil: 0.9, bone: 0.5, note: 3, shift: 1, mon: 'binder',
+  { name: L('Библиотека графа'), tint: [1, 0.82, 0.6], w: [0.55, 0.85, 0.93], gate: 0.05, oil: 0.9, bone: 0.5, note: 3, shift: 1, mon: 'binder',
     tex: [0, TEX_BOOKS, TEX_BOOKS2, TEX_TAPESTRY, TEX_WAINSCOT], floor: FL_CARPET, ceil: CE_BEAMS,
-    enter: 'Лестница выводит в библиотеку графа. Шкафы здесь стоят не там, где стояли минуту назад.',
-    intro: 'Шкафы сдвигаются сами, а между ними бродит Переплётчик. Пока ты смотришь на него, он не шевелится. Отвернёшься — подкрадётся.' },
-  { name: 'Часовня', tint: [0.95, 0.88, 0.75], w: [0.55, 0.72, 0.86], gate: 0.06, oil: 1, bone: 0.8, altar: 1, weak: 1, mon: 'mourner',
+    enter: L('Лестница выводит в библиотеку графа. Шкафы здесь стоят не там, где стояли минуту назад.'),
+    intro: L('Шкафы сдвигаются сами, а между ними бродит Переплётчик. Пока ты смотришь на него, он не шевелится. Отвернёшься — подкрадётся.') },
+  { name: L('Часовня'), tint: [0.95, 0.88, 0.75], w: [0.55, 0.72, 0.86], gate: 0.06, oil: 1, bone: 0.8, altar: 1, weak: 1, mon: 'mourner',
     tex: [0, TEX_ASHLAR, TEX_STAINED, TEX_RELIEF, TEX_ASHMOSS], floor: FL_MARBLE, ceil: CE_STARS,
-    enter: 'Внизу пахнет воском и ладаном. Замковая часовня, где отпевали графиню.',
-    intro: 'У алтарей Тень слабеет, а страх уходит. Но Плакальщица гасит их один за другим. Погасший алтарь можно зажечь заново своим факелом.' },
-  { name: 'Кухни и погреба', tint: [1, 0.8, 0.55], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.3, bone: 1.4, wax: 3, wick: 3, candle: 2, hearth: 1, mon: 'rats',
+    enter: L('Внизу пахнет воском и ладаном. Замковая часовня, где отпевали графиню.'),
+    intro: L('У алтарей Тень слабеет, а страх уходит. Но Плакальщица гасит их один за другим. Погасший алтарь можно зажечь заново своим факелом.') },
+  { name: L('Кухни и погреба'), tint: [1, 0.8, 0.55], w: [0.55, 0.78, 0.9], gate: 0.07, oil: 0.3, bone: 1.4, wax: 3, wick: 3, candle: 2, hearth: 1, mon: 'rats',
     tex: [0, TEX_SOOT, TEX_POTS, TEX_HEARTH, TEX_BARRELS], floor: FL_TERRA, ceil: CE_BEAMS,
-    enter: 'Тянет копотью и старым жиром. Кухни и погреба замка: масла здесь почти нет, зато воска хоть отбавляй.',
-    intro: 'Масла почти нет, но очаги ещё тлеют: упрись в очаг, чтобы подпалить факел. В темноте шныряют крысы и тащат всё из сумки. Они боятся огня.' }
+    enter: L('Тянет копотью и старым жиром. Кухни и погреба замка: масла здесь почти нет, зато воска хоть отбавляй.'),
+    intro: L('Масла почти нет, но очаги ещё тлеют: упрись в очаг, чтобы подпалить факел. В темноте шныряют крысы и тащат всё из сумки. Они боятся огня.') }
 );
 for (const th of THEMES) {
   const w = [['petal', 0.13], ['keypart', 0.09], ['oil', 0.13 * th.oil], ['rag', 0.08], ['bone', 0.06 * th.bone],
@@ -1199,9 +1256,9 @@ function castFace(maxD) {
 function placeMark(s) {
   if (state !== 'play') return;
   $('chalkPal').hidden = true;
-  if (inv.chalk <= 0) return toast('Мел кончился. Куски мела лежат в тупиках.', 2.5);
+  if (inv.chalk <= 0) return toast(L('Мел кончился. Куски мела лежат в тупиках.'), 2.5);
   const h = castFace(1.9);
-  if (!h) return toast('Подойди ближе к стене.', 1.8);
+  if (!h) return toast(L('Подойди ближе к стене.'), 1.8);
   const n = s === 3 ? ++markN : 0;
   const key = h.x + ',' + h.y + ',' + h.f;
   marks.set(key, { x: h.x, y: h.y, f: h.f, s, n });
@@ -1563,13 +1620,13 @@ const Snd = {
     if (TH.water) { this.noise(700 + Math.random() * 300, 0.7, 0.5 * k, 0.16, 0.45, 'lowpass'); this.noise(2400, 2, 0.08 * k, 0.1, 0.4); }
     else this.noise(280 + Math.random() * 180, 1.2, 0.35 * k, 0.09, 0.25);
   },
-  jKeys(pos) { cap('звон ключей', pos, 1); this.noise(3200 + Math.random() * 800, 6, 0.35, 0.06, 0.4, 'bandpass', pos); setTimeout(() => this.noise(3600, 6, 0.25, 0.05, 0.4, 'bandpass', pos), 70); },
+  jKeys(pos) { cap(L('звон ключей'), pos, 1); this.noise(3200 + Math.random() * 800, 6, 0.35, 0.06, 0.4, 'bandpass', pos); setTimeout(() => this.noise(3600, 6, 0.25, 0.05, 0.4, 'bandpass', pos), 70); },
   jStep(pos) { this.noise(130, 0.8, 0.8, 0.16, 0.3, 'lowpass', pos); },
   jShout(pos) { this.tone(150, 85, 'sawtooth', 0.16, 0.7, 0.7, 0, pos); this.noise(300, 0.7, 0.4, 0.5, 0.6, 'lowpass', pos); },
-  gurgle(pos) { cap('бульканье', pos, 1); this.tone(95 + Math.random() * 30, 55, 'sine', 0.45, 0.35, 0.5, 0, pos); this.noise(380, 1, 0.3, 0.3, 0.5, 'lowpass', pos); },
-  bigSplash(pos) { cap('всплеск', pos, 1); this.noise(500, 0.5, 0.9, 0.7, 0.6, 'lowpass', pos); this.noise(2600, 1, 0.3, 0.5, 0.6, 'bandpass', pos); },
-  thornChime(pos) { cap('звон шипа', pos); this.tone(1046, 1046, 'sine', 0.12, 0.9, 0.7, 0, pos); this.tone(1568, 1568, 'sine', 0.05, 0.7, 0.7, 0.05, pos); },
-  heartBig(pos) { cap('стук Сердца', pos); this.tone(58, 34, 'sine', 1.2, 0.26, 0.4, 0, pos); this.tone(52, 30, 'sine', 0.9, 0.26, 0.4, 0.24, pos); },
+  gurgle(pos) { cap(L('бульканье'), pos, 1); this.tone(95 + Math.random() * 30, 55, 'sine', 0.45, 0.35, 0.5, 0, pos); this.noise(380, 1, 0.3, 0.3, 0.5, 'lowpass', pos); },
+  bigSplash(pos) { cap(L('всплеск'), pos, 1); this.noise(500, 0.5, 0.9, 0.7, 0.6, 'lowpass', pos); this.noise(2600, 1, 0.3, 0.5, 0.6, 'bandpass', pos); },
+  thornChime(pos) { cap(L('звон шипа'), pos); this.tone(1046, 1046, 'sine', 0.12, 0.9, 0.7, 0, pos); this.tone(1568, 1568, 'sine', 0.05, 0.7, 0.7, 0.05, pos); },
+  heartBig(pos) { cap(L('стук Сердца'), pos); this.tone(58, 34, 'sine', 1.2, 0.26, 0.4, 0, pos); this.tone(52, 30, 'sine', 0.9, 0.26, 0.4, 0.24, pos); },
   burn() { this.noise(1400, 0.5, 0.25, 0.35, 0.3, 'bandpass'); this.crackle(); },
   musNote(f, wave, dur, vol, delay) {
     if (!this.c) return;
@@ -1589,7 +1646,7 @@ const Snd = {
   squeak(pos) { const f = 2600 + Math.random() * 1500; this.tone(f, f * 1.25, 'square', 0.025, 0.07, 0.3, 0, pos); this.tone(f * 1.1, f * 0.9, 'square', 0.02, 0.06, 0.3, 0.09, pos); },
   scurry(pos) { this.noise(3800, 2.5, 0.18, 0.25, 0.3, 'bandpass', pos); },
   bell() { [1318, 1760, 2637].forEach((f, i) => this.tone(f, f * 0.997, 'sine', 0.12 - i * 0.03, 2.4, 0.8, 0)); this.tone(659, 659, 'triangle', 0.05, 2.6, 0.8, 0); },
-  grind(pos) { cap('скрип шкафа', pos); this.noise(160, 1.2, 0.9, 1.4, 0.6, 'bandpass', pos); this.noise(420, 3, 0.25, 1.2, 0.5, 'bandpass', pos); this.tone(70, 55, 'sawtooth', 0.06, 1.3, 0.5, 0, pos); },
+  grind(pos) { cap(L('скрип шкафа'), pos); this.noise(160, 1.2, 0.9, 1.4, 0.6, 'bandpass', pos); this.noise(420, 3, 0.25, 1.2, 0.5, 'bandpass', pos); this.tone(70, 55, 'sawtooth', 0.06, 1.3, 0.5, 0, pos); },
   ending() { [262, 330, 392, 523, 659].forEach((f, i) => this.tone(f, f, 'sine', 0.1, 3, 0.7, i * 0.35)); },
   drip(pos) { this.tone(1500 + Math.random() * 600, 480, 'sine', 0.09, 0.09, 0.9, 0, pos); },
   crackle(pos) { this.noise(2600, 0.8, pos ? 0.08 : 0.035, 0.02, 0, 'highpass', pos); },
@@ -1598,7 +1655,7 @@ const Snd = {
   heart(v) { v = v || 1; this.tone(62, 40, 'sine', 0.55 * v, 0.16, 0); this.tone(58, 38, 'sine', 0.4 * v, 0.16, 0, 0.2); },
   toll() { [110, 164.8, 220, 277].forEach((f, i) => this.tone(f, f * 0.995, 'sawtooth', 0.035, 3.2, 0.7, i * 0.12)); },
   descend() { [392, 330, 262, 196].forEach((f, i) => this.tone(f, f, 'sine', 0.09, 1.8, 0.7, i * 0.22)); },
-  roseHum(pos) { cap('звон Розы', pos); this.tone(523, 523, 'sine', 0.12, 1.4, 0.5, 0, pos); this.tone(784, 784, 'sine', 0.06, 1.2, 0.5, 0.12, pos); },
+  roseHum(pos) { cap(L('звон Розы'), pos); this.tone(523, 523, 'sine', 0.12, 1.4, 0.5, 0, pos); this.tone(784, 784, 'sine', 0.06, 1.2, 0.5, 0.12, pos); },
   gust() {
     if (!this.c) return;
     const c = this.c, t = c.currentTime, s = c.createBufferSource(); s.buffer = this.nb; s.loop = true;
@@ -1606,13 +1663,13 @@ const Snd = {
     f.frequency.setValueAtTime(180, t); f.frequency.exponentialRampToValueAtTime(1300, t + 1.2); f.frequency.exponentialRampToValueAtTime(260, t + 2.6);
     const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 1.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
     const a = Math.random() * 6.28;
-    const gp = { x: P.x + Math.cos(a) * 3, y: P.y + Math.sin(a) * 3 }; cap('сквозняк', gp);
+    const gp = { x: P.x + Math.cos(a) * 3, y: P.y + Math.sin(a) * 3 }; cap(L('сквозняк'), gp);
     s.connect(f); f.connect(g); this.route(g, 0.4, gp); s.start(t); s.stop(t + 3);
   },
   sputter() { for (let i = 0; i < 5; i++) setTimeout(() => this.crackle(), i * 60 + Math.random() * 40); this.tone(90, 50, 'sine', 0.2, 0.3, 0.3); },
   relight() { this.noise(900, 0.6, 0.18, 0.35, 0.2, 'lowpass'); },
-  whisper(v, pos) { cap('шёпот', pos, 1); this.noise(1100 + Math.random() * 900, 7, 0.2 + v * 0.5, 0.45, 0.8, 'bandpass', pos); this.noise(2200 + Math.random() * 700, 9, v * 0.3, 0.3, 0.8, 'bandpass', pos); },
-  slither(pos) { cap('шорох', pos, 1); this.noise(380 + Math.random() * 200, 1.5, 0.35, 0.35, 0.5, 'bandpass', pos); },
+  whisper(v, pos) { cap(L('шёпот'), pos, 1); this.noise(1100 + Math.random() * 900, 7, 0.2 + v * 0.5, 0.45, 0.8, 'bandpass', pos); this.noise(2200 + Math.random() * 700, 9, v * 0.3, 0.3, 0.8, 'bandpass', pos); },
+  slither(pos) { cap(L('шорох'), pos, 1); this.noise(380 + Math.random() * 200, 1.5, 0.35, 0.35, 0.5, 'bandpass', pos); },
   scream() { this.tone(900, 110, 'sawtooth', 0.12, 1.1, 0.9); this.tone(640, 80, 'square', 0.05, 1.0, 0.9); this.noise(500, 0.5, 0.3, 0.6, 0.6, 'lowpass'); },
   hiss(pos) { this.noise(3200, 0.7, 0.3, 0.5, 0.6, 'highpass', pos); },
   clank() { this.tone(190, 90, 'square', 0.09, 0.16, 0.5); this.noise(1800, 3, 0.3, 0.2, 0.6); this.tone(72, 52, 'sawtooth', 0.06, 1.4, 0.5, 0.15); },
@@ -1640,26 +1697,26 @@ function buzz(p) {
 
 /* ================= Записки узников ================= */
 const NOTES = [
-  ['Третий день. Дверь, через которую я вошёл, исчезла. Не заперта, а исчезла: на её месте сухой холодный камень.', 'Мартин, подмастерье'],
-  ['Отец учил: держись за стену правой рукой и выйдешь из любого лабиринта. Здесь это не работает. Стены идут следом.', 'без подписи'],
-  ['Лепестки тёплые, будто их сорвали минуту назад. Я нашёл два и спал, сжимая их в кулаке. Тень в ту ночь не подошла.', 'Агнесса'],
-  ['Кто-то до меня рисовал мелом стрелки. Они ведут в тупик. Может, замок их передвинул. А может, он был таким же глупцом, как я.', 'Мартин'],
-  ['Кухарка рассказывала: граф Розенхолл посадил Розу для жены. Графиня угасала, а Роза цвела. Потом графиня умерла. Роза — нет.', 'Агнесса'],
-  ['Масло в склянках свежее. Кто его оставляет? Думаю, замку не нужны мёртвые у порога. Ему нужны идущие.', 'брат Ульрих'],
-  ['Она не любит огонь. Стоит там, где кончается свет, и ждёт. Я видел её глаза. Они не злые. Они голодные.', 'брат Ульрих'],
-  ['Когда сквозняк задул пламя, я забился в нишу и не дышал. Она прошла мимо. Почти всегда проходит мимо. Почти.', 'Агнесса'],
-  ['Нашёл кольцо от ключа у скелета. Он сжимал его так, что пришлось ломать пальцы. Прости, брат. Тебе оно уже не нужно.', 'Мартин'],
-  ['Масло и тряпка — и огонь можно бросить. Тень шипит и отступает, пока он горит. Жаль, что горит недолго.', 'Йохан, кузнец'],
-  ['Решётки старше стен. Их ставили для узников графа, когда замок был просто замком, а темницы — просто темницами.', 'Йохан, кузнец'],
-  ['Я собрал пять. Роза раскрылась, и пол ушёл вниз. Ступени. Пахнет водой. Значит, это не выход, а дверь глубже.', 'Мартин'],
-  ['В склепах каждый шаг слышно за сотню саженей. Иду медленно. Вода чёрная, и факел в ней не отражается.', 'брат Ульрих'],
-  ['Графиню звали Изольда. Её имя выцарапано на каждой плите склепа. Тысячи раз, разными руками. Нашими руками.', 'без подписи'],
-  ['Корни в стенах, под полом, над головой. Они тёплые. Мои метки исчезают, стоит отвернуться.', 'Агнесса'],
-  ['Я понял, кто она, Тень. Она тоже собирала лепестки. Слишком долго. Её огонь погас, и она осталась, чтобы не быть одной.', 'Мартин'],
-  ['Если ты читаешь это, не жди выхода. Роза ведёт только вниз. Но там, внизу, бьётся что-то большое. Может быть, сердце. Может, его можно остановить.', 'М.'],
-  ['Тюремщик всё ещё обходит темницы. Фонарь у него не гаснет, и огня он не боится. Боится только решёток: свои ключи он давно потерял.', 'Йохан, кузнец'],
-  ['В склепах кто-то ходит под водой. Он слеп. Я шёл медленно, почти не поднимая ног, и он проплыл в шаге от меня.', 'брат Ульрих'],
-  ['Три шипа. Роза растила их, чтобы никто не тронул её сердце. Они лежат на самом дне, там, где сходятся корни.', 'Агнесса']
+  [L('Третий день. Дверь, через которую я вошёл, исчезла. Не заперта, а исчезла: на её месте сухой холодный камень.'), L('Мартин, подмастерье')],
+  [L('Отец учил: держись за стену правой рукой и выйдешь из любого лабиринта. Здесь это не работает. Стены идут следом.'), L('без подписи')],
+  [L('Лепестки тёплые, будто их сорвали минуту назад. Я нашёл два и спал, сжимая их в кулаке. Тень в ту ночь не подошла.'), L('Агнесса')],
+  [L('Кто-то до меня рисовал мелом стрелки. Они ведут в тупик. Может, замок их передвинул. А может, он был таким же глупцом, как я.'), L('Мартин')],
+  [L('Кухарка рассказывала: граф Розенхолл посадил Розу для жены. Графиня угасала, а Роза цвела. Потом графиня умерла. Роза — нет.'), L('Агнесса')],
+  [L('Масло в склянках свежее. Кто его оставляет? Думаю, замку не нужны мёртвые у порога. Ему нужны идущие.'), L('брат Ульрих')],
+  [L('Она не любит огонь. Стоит там, где кончается свет, и ждёт. Я видел её глаза. Они не злые. Они голодные.'), L('брат Ульрих')],
+  [L('Когда сквозняк задул пламя, я забился в нишу и не дышал. Она прошла мимо. Почти всегда проходит мимо. Почти.'), L('Агнесса')],
+  [L('Нашёл кольцо от ключа у скелета. Он сжимал его так, что пришлось ломать пальцы. Прости, брат. Тебе оно уже не нужно.'), L('Мартин')],
+  [L('Масло и тряпка — и огонь можно бросить. Тень шипит и отступает, пока он горит. Жаль, что горит недолго.'), L('Йохан, кузнец')],
+  [L('Решётки старше стен. Их ставили для узников графа, когда замок был просто замком, а темницы — просто темницами.'), L('Йохан, кузнец')],
+  [L('Я собрал пять. Роза раскрылась, и пол ушёл вниз. Ступени. Пахнет водой. Значит, это не выход, а дверь глубже.'), L('Мартин')],
+  [L('В склепах каждый шаг слышно за сотню саженей. Иду медленно. Вода чёрная, и факел в ней не отражается.'), L('брат Ульрих')],
+  [L('Графиню звали Изольда. Её имя выцарапано на каждой плите склепа. Тысячи раз, разными руками. Нашими руками.'), L('без подписи')],
+  [L('Корни в стенах, под полом, над головой. Они тёплые. Мои метки исчезают, стоит отвернуться.'), L('Агнесса')],
+  [L('Я понял, кто она, Тень. Она тоже собирала лепестки. Слишком долго. Её огонь погас, и она осталась, чтобы не быть одной.'), L('Мартин')],
+  [L('Если ты читаешь это, не жди выхода. Роза ведёт только вниз. Но там, внизу, бьётся что-то большое. Может быть, сердце. Может, его можно остановить.'), L('М.')],
+  [L('Тюремщик всё ещё обходит темницы. Фонарь у него не гаснет, и огня он не боится. Боится только решёток: свои ключи он давно потерял.'), L('Йохан, кузнец')],
+  [L('В склепах кто-то ходит под водой. Он слеп. Я шёл медленно, почти не поднимая ног, и он проплыл в шаге от меня.'), L('брат Ульрих')],
+  [L('Три шипа. Роза растила их, чтобы никто не тронул её сердце. Они лежат на самом дне, там, где сходятся корни.'), L('Агнесса')]
 ];
 // игроки (слоты): 0 — исходные ключи, 1 и 2 — с суффиксом
 let PROFILE = 0;
@@ -1669,7 +1726,7 @@ const META_KEY = 'redrose_meta_v1' + PSUF;
 let meta = { notes: [], best: 0, vib: true };
 try { const m = JSON.parse(localStorage.getItem(META_KEY) || 'null'); if (m) meta = Object.assign(meta, m); } catch (e) {}
 function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} }
-const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, mus: 0.6, caps: false, mini: true, q: 'auto', joy: 'left', vib: true, tips: true };
+const SET0 = { sens: 1, invY: false, fx: 0.85, amb: 1, mus: 0.6, caps: false, mini: true, q: 'auto', joy: 'left', vib: true, tips: true, easy: false, timer: false, big: false, hc: false, cb: false };
 meta.set = Object.assign({}, SET0, meta.set || {});
 if (meta.vib === false) { meta.set.vib = false; delete meta.vib; }
 
@@ -1678,18 +1735,18 @@ const P = { x: 1.5, y: 1.5, a: 0, pitch: 0, fuel: 100, petals: 0, fear: 0, time:
 
 /* ---------- Дары Розы ---------- */
 const GIFTS = [
-  { id: 'longburn', name: 'Неугасимый фитиль', desc: 'Факел горит на четверть дольше.' },
-  { id: 'quiet', name: 'Мягкая поступь', desc: 'Шаги вдвое тише: Утопленник и Тень слышат тебя хуже.' },
-  { id: 'petalsight', name: 'Чутьё Розы', desc: 'Лепестки и шипы видны на карте издалека, даже в неизведанных коридорах.' },
-  { id: 'nichesafe', name: 'Объятия камня', desc: 'В нише тебя не найдёт никто.' },
-  { id: 'gatebreak', name: 'Ржавые петли', desc: 'Одна решётка на каждом этаже открывается без ключа.' },
-  { id: 'deepoil', name: 'Густое масло', desc: 'Каждая склянка масла даёт почти вдвое больше огня.' },
-  { id: 'brave', name: 'Стальное сердце', desc: 'Страх растёт на треть медленнее.' },
-  { id: 'swift', name: 'Лёгкий шаг', desc: 'Ты ходишь заметно быстрее.' },
-  { id: 'chalkmaster', name: 'Меловой след', desc: 'Сразу 10 мела, и корни больше не стирают твои метки.' },
-  { id: 'ember', name: 'Тлеющий уголь', desc: 'Сквозняки реже, а пламя после них возвращается вдвое быстрее.' },
-  { id: 'craftsman', name: 'Рука кузнеца', desc: 'Иногда ремесло даёт два предмета вместо одного.' },
-  { id: 'keen', name: 'Острый глаз', desc: 'Находки видны в темноте издалека.' }
+  { id: 'longburn', name: L('Неугасимый фитиль'), desc: L('Факел горит на четверть дольше.') },
+  { id: 'quiet', name: L('Мягкая поступь'), desc: L('Шаги вдвое тише: Утопленник и Тень слышат тебя хуже.') },
+  { id: 'petalsight', name: L('Чутьё Розы'), desc: L('Лепестки и шипы видны на карте издалека, даже в неизведанных коридорах.') },
+  { id: 'nichesafe', name: L('Объятия камня'), desc: L('В нише тебя не найдёт никто.') },
+  { id: 'gatebreak', name: L('Ржавые петли'), desc: L('Одна решётка на каждом этаже открывается без ключа.') },
+  { id: 'deepoil', name: L('Густое масло'), desc: L('Каждая склянка масла даёт почти вдвое больше огня.') },
+  { id: 'brave', name: L('Стальное сердце'), desc: L('Страх растёт на треть медленнее.') },
+  { id: 'swift', name: L('Лёгкий шаг'), desc: L('Ты ходишь заметно быстрее.') },
+  { id: 'chalkmaster', name: L('Меловой след'), desc: L('Сразу 10 мела, и корни больше не стирают твои метки.') },
+  { id: 'ember', name: L('Тлеющий уголь'), desc: L('Сквозняки реже, а пламя после них возвращается вдвое быстрее.') },
+  { id: 'craftsman', name: L('Рука кузнеца'), desc: L('Иногда ремесло даёт два предмета вместо одного.') },
+  { id: 'keen', name: L('Острый глаз'), desc: L('Находки видны в темноте издалека.') }
 ];
 function hasGift(id) { return P.gifts.indexOf(id) >= 0; }
 function fearUp(v) { P.fear += v * (hasGift('brave') ? 0.67 : 1) * (1 - 0.08 * upLv('nerve')); }
@@ -1698,7 +1755,7 @@ let gateFree = 0;
 let collected = new Set(), exit = null, seen = new Map();
 const INV0 = { parts: [0, 0, 0], keys: 0, oil: 0, rag: 0, bone: 0, wax: 0, wick: 0, chalk: 15, bomb: 0, candle: 0, torch: 0, bell: 0, pick: 0, rope: 0 };
 let inv = JSON.parse(JSON.stringify(INV0));
-const PART_NAMES = ['кольцо ключа', 'стержень ключа', 'бородка ключа'];
+const PART_NAMES = [L('кольцо ключа'), L('стержень ключа'), L('бородка ключа')];
 let beacons = [], fires = [], proj = null;
 let hidden = false, blackT = 45, blackDur = 0, preWarn = false, gateMsg = '';
 const SH = { on: false, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, px: 0, py: 0, life: 0, spawnT: 25, whisT: 2, slT: 0, seenMsg: false, rolled: false, leaving: false };
@@ -1708,7 +1765,7 @@ let flick = 1, LR = 6, bobPh = 0, bobY = 0, stepAcc = 0, dripT = 5, crackT = 0.3
 let darkWarned = false, lowWarned = false, moving = false;
 let lights = [];
 
-function blackInterval() { return (40 + Math.random() * 45) * Math.max(0.6, 1 - 0.06 * (FLOOR - 1)) * (hasGift('ember') ? 1.3 : 1); }
+function blackInterval() { return (40 + Math.random() * 45) * Math.max(0.6, 1 - 0.06 * (FLOOR - 1)) * (hasGift('ember') ? 1.3 : 1) * (isEasy() ? 1.5 : 1); }
 
 /* ---------- Обитатели этажей и корни ---------- */
 const MON = { on: false, kind: null, x: 0, y: 0, cx: 0, cy: 0, tx: 0, ty: 0, px: 0, py: 0, mode: 'patrol', seenT: 0, hearT: 0, stunT: 0, farT: 0, stepT: 0, respT: 6, sawHide: false, rolled: false, msg: false };
@@ -1722,22 +1779,22 @@ let playerLitNow = false, relightT = 0, heartRootT = 6, heartMsg = false;
 
 /* ---------- Испытания ---------- */
 const CHALLENGES = [
-  { id: 'nohide', name: 'Пройти этаж III или глубже, ни разу не спрятавшись в нише', gift: 'brave' },
-  { id: 'dark', name: 'Пройти этаж III или глубже, ни разу не подлив масла', gift: 'longburn' },
-  { id: 'fast', name: 'Пройти этаж II или глубже быстрее чем за 4 минуты', gift: 'swift' },
-  { id: 'jailer', name: 'Пройти Темницы, не попавшись Тюремщику', gift: 'gatebreak' },
-  { id: 'silent', name: 'Пройти Склепы, не разбудив Утопленника', gift: 'quiet' },
-  { id: 'nobomb', name: 'Дойти до Сердца замка, не бросив ни одной бомбы', gift: 'keen' },
-  { id: 'deep', name: 'Спуститься на XII этаж', gift: 'ember' },
-  { id: 'scholar', name: 'Прочитать все записки узников', gift: 'petalsight' }
+  { id: 'nohide', name: L('Пройти этаж III или глубже, ни разу не спрятавшись в нише'), gift: 'brave' },
+  { id: 'dark', name: L('Пройти этаж III или глубже, ни разу не подлив масла'), gift: 'longburn' },
+  { id: 'fast', name: L('Пройти этаж II или глубже быстрее чем за 4 минуты'), gift: 'swift' },
+  { id: 'jailer', name: L('Пройти Темницы, не попавшись Тюремщику'), gift: 'gatebreak' },
+  { id: 'silent', name: L('Пройти Склепы, не разбудив Утопленника'), gift: 'quiet' },
+  { id: 'nobomb', name: L('Дойти до Сердца замка, не бросив ни одной бомбы'), gift: 'keen' },
+  { id: 'deep', name: L('Спуститься на XII этаж'), gift: 'ember' },
+  { id: 'scholar', name: L('Прочитать все записки узников'), gift: 'petalsight' }
 ];
 function chDone(id) {
-  if (DEV) return;
+  if (DEV || P.easyUsed) return;
   if (!meta.ch) meta.ch = {};
   if (meta.ch[id]) return;
   meta.ch[id] = true; saveMeta();
   const c = CHALLENGES.find(x => x.id === id), g = GIFTS.find(x => x.id === c.gift);
-  setTimeout(() => toast('Испытание пройдено: «' + c.name + '». Новый дар на старте: ' + g.name + '.', 6), 600);
+  setTimeout(() => toast(L('Испытание пройдено: «') + c.name + L('». Новый дар на старте: ') + g.name + '.', 6), 600);
 }
 
 /* ---------- Подсказки ---------- */
@@ -1773,11 +1830,13 @@ function resetFloorMisc() {
   gateFree = hasGift('gatebreak') ? 1 : 0; thornT = 2; pulseR = 0;
   hearths = []; hearthT = 0; shiftT = 20 + Math.random() * 10; shiftMsg = false;
   FS = { hid: false, poured: false, caught: false, woke: false, bound: false, minFuel: 100, t0: P.time };
-  relightT = 0; heartRootT = 6; heartMsg = false;
+  relightT = 0; heartRootT = 6; heartMsg = false; evT = 60 + Math.random() * 60;
   Object.assign(MON, { on: false, kind: TH.mon || null, respT: TH.mon === 'jailer' ? 8 : 5, msg: false, sawHide: false, rolled: false, stunT: 0 });
 }
-function newGame() {
-  BASE = (Math.random() * 1e9) | 0;
+function newGame(opts) {
+  opts = opts || {};
+  BASE = opts.base != null ? opts.base : (Math.random() * 1e8) | 0;
+  P.mode = opts.mode || 'normal'; P.daily = opts.daily || null; P.easyUsed = isEasy();
   inv = JSON.parse(JSON.stringify(INV0));
   inv.chalk += 5 * upLv('chalk'); inv.oil += upLv('oil'); inv.keys += upLv('key');
   if (upLv('bag') >= 1) { inv.rag++; inv.bone++; } if (upLv('bag') >= 2) { inv.wax++; inv.wick++; }
@@ -1789,7 +1848,7 @@ function serialize() {
     collected: [...collected], exit, opened: [...opened], inv, marks: [...marks.values()], markN,
     beacons: beacons.map(b => ({ x: b.x, y: b.y, life: b.life })),
     gifts: P.gifts, ended: P.ended, grown: [...grown], thorns, gateFree,
-    runId: P.runId, ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS, sconces: [...litSc.entries()], hit: P.lastHit || null, deadAlt: [...deadAlt] };
+    mode: P.mode || 'normal', daily: P.daily || null, easyUsed: !!P.easyUsed, runId: P.runId, ovr: [...ovr.entries()], hearth: [...usedHearth], bombs: P.bombs || 0, fs: FS, sconces: [...litSc.entries()], hit: P.lastHit || null, deadAlt: [...deadAlt] };
 }
 function restore(s) {
   if (!s.v) { s = { base: s.seed, floor: 1, x: s.x, y: s.y, a: s.a, fuel: s.fuel, petals: s.petals, time: s.time, dist: s.dist, collected: s.collected, exit: s.exit, opened: s.opened,
@@ -1798,6 +1857,7 @@ function restore(s) {
   grownAt = new Map([...grown].map(k => [k, s.time || 0]));
   for (const m of (s.marks || [])) marks.set(m.x + ',' + m.y + ',' + m.f, m);
   P.gifts = (s.gifts || []).slice(); P.ended = !!s.ended; P.bombs = s.bombs || 0;
+  P.mode = s.mode || 'normal'; P.daily = s.daily || null; P.easyUsed = !!s.easyUsed;
   P.runId = s.runId || Date.now(); ovr = new Map(s.ovr || []); usedHearth = new Set(s.hearth || []); litSc = new Map(s.sconces || []); deadAlt = new Set(s.deadAlt || []); P.lastHit = null;
   setFloor(s.floor || 1);
   Object.assign(P, { x: s.x, y: s.y, a: s.a, pitch: 0, fuel: s.fuel, petals: s.petals, fear: 0, time: s.time || 0, dist: s.dist || 0 });
@@ -1849,10 +1909,10 @@ function spawnExit() {
   exit = { x: ex + 0.5, y: ey + 0.5 };
   Snd.toll(); buzz([30, 60, 30, 60, 120]);
   if (isFinale()) {
-    toast('Сердце почувствовало шипы и забилось. Тень больше не боится твоего огня, а корни тянутся наперерез. Иди на стук!', 7);
+    toast(L('Сердце почувствовало шипы и забилось. Тень больше не боится твоего огня, а корни тянутся наперерез. Иди на стук!'), 7);
     heartMsg = true; setTimeout(() => { if (state === 'play') shadowAmbush(); }, 1500);
   }
-  else toast('Где-то в замке расцвела Красная Роза. Слушай её звон и иди за стрелкой.', 6);
+  else toast(L('Где-то в замке расцвела Красная Роза. Слушай её звон и иди за стрелкой.'), 6);
 }
 
 /* ================= Экран и свет ================= */
@@ -2139,7 +2199,7 @@ function drawMini(t) {
     const wx = px + x, wy = py + y;
     if (!isSeen(wx, wy)) continue;
     const tt = tile(wx, wy);
-    mctx.fillStyle = tt === 5 ? '#a0602e' : tt === 6 ? '#6a2a1c' : tt ? '#4a3f3a' : nicheAt(wx, wy) ? '#2c3858' : '#16121a';
+    mctx.fillStyle = tt === 5 ? (meta.set.cb ? '#0072B2' : '#a0602e') : tt === 6 ? '#6a2a1c' : tt ? '#4a3f3a' : nicheAt(wx, wy) ? '#2c3858' : '#16121a';
     mctx.fillRect(ox + x * c - c / 2, oy + y * c - c / 2, c, c);
   }
   mctx.fillStyle = '#efe9da';
@@ -2151,12 +2211,14 @@ function drawMini(t) {
   const sight = hasGift('petalsight');
   for (const th of thorns) {
     if (th.got || !(sight || isSeen(Math.floor(th.x), Math.floor(th.y)))) continue;
+    if (meta.set.cb) { glyph(mctx, 'thorn', 66 + (th.x - P.x) * c, 66 + (th.y - P.y) * c, 3); continue; }
     mctx.fillStyle = '#ff3550'; mctx.beginPath(); mctx.arc(66 + (th.x - P.x) * c, 66 + (th.y - P.y) * c, 3, 0, 7); mctx.fill();
   }
   forNearItems(P.x, P.y, it => {
     if (it.t === 'candle' || it.t === 'bone' || collected.has(it.id)) return;
     const ix = Math.floor(it.x), iy = Math.floor(it.y);
     if (!isSeen(ix, iy) && !(sight && it.t === 'petal')) return;
+    if (meta.set.cb) { glyph(mctx, it.t, 66 + (it.x - P.x) * c, 66 + (it.y - P.y) * c, 2.6); return; }
     mctx.fillStyle = it.t === 'petal' ? '#ff3550' : it.t === 'oil' ? '#e39a3c' : it.t === 'keypart' ? '#e8d08a' : it.t === 'note' ? '#cdb98f' : '#9b927f';
     mctx.beginPath(); mctx.arc(66 + (it.x - P.x) * c, 66 + (it.y - P.y) * c, 2, 0, 7); mctx.fill();
   });
@@ -2184,7 +2246,7 @@ let toastT = 0;
 function toast(msg, sec) { const el = $('toast'); el.textContent = msg; el.classList.add('on'); toastT = sec || 3.5; }
 let fcardT = 0;
 function floorCard() {
-  $('fcN').textContent = 'Этаж ' + roman(FLOOR); $('fcT').textContent = isFinale() ? 'Сердце замка' : TH.name;
+  $('fcN').textContent = L('Этаж ') + roman(FLOOR); $('fcT').textContent = isFinale() ? L('Сердце замка') : TH.name;
   $('fcard').classList.add('on'); fcardT = 4;
 }
 const uiC = new Map();
@@ -2199,48 +2261,54 @@ function updHud() {
   const ps = $('petals').children, got = mode === 'thorn' ? thorns.filter(th => th.got).length : P.petals;
   for (let i = 0; i < ps.length; i++) ps[i].classList.toggle('got', i < got);
   setHid($('sneakL'), !(sneak && moving));
+  const tmr = $('timer'); setHid(tmr, !meta.set.timer);
+  if (meta.set.timer) {
+    const bt = meta.speed && meta.speed[FLOOR];
+    const tv = L('Этаж ') + fmt(P.time - FS.t0) + L(' <small>· всего ') + fmt(P.time) + (bt ? L(' · рекорд этажа ') + fmt(bt) : '') + '</small>';
+    if (uiC.get(tmr) !== tv) { uiC.set(tmr, tv); tmr.innerHTML = tv; }
+  }
   const fb = $('fuelbar'); fb.firstElementChild.style.width = P.fuel + '%'; fb.classList.toggle('low', P.fuel < 20);
   $('fear').style.opacity = (Math.min(100, P.fear) / 100) * 0.95;
   for (let k = 0; k < 3; k++) { const el = $('p' + k); el.classList.toggle('has', inv.parts[k] > 0); setTxt(el.lastElementChild, String(inv.parts[k])); }
   const kc = $('keyc'); kc.classList.toggle('has', inv.keys > 0); setTxt(kc.lastElementChild, String(inv.keys));
-  setTxt($('flr'), 'Этаж ' + roman(FLOOR) + ' · ' + TH.name);
-  setTxt($('bChalk'), 'Мел ' + inv.chalk);
+  setTxt($('flr'), L('Этаж ') + roman(FLOOR) + ' · ' + TH.name);
+  setTxt($('bChalk'), L('Мел ') + inv.chalk);
   $('bCraft').classList.toggle('ready', RECIPES.some(canMake));
   const nn = inNiche();
-  setHid($('bHide'), !(nn || hidden)); setTxt($('bHide'), hidden ? 'Выйти из ниши' : 'Спрятаться');
-  setHid($('bOil'), !inv.oil); setTxt($('bOil'), 'Масло ' + inv.oil);
-  setHid($('bBomb'), !inv.bomb); setTxt($('bBomb'), 'Бомба ' + inv.bomb);
-  setHid($('bCandle'), !inv.candle); setTxt($('bCandle'), 'Свеча ' + inv.candle);
-  setHid($('bTorch'), !inv.torch); setTxt($('bTorch'), 'Факел ' + inv.torch);
-  setHid($('bBell'), !inv.bell); setTxt($('bBell'), 'Колокольчик ' + inv.bell);
-  setHid($('bRope'), !inv.rope || isFinale()); setTxt($('bRope'), 'Верёвка ' + inv.rope);
+  setHid($('bHide'), !(nn || hidden)); setTxt($('bHide'), hidden ? L('Выйти из ниши') : L('Спрятаться'));
+  setHid($('bOil'), !inv.oil); setTxt($('bOil'), L('Масло ') + inv.oil);
+  setHid($('bBomb'), !inv.bomb); setTxt($('bBomb'), L('Бомба ') + inv.bomb);
+  setHid($('bCandle'), !inv.candle); setTxt($('bCandle'), L('Свеча ') + inv.candle);
+  setHid($('bTorch'), !inv.torch); setTxt($('bTorch'), L('Факел ') + inv.torch);
+  setHid($('bBell'), !inv.bell); setTxt($('bBell'), L('Колокольчик ') + inv.bell);
+  setHid($('bRope'), !inv.rope || isFinale()); setTxt($('bRope'), L('Верёвка ') + inv.rope);
   const cp = $('compass');
   if (exit) {
     cp.classList.add('on');
     const rel = Math.atan2(exit.y - P.y, exit.x - P.x) - P.a;
     cp.firstElementChild.style.transform = 'rotate(' + rel + 'rad)';
-    setTxt($('cdist'), '≈ ' + Math.round(Math.hypot(exit.x - P.x, exit.y - P.y)) + ' шагов');
+    setTxt($('cdist'), '≈ ' + Math.round(Math.hypot(exit.x - P.x, exit.y - P.y)) + L(' шагов'));
   } else {
     let nt = null, nd = 12;
     for (const th of thorns) if (!th.got) { const d = Math.hypot(th.x - P.x, th.y - P.y); if (d < nd) { nd = d; nt = th; } }
     if (nt) {
       cp.classList.add('on');
       cp.firstElementChild.style.transform = 'rotate(' + (Math.atan2(nt.y - P.y, nt.x - P.x) - P.a) + 'rad)';
-      setTxt($('cdist'), 'шип рядом');
+      setTxt($('cdist'), L('шип рядом'));
     } else cp.classList.remove('on');
   }
 }
 
 /* ================= Ремесло ================= */
-const INAME = { bell: 'Колокольчик', pick: 'Отмычка', rope: 'Верёвка', oil: 'Масло', rag: 'Тряпка', bone: 'Кость', wax: 'Воск', wick: 'Фитиль', chalk: 'Мел', bomb: 'Огненная бомба', candle: 'Свеча-маячок', torch: 'Запасной факел', keys: 'Ключ', p0: 'Кольцо ключа', p1: 'Стержень ключа', p2: 'Бородка ключа' };
+const INAME = { bell: L('Колокольчик'), pick: L('Отмычка'), rope: L('Верёвка'), oil: L('Масло'), rag: L('Тряпка'), bone: L('Кость'), wax: L('Воск'), wick: L('Фитиль'), chalk: L('Мел'), bomb: L('Огненная бомба'), candle: L('Свеча-маячок'), torch: L('Запасной факел'), keys: L('Ключ'), p0: L('Кольцо ключа'), p1: L('Стержень ключа'), p2: L('Бородка ключа') };
 const RECIPES = [
-  { id: 'key', name: 'Ключ', desc: 'Открывает одну запертую решётку. Через решётки можно срезать путь.', need: { p0: 1, p1: 1, p2: 1 }, out: 'keys' },
-  { id: 'bomb', name: 'Огненная бомба', desc: 'Летит вперёд и горит 15 секунд. Тень не переступает огонь и сгорает рядом со вспышкой.', need: { oil: 1, rag: 1 }, out: 'bomb' },
-  { id: 'torch', name: 'Запасной факел', desc: 'Сразу полный огонь, даже если сквозняк задул пламя.', need: { bone: 1, rag: 1 }, out: 'torch' },
-  { id: 'candle', name: 'Свеча-маячок', desc: 'Ставится на пол и горит две минуты. Тень не заходит в её свет, а на карте она видна издалека.', need: { wax: 1, wick: 1 }, out: 'candle' },
-  { id: 'bell', name: 'Колокольчик', desc: 'Звон сбивает всех с толку: обитатель замирает на 8 секунд, Тень уходит прочь.', need: { bone: 1, wick: 1 }, out: 'bell' },
-  { id: 'pick', name: 'Отмычка', desc: 'Открывает одну решётку, как ключ. Сработает сама, когда упрёшься в решётку без ключа.', need: { bone: 2 }, out: 'pick' },
-  { id: 'rope', name: 'Верёвка', desc: 'Спуститься сразу на этаж ниже, без лепестков. Стоит половины огня. Не работает на дне у Сердца.', need: { rag: 2, wick: 1 }, out: 'rope' }
+  { id: 'key', name: L('Ключ'), desc: L('Открывает одну запертую решётку. Через решётки можно срезать путь.'), need: { p0: 1, p1: 1, p2: 1 }, out: 'keys' },
+  { id: 'bomb', name: L('Огненная бомба'), desc: L('Летит вперёд и горит 15 секунд. Тень не переступает огонь и сгорает рядом со вспышкой.'), need: { oil: 1, rag: 1 }, out: 'bomb' },
+  { id: 'torch', name: L('Запасной факел'), desc: L('Сразу полный огонь, даже если сквозняк задул пламя.'), need: { bone: 1, rag: 1 }, out: 'torch' },
+  { id: 'candle', name: L('Свеча-маячок'), desc: L('Ставится на пол и горит две минуты. Тень не заходит в её свет, а на карте она видна издалека.'), need: { wax: 1, wick: 1 }, out: 'candle' },
+  { id: 'bell', name: L('Колокольчик'), desc: L('Звон сбивает всех с толку: обитатель замирает на 8 секунд, Тень уходит прочь.'), need: { bone: 1, wick: 1 }, out: 'bell' },
+  { id: 'pick', name: L('Отмычка'), desc: L('Открывает одну решётку, как ключ. Сработает сама, когда упрёшься в решётку без ключа.'), need: { bone: 2 }, out: 'pick' },
+  { id: 'rope', name: L('Верёвка'), desc: L('Спуститься сразу на этаж ниже, без лепестков. Стоит половины огня. Не работает на дне у Сердца.'), need: { rag: 2, wick: 1 }, out: 'rope' }
 ];
 function have(k) { return k[0] === 'p' && k.length === 2 ? inv.parts[+k[1]] : inv[k]; }
 function take(k) { if (k[0] === 'p' && k.length === 2) inv.parts[+k[1]]--; else inv[k]--; }
@@ -2249,7 +2317,7 @@ function make(id) {
   const r = RECIPES.find(x => x.id === id); if (!r || !canMake(r)) return;
   for (const k in r.need) take(k);
   inv[r.out]++; Snd.forge(); setTimeout(() => Snd.clank(), 220); buzz([15, 30, 15]); stat('craft');
-  if (hasGift('craftsman') && Math.random() < 0.3) { inv[r.out]++; toast('Рука кузнеца: вышло два!', 2.5); }
+  if (hasGift('craftsman') && Math.random() < 0.3) { inv[r.out]++; toast(L('Рука кузнеца: вышло два!'), 2.5); }
   save(); renderCraft();
 }
 function renderCraft() {
@@ -2258,7 +2326,7 @@ function renderCraft() {
   $('recList').innerHTML = RECIPES.map(r => {
     const need = Object.keys(r.need).map(k => '<span class="' + (have(k) >= r.need[k] ? 'ok' : 'no') + '">' + INAME[k] + ' ' + have(k) + '/' + r.need[k] + '</span>').join(' · ');
     return '<div class="rec"><h3>' + r.name + '</h3><p>' + r.desc + '</p><p class="need">' + need + '</p>' +
-      '<button class="btn small" data-make="' + r.id + '"' + (canMake(r) ? '' : ' disabled') + '>Сделать</button></div>';
+      '<button class="btn small" data-make="' + r.id + '"' + (canMake(r) ? '' : ' disabled') + L('>Сделать</button></div>');
   }).join('');
 }
 $('recList').addEventListener('click', e => { const b = e.target.closest('[data-make]'); if (b) make(b.dataset.make); });
@@ -2269,30 +2337,30 @@ function pourOil(auto) {
   if (!inv.oil || P.fuel >= 99) return;
   inv.oil--; FS.poured = true; P.fuel = Math.min(100, P.fuel + (hasGift('deepoil') ? 65 : 38)); lowWarned = P.fuel < 20; darkWarned = false;
   Snd.pour(); if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
-  toast(auto ? 'Пламя почти погасло, и ты подлил масла.' : 'Масло. Факел разгорается ярче.', 2.5); save();
+  toast(auto ? L('Пламя почти погасло, и ты подлил масла.') : L('Масло. Факел разгорается ярче.'), 2.5); save();
 }
 function useTorch() {
   if (!inv.torch) return;
   inv.torch--; P.fuel = 100; lowWarned = darkWarned = false;
   if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
   if (hidden) unhide(true);
-  Snd.relight(); Snd.forge(); buzz(30); toast('Новый факел вспыхнул в полную силу.', 2.5); save();
+  Snd.relight(); Snd.forge(); buzz(30); toast(L('Новый факел вспыхнул в полную силу.'), 2.5); save();
 }
 function ringBell() {
   if (!inv.bell || state !== 'play') return;
   inv.bell--; Snd.bell(); buzz([20, 60, 20]); makeNoise(6);
   if (MON.on) { MON.stunT = Math.max(MON.stunT, 8); MON.mode = 'patrol'; MON.sawHide = false; }
   if (SH.on) { SH.leaving = true; SH.life = Math.min(SH.life, 6); }
-  toast('Чистый звон раскатился по коридорам. Всё живое в замке замерло и прислушалось.', 3); save();
+  toast(L('Чистый звон раскатился по коридорам. Всё живое в замке замерло и прислушалось.'), 3); save();
 }
 function useRope() {
   if (!inv.rope || state !== 'play') return;
-  if (isFinale()) return toast('Здесь некуда спускаться: под ногами только корни и Сердце.', 3);
+  if (isFinale()) return toast(L('Здесь некуда спускаться: под ногами только корни и Сердце.'), 3);
   inv.rope--; P.fuel = Math.max(5, P.fuel * 0.5); stat('rope');
   Snd.whoosh(); Snd.descend(); buzz([40, 80, 40]);
   meta.best = Math.max(meta.best || 0, FLOOR + 1); saveMeta();
   FS.rope = true; descend();
-  setTimeout(() => toast('Ты спустился по верёвке в пролом. Огня осталось вдвое меньше.', 4), 400);
+  setTimeout(() => toast(L('Ты спустился по верёвке в пролом. Огня осталось вдвое меньше.'), 4), 400);
 }
 function throwBomb() {
   if (!inv.bomb || proj || hidden) return;
@@ -2303,13 +2371,13 @@ function explode(x, y) {
   const fx = Math.floor(x) + 0.5, fy = Math.floor(y) + 0.5;
   fires.push({ x: fx, y: fy, life: 15, crT: 0 });
   Snd.boom({ x: fx, y: fy }); buzz(70); makeNoise(14);
-  if (SH.on && Math.hypot(SH.x - fx, SH.y - fy) < 3.2) dissolveShadow('Огонь охватил Тень, и она растаяла с визгом.');
+  if (SH.on && Math.hypot(SH.x - fx, SH.y - fy) < 3.2) dissolveShadow(L('Огонь охватил Тень, и она растаяла с визгом.'));
   if (MON.on && Math.hypot(MON.x - fx, MON.y - fy) < 3.2) {
     if (MON.kind === 'rats') scatterRats(true);
     else {
       MON.stunT = MON.kind === 'drowned' ? 8 : MON.kind === 'binder' ? 7 : 5; MON.mode = 'patrol'; MON.sawHide = false;
-      toast({ drowned: 'Утопленник ушёл под воду от вспышки.', jailer: 'Тюремщик отшатнулся от огня.', binder: 'Страницы Переплётчика вспыхнули, и он отпрянул.',
-        mourner: 'Плакальщица отшатнулась от огня и замолкла.' }[MON.kind], 2.5);
+      toast({ drowned: L('Утопленник ушёл под воду от вспышки.'), jailer: L('Тюремщик отшатнулся от огня.'), binder: L('Страницы Переплётчика вспыхнули, и он отпрянул.'),
+        mourner: L('Плакальщица отшатнулась от огня и замолкла.') }[MON.kind], 2.5);
     }
   }
   for (const k of [...grown]) {
@@ -2320,17 +2388,17 @@ function explode(x, y) {
 function placeCandle() {
   if (!inv.candle) return;
   const x = Math.floor(P.x) + 0.5, y = Math.floor(P.y) + 0.5;
-  if (beacons.some(b => Math.hypot(b.x - x, b.y - y) < 0.5)) return toast('Здесь уже горит свеча.', 1.8);
+  if (beacons.some(b => Math.hypot(b.x - x, b.y - y) < 0.5)) return toast(L('Здесь уже горит свеча.'), 1.8);
   inv.candle--; beacons.push({ x, y, life: 120 });
-  Snd.relight(); buzz(15); toast('Свеча-маячок горит. Тень не войдёт в её свет.', 2.5); save();
+  Snd.relight(); buzz(15); toast(L('Свеча-маячок горит. Тень не войдёт в её свет.'), 2.5); save();
 }
 function hide() {
   if (hidden || !inNiche()) return;
   hidden = true; FS.hid = true; Snd.relight(); buzz(20);
   if (MON.on && MON.kind === 'jailer' && MON.mode === 'chase' && monLOS(MON.x, MON.y)) MON.sawHide = true;
-  toast('Ты прижался к камню и прикрыл огонь. Масло не тратится. Не двигайся.', 3);
+  toast(L('Ты прижался к камню и прикрыл огонь. Масло не тратится. Не двигайся.'), 3);
 }
-function unhide(quiet) { if (!hidden) return; hidden = false; if (!quiet) { Snd.relight(); toast('Ты вышел из ниши.', 1.5); } }
+function unhide(quiet) { if (!hidden) return; hidden = false; if (!quiet) { Snd.relight(); toast(L('Ты вышел из ниши.'), 1.5); } }
 
 /* ================= Ввод ================= */
 const keys = {};
@@ -2422,8 +2490,8 @@ function getPad() {
   return null;
 }
 function dz(v) { return Math.abs(v) < 0.15 ? 0 : (v - Math.sign(v) * 0.15) / 0.85; }
-addEventListener('gamepadconnected', e => { lastInput = 'pad'; toast('Геймпад подключён: ' + (e.gamepad.id || '').split('(')[0].trim().slice(0, 40), 3); });
-addEventListener('gamepaddisconnected', () => { PAD.on = false; toast('Геймпад отключён.', 2.5); });
+addEventListener('gamepadconnected', e => { lastInput = 'pad'; toast(L('Геймпад подключён: ') + (e.gamepad.id || '').split('(')[0].trim().slice(0, 40), 3); });
+addEventListener('gamepaddisconnected', () => { PAD.on = false; toast(L('Геймпад отключён.'), 2.5); });
 function activeScreen() { for (const s of SCREENS) if ($(s).classList.contains('on')) return $(s); return null; }
 function focusables(root) {
   return [...root.querySelectorAll('button, input[type=range]')].filter(el => !el.disabled && el.offsetParent !== null);
@@ -2500,12 +2568,12 @@ function openChest(it) {
     let v = r() * total, k = LOOT[0][0];
     for (const [id, w] of LOOT) { if (v < w) { k = id; break; } v -= w; }
     if (k === 'chalk') inv.chalk += 8; else inv[k]++;
-    got.push(k === 'chalk' ? 'мел' : INAME[k].toLowerCase());
+    got.push(k === 'chalk' ? L('мел') : INAME[k].toLowerCase());
   }
   Snd.forge(); Snd.chime(); buzz([30, 40, 30]); stat('chests');
-  toast('В тайнике: ' + got.join(', ') + '.', 4); save();
+  toast(L('В тайнике: ') + got.join(', ') + '.', 4); save();
 }
-const PICK_MSG = { rag: 'Тряпка. Пригодится для бомбы или факела.', bone: 'Кость. Из неё выйдет рукоять факела.', wax: 'Огарок воска. С фитилём выйдет свеча.', wick: 'Фитиль. С воском выйдет свеча.', oil: 'Склянка масла. Факел возьмёт её сам, когда начнёт гаснуть.' };
+const PICK_MSG = { rag: L('Тряпка. Пригодится для бомбы или факела.'), bone: L('Кость. Из неё выйдет рукоять факела.'), wax: L('Огарок воска. С фитилём выйдет свеча.'), wick: L('Фитиль. С воском выйдет свеча.'), oil: L('Склянка масла. Факел возьмёт её сам, когда начнёт гаснуть.') };
 function update(dt, t) {
   P.time += dt;
   let f = 0, s = 0, turn = 0;
@@ -2556,21 +2624,21 @@ function update(dt, t) {
         const ox = Math.abs(lx) > Math.abs(ly) ? Math.sign(lx) : 0, oy = ox ? 0 : Math.sign(ly);
         stat('sconces'); litSc.set(gx + ',' + gy, { x: gx + 0.5 + ox * 0.62, y: gy + 0.5 + oy * 0.62 });
         P.fuel = Math.max(0, P.fuel - 3); Snd.relight(); Snd.burn(); buzz(25); FS.sconce = (FS.sconce || 0) + 1;
-        toast(meta.tips && meta.tips.sconceLit ? 'Факел на стене зажжён.' : 'Факел на стене вспыхнул. Его свет останется здесь, и Тень сюда не войдёт.', 3);
+        toast(meta.tips && meta.tips.sconceLit ? L('Факел на стене зажжён.') : L('Факел на стене вспыхнул. Его свет останется здесь, и Тень сюда не войдёт.'), 3);
         if (!meta.tips) meta.tips = {}; meta.tips.sconceLit = 1; saveMeta(); save();
-      } else if (gateMsg !== 's' + gx + ',' + gy) { gateMsg = 's' + gx + ',' + gy; toast('Чтобы зажечь настенный факел, нужен свой огонь.', 2.5); }
+      } else if (gateMsg !== 's' + gx + ',' + gy) { gateMsg = 's' + gx + ',' + gy; toast(L('Чтобы зажечь настенный факел, нужен свой огонь.'), 2.5); }
     }
     if (gt === 8) {
       burning = true; crackT2 += dt;
       if (crackT2 > 0.7) {
         crackT2 = 0; setOvr(gx, gy, 0); Snd.crumble({ x: gx + 0.5, y: gy + 0.5 }); buzz([40, 30, 60]); makeNoise(8);
-        toast('Кирпичи поддались и осыпались. За стеной тайник!', 3); save();
+        toast(L('Кирпичи поддались и осыпались. За стеной тайник!'), 3); save();
       }
     }
     if (gt === 3 && TH.hearth && !usedHearth.has(gx + ',' + gy)) {
       usedHearth.add(gx + ',' + gy); P.fuel = Math.min(100, P.fuel + 22); lowWarned = P.fuel < 20; darkWarned = false;
       if (blackDur > 0) { blackDur = 0; blackT = blackInterval(); }
-      Snd.relight(); Snd.burn(); buzz(30); toast('Очаг ещё тлел. Ты подпалил от него факел.', 2.5); save();
+      Snd.relight(); Snd.burn(); buzz(30); toast(L('Очаг ещё тлел. Ты подпалил от него факел.'), 2.5); save();
     }
     if (gt === 6) {
       if (P.fuel > 0 && blackDur <= 0 && !hidden) {
@@ -2578,9 +2646,9 @@ function update(dt, t) {
         crackT -= dt * 3;
         if (burnT > 1.1) {
           burnT = 0; clearGrowth(gx, gy); P.fuel = Math.max(0, P.fuel - 4); Snd.burn(); buzz(25);
-          if (!burnMsg) { burnMsg = true; toast('Корни вспыхнули и осыпались пеплом. Это стоило немного огня.', 3); }
+          if (!burnMsg) { burnMsg = true; toast(L('Корни вспыхнули и осыпались пеплом. Это стоило немного огня.'), 3); }
         }
-      } else if (gateMsg !== 'g' + gx + ',' + gy) { gateMsg = 'g' + gx + ',' + gy; toast('Без огня корни не прожечь.', 2.5); }
+      } else if (gateMsg !== 'g' + gx + ',' + gy) { gateMsg = 'g' + gx + ',' + gy; toast(L('Без огня корни не прожечь.'), 2.5); }
     }
     if (gt === 5) {
       const id = gx + ',' + gy;
@@ -2591,10 +2659,10 @@ function update(dt, t) {
         opened.add(id);
         getChunk(gx >> 4, gy >> 4).g[((gy & 15) << 4) | (gx & 15)] = 0;
         Snd.clank(); buzz(40); makeNoise(10);
-        toast(free ? 'Ржавые петли поддались без ключа.' : picked ? 'Отмычка щёлкнула в замке. Решётка поднялась.' : 'Ключ повернулся. Решётка поднялась.', 2.5); save();
+        toast(free ? L('Ржавые петли поддались без ключа.') : picked ? L('Отмычка щёлкнула в замке. Решётка поднялась.') : L('Ключ повернулся. Решётка поднялась.'), 2.5); save();
       } else if (gateMsg !== id) {
         gateMsg = id;
-        toast(RECIPES[0] && canMake(RECIPES[0]) ? 'Решётка заперта. Собери ключ в «Ремесле».' : 'Решётка заперта. Нужен ключ: кольцо, стержень и бородка.', 3.5);
+        toast(RECIPES[0] && canMake(RECIPES[0]) ? L('Решётка заперта. Собери ключ в «Ремесле».') : L('Решётка заперта. Нужен ключ: кольцо, стержень и бородка.'), 3.5);
       }
     }
   }
@@ -2602,22 +2670,22 @@ function update(dt, t) {
   if (!burning) { burnT = 0; crackT2 = 0; }
   // факел
   if (P.fuel > 0 && !hidden) {
-    P.fuel = Math.max(0, P.fuel - dt * 0.42 * (1 + 0.1 * (FLOOR - 1)) * (hasGift('longburn') ? 0.75 : 1) * (1 - 0.08 * upLv('torch')));
-    if (P.fuel < 20 && !lowWarned) { lowWarned = true; if (!inv.oil) toast('Факел слабеет. Ищи склянки с маслом в тупиках.'); }
-    if (P.fuel === 0 && !darkWarned && !inv.oil) { darkWarned = true; toast('Факел погас. Тьма подбирается ближе.', 5); }
+    P.fuel = Math.max(0, P.fuel - dt * 0.42 * (1 + 0.1 * (FLOOR - 1)) * (hasGift('longburn') ? 0.75 : 1) * (1 - 0.08 * upLv('torch')) * (isEasy() ? 0.6 : 1));
+    if (P.fuel < 20 && !lowWarned) { lowWarned = true; if (!inv.oil) toast(L('Факел слабеет. Ищи склянки с маслом в тупиках.')); }
+    if (P.fuel === 0 && !darkWarned && !inv.oil) { darkWarned = true; toast(L('Факел погас. Тьма подбирается ближе.'), 5); }
     if (blackDur <= 0) { crackT -= dt; if (crackT < 0) { crackT = 0.15 + Math.random() * 0.6; Snd.crackle(); } }
   }
   if (P.fuel < 10 && inv.oil > 0 && !hidden) pourOil(true);
   // внезапная тьма
   if (blackDur > 0) {
     blackDur -= dt;
-    if (blackDur <= 0) { blackT = blackInterval(); if (P.fuel > 0 && !hidden) { Snd.relight(); toast('Пламя снова занялось.', 2); } }
+    if (blackDur <= 0) { blackT = blackInterval(); if (P.fuel > 0 && !hidden) { Snd.relight(); toast(L('Пламя снова занялось.'), 2); } }
   } else {
     blackT -= dt;
-    if (blackT < 1.4 && !preWarn) { preWarn = true; Snd.gust(); tip('gust', 'Пламя дрожит: сейчас ледяной сквозняк задует факел на несколько секунд. Держись подальше от Тени.'); }
+    if (blackT < 1.4 && !preWarn) { preWarn = true; Snd.gust(); tip('gust', L('Пламя дрожит: сейчас ледяной сквозняк задует факел на несколько секунд. Держись подальше от Тени.')); }
     if (blackT <= 0) {
       preWarn = false; blackDur = (3 + Math.random() * 3) * (hasGift('ember') ? 0.5 : 1); Snd.sputter();
-      if (P.fuel > 0 && !hidden) { toast('Ледяной сквозняк задул пламя…', 3); buzz(120); }
+      if (P.fuel > 0 && !hidden) { toast(L('Ледяной сквозняк задул пламя…'), 3); buzz(120); }
       shadowAmbush();
     }
   }
@@ -2633,6 +2701,7 @@ function update(dt, t) {
   else P.fear = Math.max(0, P.fear - dt * 2.5);
   if (TH.grow) updRoots(dt);
   if (isFinale() && exit) updHeartRoots(dt);
+  evT -= dt; if (evT <= 0 && P.time - FS.t0 > 40) rareEvent();
   // погасший алтарь можно зажечь своим факелом
   if (TH.altar && deadAlt.size && P.fuel > 5 && blackDur <= 0 && !hidden) {
     let near = null;
@@ -2641,7 +2710,7 @@ function update(dt, t) {
       relightT += dt;
       if (relightT > 1.2) {
         relightT = 0; deadAlt.delete(near.id); P.fuel = Math.max(0, P.fuel - 5);
-        Snd.relight(); Snd.chime(); buzz(25); stat('altars'); toast('Ты зажёг свечи на алтаре заново.', 2.5); save();
+        Snd.relight(); Snd.chime(); buzz(25); stat('altars'); toast(L('Ты зажёг свечи на алтаре заново.'), 2.5); save();
       }
     } else relightT = 0;
   }
@@ -2658,19 +2727,19 @@ function update(dt, t) {
     }
   } else if (hearths.length) hearths = [];
   // подсказки по ходу игры
-  if (P.time > 1.5) tip('move', ctl('WASD — идти, мышь — оглядываться. Щёлкни по экрану, чтобы захватить мышь. Shift — тихий шаг.',
-    'Левый палец — идти, правый — оглядываться. Лёгкое касание джойстика — тихий шаг.', 'Левый стик — идти, правый — оглядываться. Слегка наклони стик, чтобы идти тихо.'));
-  if (P.time > 40) tip('map', 'На мини-карте видно всё, где ты уже был. Синие клетки — ниши, рыжие — решётки.');
-  if (P.time > 90) tip('chalk', 'Заблудился? Ставь метки мелом на стенах: ' + ctl('клавиши 1–4.', 'кнопка «Мел».', 'крестовина геймпада.'));
-  if (inNiche() && !hidden) tip('niche', 'Это ниша. Здесь можно спрятаться (' + ctl('H', 'кнопка «Спрятаться»', 'A') + '): огонь прикрыт, масло не тратится, Тень чаще проходит мимо.');
-  if (P.fuel < 35 && P.fuel > 0) tip('oil', 'Масло кончается. Склянки лежат в тупиках, факел возьмёт их сам.');
-  if (RECIPES.some(canMake)) tip('craft', 'Можно смастерить что-то полезное: открой «Ремесло» (' + ctl('C', 'кнопка внизу', 'Y') + ').');
-  if (exit && !isFinale()) tip('rose', 'Стрелка вверху ведёт к Розе. Слушай её звон: он слышен с той стороны, где она растёт.');
-  if (SH.on && shD < 9) tip('shadow', 'Красные глаза — это Тень. Она боится света, а в темноте охотится. Не дай факелу погаснуть.');
+  if (P.time > 1.5) tip('move', ctl(L('WASD — идти, мышь — оглядываться. Щёлкни по экрану, чтобы захватить мышь. Shift — тихий шаг.'),
+    L('Левый палец — идти, правый — оглядываться. Лёгкое касание джойстика — тихий шаг.'), L('Левый стик — идти, правый — оглядываться. Слегка наклони стик, чтобы идти тихо.')));
+  if (P.time > 40) tip('map', L('На мини-карте видно всё, где ты уже был. Синие клетки — ниши, рыжие — решётки.'));
+  if (P.time > 90) tip('chalk', L('Заблудился? Ставь метки мелом на стенах: ') + ctl(L('клавиши 1–4.'), L('кнопка «Мел».'), L('крестовина геймпада.')));
+  if (inNiche() && !hidden) tip('niche', L('Это ниша. Здесь можно спрятаться (') + ctl('H', L('кнопка «Спрятаться»'), 'A') + L('): огонь прикрыт, масло не тратится, Тень чаще проходит мимо.'));
+  if (P.fuel < 35 && P.fuel > 0) tip('oil', L('Масло кончается. Склянки лежат в тупиках, факел возьмёт их сам.'));
+  if (RECIPES.some(canMake)) tip('craft', L('Можно смастерить что-то полезное: открой «Ремесло» (') + ctl('C', L('кнопка внизу'), 'Y') + ').');
+  if (exit && !isFinale()) tip('rose', L('Стрелка вверху ведёт к Розе. Слушай её звон: он слышен с той стороны, где она растёт.'));
+  if (SH.on && shD < 9) tip('shadow', L('Красные глаза — это Тень. Она боится света, а в темноте охотится. Не дай факелу погаснуть.'));
   if ((Math.floor(P.time * 4) & 3) === 0) {
     const fc = castFace(2.6);
-    if (fc && fc.t === 8) tip('crack', 'Трещина в кладке… Кажется, за ней пустота. Упрись в неё, чтобы разбить.');
-    if (fc && fc.t === 7 && !litSc.has(fc.x + ',' + fc.y)) tip('sconce', 'Погасший факел на стене. Подойди и упрись в него: он загорится от твоего огня и будет отгонять Тень.');
+    if (fc && fc.t === 8) tip('crack', L('Трещина в кладке… Кажется, за ней пустота. Упрись в неё, чтобы разбить.'));
+    if (fc && fc.t === 7 && !litSc.has(fc.x + ',' + fc.y)) tip('sconce', L('Погасший факел на стене. Подойди и упрись в него: он загорится от твоего огня и будет отгонять Тень.'));
   }
   updTips(dt);
   if (dark || P.fear > 35) { heartT -= dt; if (heartT < 0) { heartT = Math.max(0.45, 1.3 - P.fear / 110); Snd.heart(); if (P.fear > 45) buzz(25); } }
@@ -2681,6 +2750,7 @@ function update(dt, t) {
   updMon(dt);
   if (state !== 'play') return;
   if (DEVI) P.fear = Math.min(P.fear, 85);
+  if (isEasy()) { P.easyUsed = true; P.fear = Math.min(P.fear, 92); }
   if (P.fear >= 100) return lose();
 
   // бомба и огонь
@@ -2693,7 +2763,7 @@ function update(dt, t) {
   for (const fr of fires) { fr.life -= dt; fr.crT -= dt; if (fr.crT < 0) { fr.crT = 0.12 + Math.random() * 0.25; Snd.crackle(fr); } }
   fires = fires.filter(fr => fr.life > 0);
   for (const b of beacons) b.life -= dt;
-  if (beacons.some(b => b.life <= 0)) { beacons = beacons.filter(b => b.life > 0); toast('Где-то догорела свеча-маячок.', 2.5); }
+  if (beacons.some(b => b.life <= 0)) { beacons = beacons.filter(b => b.life > 0); toast(L('Где-то догорела свеча-маячок.'), 2.5); }
 
   // подбор предметов
   forNearItems(P.x, P.y, it => {
@@ -2702,15 +2772,15 @@ function update(dt, t) {
     collected.add(it.id);
     if (it.t === 'petal') {
       P.petals++; Snd.chime(); buzz([20, 40, 20]); bankAdd(1); stat('petals');
-      if (P.petals < NEED) toast('Лепесток Красной Розы. Осталось ' + (NEED - P.petals) + '.');
+      if (P.petals < NEED) toast(L('Лепесток Красной Розы. Осталось ') + (NEED - P.petals) + '.');
       else if (!exit) spawnExit();
     } else if (it.t === 'keypart') {
       inv.parts[it.k]++; Snd.forge(); buzz(15);
-      toast('Найдено: ' + PART_NAMES[it.k] + '.' + (canMake(RECIPES[0]) ? ' Можно собрать ключ в «Ремесле».' : ''), 3);
+      toast(L('Найдено: ') + PART_NAMES[it.k] + '.' + (canMake(RECIPES[0]) ? L(' Можно собрать ключ в «Ремесле».') : ''), 3);
     } else if (it.t === 'chest') {
       openChest(it);
     } else if (it.t === 'chalk') {
-      inv.chalk += 8; Snd.forge(); toast('Кусок мела. Ещё 8 меток.', 2.5);
+      inv.chalk += 8; Snd.forge(); toast(L('Кусок мела. Ещё 8 меток.'), 2.5);
     } else if (it.t === 'note') {
       Snd.page(); save(); openNote(); return;
     } else {
@@ -2724,7 +2794,7 @@ function update(dt, t) {
     if (th.got || Math.hypot(th.x - P.x, th.y - P.y) > 0.6) continue;
     th.got = true; Snd.chime(); Snd.thornChime(th); buzz([30, 50, 30]); bankAdd(2);
     const left = thorns.filter(x => !x.got).length;
-    if (left) toast('Шип Розы. Осталось ' + left + '.', 3); else if (!exit) spawnExit();
+    if (left) toast(L('Шип Розы. Осталось ') + left + '.', 3); else if (!exit) spawnExit();
     save();
   }
   if (thorns.length && !exit) {
@@ -2755,7 +2825,7 @@ function update(dt, t) {
     if (eraseT < 0) {
       eraseT = 45 + Math.random() * 35;
       const far = [...marks.entries()].filter(([, m]) => Math.hypot(m.x + 0.5 - P.x, m.y + 0.5 - P.y) > 5);
-      if (far.length) { eraseMark(far[(Math.random() * far.length) | 0][0]); toast('Корни шевельнулись. Где-то за спиной стёрлась метка мелом.', 3.5); save(); }
+      if (far.length) { eraseMark(far[(Math.random() * far.length) | 0][0]); toast(L('Корни шевельнулись. Где-то за спиной стёрлась метка мелом.'), 3.5); save(); }
     }
   }
 
@@ -2826,8 +2896,8 @@ function dissolveShadow(msg) {
   if (msg) toast(msg, 2.5);
 }
 function touchShadow() {
-  fearUp(40); P.lastHit = { src: 'Тень', t: P.time }; if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
-  Snd.scream(); buzz([80, 60, 160]); toast('Тень прошла сквозь тебя. Холод сжал сердце.', 3.5);
+  fearUp(40); P.lastHit = { src: L('Тень'), t: P.time }; if (P.fuel > 0) P.fuel = Math.max(0, P.fuel - 15);
+  Snd.scream(); buzz([80, 60, 160]); toast(L('Тень прошла сквозь тебя. Холод сжал сердце.'), 3.5);
   SH.on = false; SH.spawnT = 18 + Math.random() * 15;
 }
 function updShadow(dt, dark) {
@@ -2840,10 +2910,10 @@ function updShadow(dt, dark) {
   SH.life -= dt;
   const pd = fieldAt(SH.cx, SH.cy);
   if (pd < 0 || (SH.life <= 0 && (!dark || SH.leaving))) { SH.on = false; SH.spawnT = 15 + Math.random() * 25; return; }
-  if (litAt(SH.x, SH.y)) return dissolveShadow('Тень зашипела и растаяла в свете.');
+  if (litAt(SH.x, SH.y)) return dissolveShadow(L('Тень зашипела и растаяла в свете.'));
   const heartAwake = isFinale() && !!exit;
   if (heartAwake) SH.life = Math.max(SH.life, 5);
-  if (!dark && !hidden && !heartAwake && pd < LR * 0.5) return dissolveShadow('Тень зашипела и растаяла в свете факела.');
+  if (!dark && !hidden && !heartAwake && pd < LR * 0.5) return dissolveShadow(L('Тень зашипела и растаяла в свете факела.'));
   let mode;
   if (SH.leaving) mode = -1;
   else if (hidden) mode = 2;
@@ -2884,7 +2954,7 @@ function updShadow(dt, dark) {
         SH.rolled = true;
         if (!hasGift('nichesafe') && Math.random() < 0.22 + 0.03 * (FLOOR - 1)) { unhide(true); touchShadow(); return; }
         SH.leaving = true; SH.life = Math.min(SH.life, 7); buzz(30);
-        toast('Тень замерла рядом… и прошла мимо.', 3);
+        toast(L('Тень замерла рядом… и прошла мимо.'), 3);
       }
     } else if (!SH.leaving) { touchShadow(); return; }
   }
@@ -2893,7 +2963,7 @@ function updShadow(dt, dark) {
   if (ed < 12 && SH.whisT <= 0) { SH.whisT = 1 + Math.random() * 1.8; Snd.whisper((1 - ed / 12) * (dark ? 1 : 0.5), pos); }
   SH.slT -= dt;
   if (ed < 14 && SH.slT <= 0 && dl >= 0.04) { SH.slT = 0.55 + Math.random() * 0.3; Snd.slither(pos); }
-  if (dark && ed < 9 && !SH.seenMsg) { SH.seenMsg = true; toast('Что-то движется в темноте… Слушай, с какой стороны.', 3); }
+  if (dark && ed < 9 && !SH.seenMsg) { SH.seenMsg = true; toast(L('Что-то движется в темноте… Слушай, с какой стороны.'), 3); }
 }
 
 /* ================= Корни: зарастают за спиной ================= */
@@ -2908,7 +2978,7 @@ function growCell(x, y) {
   if (chunkAt(x, y).items.some(it => it.id === id && PICK.has(it.t) && !collected.has(it.id))) return;
   if (SH.on && Math.hypot(SH.x - cx, SH.y - cy) < 1) return;
   setTile(x, y, 6); grown.add(id); grownAt.set(id, P.time);
-  if (!growMsg) { growMsg = true; toast('За спиной что-то хрустнуло: корни затянули коридор. Факелом их можно прожечь.', 4); }
+  if (!growMsg) { growMsg = true; toast(L('За спиной что-то хрустнуло: корни затянули коридор. Факелом их можно прожечь.'), 4); }
 }
 function pathTo(gx, gy, limit) {
   const sx = Math.floor(P.x), sy = Math.floor(P.y), prev = new Map([[sx + ',' + sy, null]]), q = [[sx, sy]];
@@ -2939,7 +3009,7 @@ function updHeartRoots(dt) {
   if (tile(c[0], c[1]) !== 0) return;
   const before = grown.size;
   growCell(c[0], c[1]);
-  if (grown.size > before) { Snd.grind({ x: c[0] + 0.5, y: c[1] + 0.5 }); cap('Корни', { x: c[0] + 0.5, y: c[1] + 0.5 }, true); }
+  if (grown.size > before) { Snd.grind({ x: c[0] + 0.5, y: c[1] + 0.5 }); cap(L('Корни'), { x: c[0] + 0.5, y: c[1] + 0.5 }, true); }
 }
 function updRoots(dt) {
   const cx = Math.floor(P.x), cy = Math.floor(P.y), ck = cx + ',' + cy;
@@ -2967,21 +3037,21 @@ function updRoots(dt) {
   else {
     stillT += dt;
     if (stillT > 8) {
-      fearUp(dt * 5); P.lastHit = { src: 'Корни', t: P.time };
-      if (!grabMsg) { grabMsg = true; toast('Корни оплетают ноги. Не стой на месте!', 3); buzz([40, 40, 40]); }
+      fearUp(dt * 5); P.lastHit = { src: L('Корни'), t: P.time };
+      if (!grabMsg) { grabMsg = true; toast(L('Корни оплетают ноги. Не стой на месте!'), 3); buzz([40, 40, 40]); }
     }
   }
 }
 
 /* ================= Музыка ================= */
 const MUSIC = {
-  'Покои графа': { notes: [293.7, 349.2, 392, 440, 523.3, 587.3], wave: 'triangle', dur: 1.4, vol: 0.05, gap: [1.6, 3.4], run: 3 },
-  'Темницы': { notes: [110, 130.8, 146.8, 164.8], wave: 'bell', dur: 3.5, vol: 0.06, gap: [4, 7] },
-  'Затопленные склепы': { notes: [880, 1046.5, 1174.7, 1318.5, 1568], wave: 'sine', dur: 2.8, vol: 0.03, gap: [2, 5] },
-  'Корни': { notes: [55, 61.7, 65.4, 73.4], wave: 'sine', dur: 1.8, vol: 0.1, gap: [1.6, 2.2] },
-  'Библиотека графа': { notes: [1046.5, 1174.7, 1318.5, 1568, 1760, 2093], wave: 'triangle', dur: 0.7, vol: 0.025, gap: [0.6, 1.8], run: 4 },
-  'Часовня': { chords: [[220, 261.6, 329.6], [196, 246.9, 293.7], [174.6, 220, 261.6], [164.8, 207.7, 246.9]], wave: 'sawtooth', dur: 5.5, vol: 0.022, gap: [5, 6] },
-  'Кухни и погреба': { notes: [196, 220, 246.9, 293.7, 329.6, 392], wave: 'triangle', dur: 0.9, vol: 0.04, gap: [0.9, 2.2], run: 2 }
+  [L('Покои графа')]: { notes: [293.7, 349.2, 392, 440, 523.3, 587.3], wave: 'triangle', dur: 1.4, vol: 0.05, gap: [1.6, 3.4], run: 3 },
+  [L('Темницы')]: { notes: [110, 130.8, 146.8, 164.8], wave: 'bell', dur: 3.5, vol: 0.06, gap: [4, 7] },
+  [L('Затопленные склепы')]: { notes: [880, 1046.5, 1174.7, 1318.5, 1568], wave: 'sine', dur: 2.8, vol: 0.03, gap: [2, 5] },
+  [L('Корни')]: { notes: [55, 61.7, 65.4, 73.4], wave: 'sine', dur: 1.8, vol: 0.1, gap: [1.6, 2.2] },
+  [L('Библиотека графа')]: { notes: [1046.5, 1174.7, 1318.5, 1568, 1760, 2093], wave: 'triangle', dur: 0.7, vol: 0.025, gap: [0.6, 1.8], run: 4 },
+  [L('Часовня')]: { chords: [[220, 261.6, 329.6], [196, 246.9, 293.7], [174.6, 220, 261.6], [164.8, 207.7, 246.9]], wave: 'sawtooth', dur: 5.5, vol: 0.022, gap: [5, 6] },
+  [L('Кухни и погреба')]: { notes: [196, 220, 246.9, 293.7, 329.6, 392], wave: 'triangle', dur: 0.9, vol: 0.04, gap: [0.9, 2.2], run: 2 }
 };
 let musT = 3, musIdx = 0, musDuck = 1;
 function updMusic(dt, shD) {
@@ -3027,7 +3097,7 @@ function updCaps(dt) {
     const rel = Math.atan2(c.y - P.y, c.x - P.x) - P.a, d = Math.hypot(c.x - P.x, c.y - P.y);
     c.el.style.left = (50 + Math.sin(rel) * 40) + '%'; c.el.style.top = (50 - Math.cos(rel) * 34) + '%';
     c.el.firstElementChild.style.transform = 'rotate(' + rel + 'rad)';
-    c.el.lastElementChild.textContent = c.label + (d < 4 ? ' · рядом' : '');
+    c.el.lastElementChild.textContent = c.label + (d < 4 ? L(' · рядом') : '');
   }
 }
 
@@ -3074,7 +3144,7 @@ function shiftShelves() {
   }
   if (moved) {
     Snd.grind({ x: moved[0] + 0.5, y: moved[1] + 0.5 }); buzz(30);
-    if (!shiftMsg) { shiftMsg = true; toast('Где-то с тяжёлым скрипом сдвинулся книжный шкаф. Коридоры библиотеки меняются.', 4); }
+    if (!shiftMsg) { shiftMsg = true; toast(L('Где-то с тяжёлым скрипом сдвинулся книжный шкаф. Коридоры библиотеки меняются.'), 4); }
     save();
   }
 }
@@ -3124,11 +3194,11 @@ function monStep(chase) {
 }
 const STEAL = ['keys', 'bomb', 'torch', 'candle', 'oil', 'rag', 'wax', 'wick', 'bone'];
 const RAT_STEAL = ['wax', 'wick', 'rag', 'bone', 'oil', 'candle', 'bomb', 'torch', 'bell', 'pick', 'rope', 'keys'];
-const MON_NAME = { jailer: 'Тюремщик', drowned: 'Утопленник', binder: 'Переплётчик', mourner: 'Плакальщица', rats: 'Крысы' };
+const MON_NAME = { jailer: L('Тюремщик'), drowned: L('Утопленник'), binder: L('Переплётчик'), mourner: L('Плакальщица'), rats: L('Крысы') };
 function scatterRats(byFire) {
   MON.on = false; MON.respT = 10 + Math.random() * 6;
   Snd.squeak({ x: MON.x, y: MON.y }); Snd.scurry({ x: MON.x, y: MON.y });
-  stat('rats'); toast(byFire ? 'Крысы с визгом бросились от огня.' : 'Крысы с писком разбежались от факела.', 2.5);
+  stat('rats'); toast(byFire ? L('Крысы с визгом бросились от огня.') : L('Крысы с писком разбежались от факела.'), 2.5);
 }
 function monCatch() {
   const pos = { x: MON.x, y: MON.y }, k0 = MON.kind;
@@ -3136,26 +3206,26 @@ function monCatch() {
   if (k0 === 'jailer') {
     FS.caught = true; fearUp(30); Snd.jShout(pos); buzz([90, 50, 120]);
     const k = STEAL.find(k => inv[k] > 0);
-    if (k) { inv[k]--; toast('Тюремщик схватил тебя и вырвал: ' + INAME[k].toLowerCase() + '. Потом отпустил с хохотом.', 4); }
-    else toast('Тюремщик тряхнул тебя за шиворот и отшвырнул, как пустой мешок.', 3.5);
+    if (k) { inv[k]--; toast(L('Тюремщик схватил тебя и вырвал: ') + INAME[k].toLowerCase() + L('. Потом отпустил с хохотом.'), 4); }
+    else toast(L('Тюремщик тряхнул тебя за шиворот и отшвырнул, как пустой мешок.'), 3.5);
   } else if (k0 === 'drowned') {
     fearUp(35); P.fuel = Math.max(0, P.fuel - 20); Snd.bigSplash(pos); buzz([120, 60, 120]);
-    toast('Ледяная рука утянула тебя под воду. Факел зашипел и едва не погас.', 4);
+    toast(L('Ледяная рука утянула тебя под воду. Факел зашипел и едва не погас.'), 4);
   } else if (k0 === 'binder') {
     FS.bound = true; fearUp(35); P.fuel = Math.max(0, P.fuel - 10); Snd.rustle(pos); Snd.scream(); buzz([100, 50, 140]);
     let n = 0;
     for (const [key, m] of [...marks]) if (Math.hypot(m.x + 0.5 - P.x, m.y + 0.5 - P.y) < 9) { eraseMark(key); n++; }
-    toast('Сухие пальцы сомкнулись на горле. Переплётчик отпустил тебя и растворился меж шкафов' + (n ? ', стерев твои метки.' : '.'), 4);
+    toast(L('Сухие пальцы сомкнулись на горле. Переплётчик отпустил тебя и растворился меж шкафов') + (n ? L(', стерев твои метки.') : '.'), 4);
     MON.on = false; MON.respT = 20; save(); return;
   } else if (k0 === 'mourner') {
     fearUp(25); P.fuel = Math.max(0, P.fuel - 25); Snd.weep(pos); buzz([80, 80, 80]);
-    toast('Плакальщица коснулась тебя. Её слёзы залили факел.', 3.5);
+    toast(L('Плакальщица коснулась тебя. Её слёзы залили факел.'), 3.5);
     MON.stunT = 6; MON.mode = 'patrol'; save(); return;
   } else if (k0 === 'rats') {
     const got = [];
     for (let n = 0; n < 2; n++) { const k = RAT_STEAL.find(k => inv[k] > 0); if (!k) break; inv[k]--; got.push(INAME[k].toLowerCase()); }
     fearUp(15); Snd.squeak(pos); Snd.scurry(pos); buzz([40, 30, 40, 30, 40]);
-    toast(got.length ? 'Крысы облепили сумку и утащили: ' + got.join(', ') + '.' : 'Крысы обнюхали пустую сумку и разбежались.', 3.5);
+    toast(got.length ? L('Крысы облепили сумку и утащили: ') + got.join(', ') + '.' : L('Крысы обнюхали пустую сумку и разбежались.'), 3.5);
     MON.on = false; MON.respT = 9; save(); return;
   }
   MON.stunT = 8; MON.mode = 'patrol'; MON.sawHide = false; save();
@@ -3199,20 +3269,20 @@ function updMon(dt) {
   if (kind === 'jailer') {
     const sees = !hidden && monLOS(MON.x, MON.y);
     if (sees) {
-      if (MON.mode !== 'chase') { Snd.jShout(pos); buzz(50); if (!MON.msg) { MON.msg = true; toast('Тюремщик заметил тебя! Беги за решётку или в нишу.', 3.5); } }
+      if (MON.mode !== 'chase') { Snd.jShout(pos); buzz(50); if (!MON.msg) { MON.msg = true; toast(L('Тюремщик заметил тебя! Беги за решётку или в нишу.'), 3.5); } }
       MON.mode = 'chase'; MON.seenT = 4;
     } else if (MON.mode === 'chase' && !(hidden && MON.sawHide)) { MON.seenT -= dt; if (MON.seenT <= 0) MON.mode = 'patrol'; }
     chase = MON.mode === 'chase'; speed = chase ? 2.05 : 1.15;
   } else if (kind === 'drowned') {
     if (ed < noiseR) {
-      if (MON.mode !== 'hunt') { Snd.gurgle(pos); if (!MON.msg) { MON.msg = true; toast('Под водой что-то шевельнулось и двинулось на звук.', 3.5); } }
+      if (MON.mode !== 'hunt') { Snd.gurgle(pos); if (!MON.msg) { MON.msg = true; toast(L('Под водой что-то шевельнулось и двинулось на звук.'), 3.5); } }
       MON.mode = 'hunt'; MON.hearT = 2.5; FS.woke = true;
     } else if (MON.mode === 'hunt') { MON.hearT -= dt; if (MON.hearT <= 0) MON.mode = 'patrol'; }
     chase = MON.mode === 'hunt'; speed = chase ? 1.7 : 0.8;
   } else if (kind === 'binder') {
     // пока на него смотрят — замирает
     frozen = playerSees(MON.x, MON.y + 0);
-    if (frozen && !MON.msg && ed < 9) { MON.msg = true; toast('Среди шкафов стоит высокая фигура в лоскутах страниц. Не отводи взгляд.', 4); }
+    if (frozen && !MON.msg && ed < 9) { MON.msg = true; toast(L('Среди шкафов стоит высокая фигура в лоскутах страниц. Не отводи взгляд.'), 4); }
     chase = pd >= 0 && pd < 13; speed = chase ? 1.8 : 0.9;
     if (!frozen && chase && pd < 4 && !hidden) fearUp(dt * 4);
   } else if (kind === 'mourner') {
@@ -3223,7 +3293,7 @@ function updMon(dt) {
       MON.workT = (MON.workT || 0) + dt;
       if (MON.workT > 2) {
         deadAlt.add(MON.alt.id); Snd.snuff(MON.alt);
-        if (ed < 14) toast('Плакальщица склонилась над алтарём, и свечи погасли.', 3);
+        if (ed < 14) toast(L('Плакальщица склонилась над алтарём, и свечи погасли.'), 3);
         MON.alt = null; MON.workT = 0; save();
       }
       frozen = true;
@@ -3231,7 +3301,7 @@ function updMon(dt) {
     MON.weepT = (MON.weepT || 0) - dt;
     if (!hidden && monLOS(MON.x, MON.y) && MON.weepT <= 0) {
       MON.weepT = 7; Snd.weep(pos); fearUp(8);
-      if (!MON.msg) { MON.msg = true; toast('Плакальщица увидела тебя. Её плач зовёт Тень.', 3.5); }
+      if (!MON.msg) { MON.msg = true; toast(L('Плакальщица увидела тебя. Её плач зовёт Тень.'), 3.5); }
       shadowAmbush(true);
     }
   } else if (kind === 'rats') {
@@ -3269,8 +3339,8 @@ function updMon(dt) {
         const chance = kind === 'jailer' ? (MON.sawHide ? 0.5 : 0) : kind === 'binder' ? 0.3 : kind === 'rats' ? 0.5 : 0;
         if (!hasGift('nichesafe') && Math.random() < chance) { unhide(true); monCatch(); return; }
         MON.mode = 'patrol'; MON.sawHide = false;
-        toast({ jailer: 'Фонарь скользнул по нише… и ушёл дальше.', drowned: 'Вода колыхнулась у самых ног. Он проплыл мимо.', binder: 'Шелест страниц у самого уха… и тишина.',
-          mourner: 'Плач прошёл совсем рядом и затих в коридоре.', rats: 'Крысы пробежали по ногам и умчались дальше.' }[kind], 3);
+        toast({ jailer: L('Фонарь скользнул по нише… и ушёл дальше.'), drowned: L('Вода колыхнулась у самых ног. Он проплыл мимо.'), binder: L('Шелест страниц у самого уха… и тишина.'),
+          mourner: L('Плач прошёл совсем рядом и затих в коридоре.'), rats: L('Крысы пробежали по ногам и умчались дальше.') }[kind], 3);
       }
     } else { monCatch(); return; }
   }
@@ -3291,8 +3361,8 @@ function showNote(idx, from) {
   noteFrom = from;
   const [text, by] = NOTES[idx];
   $('nText').textContent = '«' + text + '»'; $('nBy').textContent = '— ' + by;
-  $('nNum').textContent = 'Записка ' + (idx + 1) + ' из ' + NOTES.length;
-  $('bNoteClose').textContent = from === 'journal' ? 'К списку' : 'Дальше';
+  $('nNum').textContent = L('Записка ') + (idx + 1) + L(' из ') + NOTES.length;
+  $('bNoteClose').textContent = from === 'journal' ? L('К списку') : L('Дальше');
   state = 'note'; show('noteS');
 }
 function openNote() {
@@ -3311,7 +3381,7 @@ let journalFrom = 'menu';
 function openJournal(from) {
   journalFrom = from || 'menu';
   const read = meta.notes.slice().sort((a, b) => a - b);
-  $('jCount').textContent = 'Прочитано ' + read.length + ' из ' + NOTES.length;
+  $('jCount').textContent = L('Прочитано ') + read.length + L(' из ') + NOTES.length;
   $('jList').innerHTML = read.map(i => '<button data-n="' + i + '"><i>' + (i + 1) + '.</i>' + NOTES[i][0].split(/[.:]/)[0] + '…</button>').join('');
   state = 'journal'; show('journalS');
 }
@@ -3319,7 +3389,7 @@ $('jList').addEventListener('click', e => { const b = e.target.closest('[data-n]
 function closeJournal() { state = 'pause'; show('menu'); menuState(); }
 
 /* ================= Экраны ================= */
-const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS', 'runS', 'cardS', 'profS', 'xferS', 'shopS', 'achS', 'devS', 'mapS'];
+const SCREENS = ['menu', 'descend', 'lose', 'craftS', 'noteS', 'journalS', 'fsHint', 'endS', 'truthS', 'setS', 'chalS', 'runS', 'cardS', 'profS', 'xferS', 'shopS', 'achS', 'devS', 'mapS', 'codeS'];
 function show(id) { for (const s of SCREENS) $(s).classList.toggle('on', s === id); $('hud').classList.toggle('on', !id); }
 let wake = null;
 function play() {
@@ -3329,28 +3399,31 @@ function play() {
 }
 function closeOverlay() { state = 'play'; show(null); last = performance.now(); }
 function menuState() {
-  $('bShop').textContent = 'Сторожка у ворот' + (meta.bank ? ' · ' + meta.bank + ' ' + petalWord(meta.bank) : '');
-  $('bAch').textContent = 'Достижения · ' + ACH.filter(a => meta.ach && meta.ach[a.id]).length + ' из ' + ACH.length;
+  $('bShop').textContent = L('Сторожка у ворот') + (meta.bank ? ' · ' + meta.bank + ' ' + petalWord(meta.bank) : '');
+  $('bAch').textContent = L('Достижения · ') + ACH.filter(a => meta.ach && meta.ach[a.id]).length + L(' из ') + ACH.length;
   $('bDev').hidden = !DEV; $('devBadge').hidden = !DEV;
+  $('bDaily').textContent = dailyLine();
+  const runOn = state === 'pause' || !!loadSave(); $('codeLine').hidden = !runOn;
+  if (runOn) { $('codeLbl').textContent = P.mode === 'daily' ? L('Замок дня:') : L('Код замка:'); $('codeVal').textContent = castleCode(BASE); }
   $('bJournal').hidden = !meta.notes.length;
   const nd = CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).length;
   $('bRuns').hidden = !(meta.runs && meta.runs.length);
-  $('bProf').textContent = 'Игрок: ' + profName(PROFILE, meta);
-  $('bChal').textContent = 'Испытания · ' + nd + ' из ' + CHALLENGES.length;
-  const b = $('best'); b.hidden = !meta.best; b.textContent = 'Глубже всего: этаж ' + roman(meta.best || 1);
+  $('bProf').textContent = L('Игрок: ') + profName(PROFILE, meta);
+  $('bChal').textContent = L('Испытания · ') + nd + L(' из ') + CHALLENGES.length;
+  const b = $('best'); b.hidden = !meta.best; b.textContent = L('Глубже всего: этаж ') + roman(meta.best || 1);
 }
 function pause() {
   state = 'pause'; save(); releaseInput();
-  $('bResume').hidden = false; $('bCont').hidden = true; $('bNew').textContent = 'Новый замок';
+  $('bResume').hidden = false; $('bCont').hidden = true; $('bNew').textContent = L('Новый замок');
   menuState(); show('menu');
 }
 function fmt(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return m + ':' + String(s).padStart(2, '0'); }
 function statsHTML() {
   const g = P.gifts.map(id => GIFTS.find(x => x.id === id)).filter(Boolean).map(x => x.name);
-  return '<dt>Этаж</dt><dd>' + roman(FLOOR) + ' · ' + TH.name + '</dd><dt>Время</dt><dd>' + fmt(P.time) + '</dd><dt>Пройдено</dt><dd>' + Math.round(P.dist) + ' шагов</dd>' +
-    '<dt>Записки</dt><dd>' + meta.notes.length + ' из ' + NOTES.length + '</dd>' + (g.length ? '<dt>Дары</dt><dd>' + g.join(', ') + '</dd>' : '');
+  return L('<dt>Этаж</dt><dd>') + roman(FLOOR) + ' · ' + TH.name + L('</dd><dt>Время</dt><dd>') + fmt(P.time) + L('</dd><dt>Пройдено</dt><dd>') + Math.round(P.dist) + L(' шагов</dd>') +
+    L('<dt>Записки</dt><dd>') + meta.notes.length + L(' из ') + NOTES.length + '</dd>' + (g.length ? L('<dt>Дары</dt><dd>') + g.join(', ') + '</dd>' : '');
 }
-const FINAL_ENTER = 'Корни сходятся в одну точку. Здесь, на самом дне, бьётся Сердце замка. Найди три Шипа Розы, и его можно будет остановить.';
+const FINAL_ENTER = L('Корни сходятся в одну точку. Здесь, на самом дне, бьётся Сердце замка. Найди три Шипа Розы, и его можно будет остановить.');
 function enterText(nf) { return nf === FINAL && !P.ended ? FINAL_ENTER : themeFor(nf).enter; }
 function openDescend(title, lore, fixed) {
   state = 'descend'; releaseInput();
@@ -3367,7 +3440,7 @@ function openDescend(title, lore, fixed) {
   $('gifts').innerHTML = offer.map(g => '<button class="gift" data-g="' + g.id + '"><b>' + g.name + '</b><span>' + g.desc + '</span></button>').join('');
   $('giftHead').hidden = !offer.length; $('gifts').hidden = !offer.length;
   $('bDescend').hidden = !start && !!offer.length;
-  $('bDescend').textContent = start ? 'Начать без дара' : 'Спуститься на этаж ' + roman(FLOOR + 1);
+  $('bDescend').textContent = start ? L('Начать без дара') : L('Спуститься на этаж ') + roman(FLOOR + 1);
   show('descend'); if (!start) save();
 }
 $('gifts').addEventListener('click', e => {
@@ -3391,16 +3464,20 @@ function floorDone() {
   if (isFinale()) return reachHeart();
   checkFloorChallenges();
   Snd.descend(); buzz([40, 80, 40, 80, 200]);
-  meta.best = Math.max(meta.best || 0, FLOOR + 1); saveMeta();
-  openDescend('Этаж ' + roman(FLOOR) + ' пройден', 'Роза раскрылась, и камень под ногами ушёл вниз. ' + enterText(FLOOR + 1) + ' Роза дарит тебе силу на дорогу.');
+  meta.best = Math.max(meta.best || 0, FLOOR + 1);
+  const ft = Math.round(P.time - FS.t0); meta.speed = meta.speed || {};
+  const prevT = meta.speed[FLOOR]; if (!DEV && !P.easyUsed && (!prevT || ft < prevT)) meta.speed[FLOOR] = ft;
+  saveMeta();
+  setTimeout(() => { if (state === 'descend' && descMode !== 'start') $('dStats').innerHTML += L('<dt>Этаж за</dt><dd>') + fmt(ft) + (prevT ? (ft < prevT ? L(' · новый рекорд!') : L(' · рекорд ') + fmt(prevT)) : '') + '</dd>'; }, 0);
+  openDescend(L('Этаж ') + roman(FLOOR) + L(' пройден'), L('Роза раскрылась, и камень под ногами ушёл вниз. ') + enterText(FLOOR + 1) + L(' Роза дарит тебе силу на дорогу.'));
 }
 const END_TEXT = {
-  plain: ['Ты вонзаешь три шипа в живое, тёплое сердце. Удар. Ещё один, тише. Тишина. Корни разжимаются, стены оседают, и впервые за всё это время сквозняк пахнет не камнем, а травой. Где-то наверху открылась дверь, которой не было.',
-    'Ты выбрался из замка Розенхолл.'],
-  stop: ['Три шипа входят в живое. Изольда вздыхает, впервые за двести лет, и замок рушится вслед за её последним ударом. Тень на краю света гаснет вместе с ней, и тебе кажется, что она улыбалась.',
-    'Ты выходишь на траву. Позади — только холм, тихий и пустой, и одна красная роза у самой вершины.'],
-  stay: ['Ты опускаешь шипы. Корни обнимают тебя бережно, как ребёнка. Изольда выходит из Сердца и, не оглядываясь, уходит наверх: к нему, к свету, к тому, кто ждал её на краю огня.',
-    'А замок затихает, привыкая к новому сердцу. Следующему гостю тоже понадобятся лепестки.']
+  plain: [L('Ты вонзаешь три шипа в живое, тёплое сердце. Удар. Ещё один, тише. Тишина. Корни разжимаются, стены оседают, и впервые за всё это время сквозняк пахнет не камнем, а травой. Где-то наверху открылась дверь, которой не было.'),
+    L('Ты выбрался из замка Розенхолл.')],
+  stop: [L('Три шипа входят в живое. Изольда вздыхает, впервые за двести лет, и замок рушится вслед за её последним ударом. Тень на краю света гаснет вместе с ней, и тебе кажется, что она улыбалась.'),
+    L('Ты выходишь на траву. Позади — только холм, тихий и пустой, и одна красная роза у самой вершины.')],
+  stay: [L('Ты опускаешь шипы. Корни обнимают тебя бережно, как ребёнка. Изольда выходит из Сердца и, не оглядываясь, уходит наверх: к нему, к свету, к тому, кто ждал её на краю огня.'),
+    L('А замок затихает, привыкая к новому сердцу. Следующему гостю тоже понадобятся лепестки.')]
 };
 function reachHeart() {
   state = 'truth'; releaseInput();
@@ -3416,11 +3493,11 @@ function ending(kind) {
   if (kind === 'stop') meta.endStop = true;
   if (kind === 'stay') meta.endStay = true;
   saveMeta();
-  $('endTitle').textContent = kind === 'stay' ? 'Новое сердце' : kind === 'stop' ? 'Последний удар' : 'Сердце замка';
+  $('endTitle').textContent = kind === 'stay' ? L('Новое сердце') : kind === 'stop' ? L('Последний удар') : L('Сердце замка');
   $('endLore1').textContent = END_TEXT[kind][0]; $('endLore2').textContent = END_TEXT[kind][1];
   const hint = $('endHint');
   hint.hidden = kind !== 'plain';
-  hint.textContent = 'Прочитано записок: ' + meta.notes.length + ' из ' + NOTES.length + '. Тот, кто узнает всю правду, увидит у Сердца другой финал.';
+  hint.textContent = L('Прочитано записок: ') + meta.notes.length + L(' из ') + NOTES.length + L('. Тот, кто узнает всю правду, увидит у Сердца другой финал.');
   $('endStats').innerHTML = statsHTML();
   $('bEndDeeper').hidden = kind === 'stay';
   recordRun(kind);
@@ -3431,7 +3508,7 @@ $('bTruthStop').onclick = () => ending('stop');
 $('bTruthStay').onclick = () => ending('stay');
 $('bEndDeeper').onclick = () => {
   P.ended = true;
-  openDescend('Бесконечный спуск', 'Замок отпустил тебя, но лестница вниз осталась. Говорят, глубже Роза растёт снова, и Тень по-прежнему ждёт на краю света.');
+  openDescend(L('Бесконечный спуск'), L('Замок отпустил тебя, но лестница вниз осталась. Говорят, глубже Роза растёт снова, и Тень по-прежнему ждёт на краю света.'));
 };
 $('bEndNew').onclick = () => { clearSave(); startNew(); };
 function descend() {
@@ -3447,47 +3524,56 @@ function descend() {
 function deathCause() {
   const h = P.lastHit;
   if (h && P.time - h.t < 15) return h.src;
-  if (P.fuel <= 0) return 'Погас факел';
-  return 'Страх';
+  if (P.fuel <= 0) return L('Погас факел');
+  return L('Страх');
 }
 function lose() {
   state = 'lose'; releaseInput(); clearSave();
   meta.best = Math.max(meta.best || 0, FLOOR);
   const cause = deathCause();
   recordRun('death', cause);
-  $('loseStats').innerHTML = statsHTML() + '<dt>Причина</dt><dd>' + cause + '</dd><dt>Рекорд</dt><dd>этаж ' + roman(meta.best) + '</dd>';
+  $('loseStats').innerHTML = statsHTML() + L('<dt>Причина</dt><dd>') + cause + L('</dd><dt>Рекорд</dt><dd>этаж ') + roman(meta.best) + '</dd>';
+  $('loseCode').innerHTML = '<span>' + (P.mode === 'daily' ? L('Замок дня') : L('Код этого замка')) + ':</span> <b>' + castleCode(BASE) + L('</b> <span>— поделись, чтобы друг прошёл тот же лабиринт.</span>');
   show('lose');
 }
 
 /* ---------- Летопись забегов ---------- */
 let lastRun = null;
-const BACKS = { runs: 'bRunsClose', card: 'bCardClose', prof: 'bProfClose', xfer: 'bXClose', shop: 'bShopClose', ach: 'bAchClose', dev: 'bDevClose', map: 'bMapClose' };
-const OUT_TEXT = { death: 'Погиб', plain: 'Остановил Сердце', stop: 'Остановил Сердце и узнал правду', stay: 'Занял место Изольды' };
+const BACKS = { runs: 'bRunsClose', card: 'bCardClose', prof: 'bProfClose', xfer: 'bXClose', shop: 'bShopClose', ach: 'bAchClose', dev: 'bDevClose', map: 'bMapClose', code: 'bCodeClose' };
+const OUT_TEXT = { death: L('Погиб'), plain: L('Остановил Сердце'), stop: L('Остановил Сердце и узнал правду'), stay: L('Занял место Изольды') };
 function recordRun(out, cause) {
   if (!meta.runs) meta.runs = [];
   const id = P.runId || Date.now(), prev = meta.runs.find(r => r.id === id);
   const e = { id, d: Date.now(), f: FLOOR, th: TH.name, t: Math.round(P.time), st: Math.round(P.dist), g: P.gifts.slice(), out, cause: cause || '',
+    mode: P.mode || 'normal', base: BASE, easy: !!P.easyUsed,
     fin: out !== 'death' ? out : (prev && prev.fin) || '' };
   const i = meta.runs.findIndex(r => r.id === e.id);
   if (i >= 0) meta.runs.splice(i, 1);
   meta.runs.unshift(e); if (meta.runs.length > 20) meta.runs.length = 20;
+  if (P.mode === 'daily' && P.daily && !P.easyUsed && !DEV) {
+    meta.dailyBest = meta.dailyBest || {};
+    const cur = meta.dailyBest[P.daily];
+    if (!cur || e.f > cur.f || (e.f === cur.f && e.t < cur.t)) meta.dailyBest[P.daily] = { f: e.f, t: e.t };
+    const ks = Object.keys(meta.dailyBest).sort(); while (ks.length > 14) delete meta.dailyBest[ks.shift()];
+  }
   saveMeta(); lastRun = e;
 }
-const CAUSE_TEXT = { 'Тень': 'Тень настигла', 'Тюремщик': 'Схвачен Тюремщиком', 'Утопленник': 'Утянут Утопленником', 'Корни': 'Оплетён корнями', 'Погас факел': 'Угас вместе с факелом', 'Страх': 'Сломлен страхом' };
+const CAUSE_TEXT = { [L('Тень')]: L('Тень настигла'), [L('Тюремщик')]: L('Схвачен Тюремщиком'), [L('Утопленник')]: L('Утянут Утопленником'), [L('Переплётчик')]: L('Задушен Переплётчиком'), [L('Плакальщица')]: L('Оплакан Плакальщицей'), [L('Крысы')]: L('Заеден крысами'), [L('Корни')]: L('Оплетён корнями'), [L('Погас факел')]: L('Угас вместе с факелом'), [L('Страх')]: L('Сломлен страхом') };
 function runLine(r) {
-  if (r.out === 'death') return (CAUSE_TEXT[r.cause] || r.cause) + (r.fin ? ' · после финала' : '');
+  if (r.out === 'death') return (CAUSE_TEXT[L(r.cause)] || L(r.cause)) + (r.fin ? L(' · после финала') : '');
   return OUT_TEXT[r.out] || '';
 }
-function fmtDate(ms) { const d = new Date(ms); return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ', ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }
+function fmtDate(ms) { const d = new Date(ms); return d.toLocaleDateString(LANG === 'en' ? 'en-GB' : 'ru-RU', { day: 'numeric', month: 'short' }) + ', ' + d.toLocaleTimeString(LANG === 'en' ? 'en-GB' : 'ru-RU', { hour: '2-digit', minute: '2-digit' }); }
 function openRuns() {
   state = 'runs';
   const runs = meta.runs || [];
-  $('runSum').textContent = 'Забегов: ' + runs.length + ' · глубже всего: этаж ' + roman(Math.max(1, meta.best || 1)) + ' · концовок: ' + (meta.endings || 0);
+  $('runSum').textContent = L('Забегов: ') + runs.length + L(' · глубже всего: этаж ') + roman(Math.max(1, meta.best || 1)) + L(' · концовок: ') + (meta.endings || 0);
   $('runList').innerHTML = runs.map(r => {
     const gifts = r.g.map(id => (GIFTS.find(x => x.id === id) || {}).name).filter(Boolean).join(', ');
     return '<div class="' + (r.out !== 'death' || r.fin ? 'win' : '') + '"><b>' + roman(r.f) + '</b><span>' + runLine(r) + '</span><em>' + fmtDate(r.d) + '</em>' +
-      '<small>' + r.th + ' · ' + fmt(r.t) + ' · ' + r.st + ' шагов' + (gifts ? ' · дары: ' + gifts : '') + '</small></div>';
-  }).join('') || '<p class="help">Здесь появятся твои забеги.</p>';
+      '<small>' + L(r.th) + ' · ' + fmt(r.t) + ' · ' + r.st + L(' шагов') + (r.mode === 'daily' ? L(' · замок дня') : r.mode === 'code' ? L(' · по коду ') + castleCode(r.base) : '') +
+      (r.easy ? L(' · облегчённый') : '') + (gifts ? L(' · дары: ') + gifts : '') + '</small></div>';
+  }).join('') || L('<p class="help">Здесь появятся твои забеги.</p>');
   show('runS');
 }
 $('bRuns').onclick = openRuns;
@@ -3517,23 +3603,24 @@ async function makeCard(e) {
   g.textAlign = 'center'; g.fillStyle = '#d42a40';
   g.font = '150px UnifrakturMaguntia, serif'; g.fillText('Red Rose', 540, 640);
   g.fillStyle = '#c9bda8'; g.font = '28px "Old Standard TT", Georgia, serif';
-  g.fillText('ЛАБИРИНТ ЗАМКА РОЗЕНХОЛЛ', 540, 690);
+  g.fillText(L('ЛАБИРИНТ ЗАМКА РОЗЕНХОЛЛ'), 540, 690);
   g.fillStyle = '#f0b7b7'; g.font = '72px Kurale, Georgia, serif';
-  g.fillText('Этаж ' + roman(e.f), 540, 810);
+  g.fillText(L('Этаж ') + roman(e.f), 540, 810);
   g.fillStyle = '#c9bda8'; g.font = '40px Kurale, Georgia, serif'; g.fillText(e.th, 540, 865);
   g.fillStyle = e.out === 'death' ? '#e2913f' : '#f0d79a'; g.font = 'italic 44px "Old Standard TT", Georgia, serif';
   g.fillText(runLine(e), 540, 950);
   g.fillStyle = '#c9bda8'; g.font = '34px "Old Standard TT", Georgia, serif';
-  g.fillText('Время ' + fmt(e.t) + '   ·   ' + e.st + ' шагов', 540, 1030);
+  g.fillText(L('Время ') + fmt(e.t) + '   ·   ' + e.st + L(' шагов'), 540, 1030);
   const gifts = e.g.map(id => (GIFTS.find(x => x.id === id) || {}).name).filter(Boolean);
   if (gifts.length) {
     g.fillStyle = '#7d7266'; g.font = '28px "Old Standard TT", Georgia, serif';
-    const lines = []; let line = 'Дары: ';
-    for (const w of gifts) { const next = line + (line === 'Дары: ' ? '' : ', ') + w; if (g.measureText(next).width > 900) { lines.push(line); line = w; } else line = next; }
+    const lines = []; let line = L('Дары: ');
+    for (const w of gifts) { const next = line + (line === L('Дары: ') ? '' : ', ') + w; if (g.measureText(next).width > 900) { lines.push(line); line = w; } else line = next; }
     lines.push(line);
     lines.slice(0, 3).forEach((l, i) => g.fillText(l, 540, 1100 + i * 40));
   }
   g.fillStyle = '#7d7266'; g.font = '24px "Old Standard TT", Georgia, serif';
+  if (e.base != null) { g.fillStyle = '#c9bda8'; g.font = '30px "Old Standard TT", Georgia, serif'; g.fillText((e.mode === 'daily' ? L('Замок дня · ') : L('Код замка: ')) + castleCode(e.base), 540, 1225); g.fillStyle = '#7d7266'; g.font = '24px "Old Standard TT", Georgia, serif'; }
   g.fillText(fmtDate(e.d) + '  ·  ' + BUILD + '  ·  kryukovmikhail.github.io/redrose', 540, 1270);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
@@ -3550,6 +3637,7 @@ async function openCard(from) {
   show('cardS');
 }
 $('bLoseCard').onclick = () => openCard('lose');
+$('bCodeCopy').onclick = () => copyCode($('bCodeCopy'));
 $('bEndCard').onclick = () => openCard('endS');
 $('bCardClose').onclick = () => { state = cardFrom === 'lose' ? 'lose' : 'ending'; show(cardFrom); };
 $('bCardSave').onclick = () => {
@@ -3558,19 +3646,19 @@ $('bCardSave').onclick = () => {
   document.body.appendChild(a); a.click(); a.remove();
 };
 $('bCardShare').onclick = async () => {
-  try { await navigator.share({ files: [new File([cardBlob], 'red-rose.png', { type: 'image/png' })], title: 'Red Rose', text: 'Этаж ' + roman(lastRun.f) + ' в замке Розенхолл' }); } catch (err) {}
+  try { await navigator.share({ files: [new File([cardBlob], 'red-rose.png', { type: 'image/png' })], title: 'Red Rose', text: L('Этаж ') + roman(lastRun.f) + L(' в замке Розенхолл') }); } catch (err) {}
 };
 
 /* ---------- Игроки (слоты) ---------- */
 function profMeta(i) { try { return JSON.parse(localStorage.getItem('redrose_meta_v1' + (i ? '_p' + i : '')) || 'null') || {}; } catch (e) { return {}; } }
-function profName(i, m) { return (m && m.name) || 'Игрок ' + (i + 1); }
+function profName(i, m) { return (m && m.name) || L('Игрок ') + (i + 1); }
 function openProf() {
   state = 'prof';
   $('profList').innerHTML = [0, 1, 2].map(i => {
     const m = i === PROFILE ? meta : profMeta(i), cur = i === PROFILE;
-    const stat = m.best ? 'глубже всего: этаж ' + roman(m.best) + ' · записок: ' + (m.notes || []).length + ' · забегов: ' + (m.runs || []).length : 'ещё не играл';
-    return '<div class="prof' + (cur ? ' cur' : '') + '">' + (cur ? '<input id="profName" maxlength="20" value="' + profName(i, m).replace(/"/g, '&quot;') + '" aria-label="Имя игрока">' : '<span>' + profName(i, m) + '</span>') +
-      '<small>' + stat + '</small>' + (cur ? '<button class="btn small" disabled>Сейчас</button>' : '<button class="btn small" data-p="' + i + '">Играть</button>') + '</div>';
+    const stat = m.best ? L('глубже всего: этаж ') + roman(m.best) + L(' · записок: ') + (m.notes || []).length + L(' · забегов: ') + (m.runs || []).length : L('ещё не играл');
+    return '<div class="prof' + (cur ? ' cur' : '') + '">' + (cur ? '<input id="profName" maxlength="20" value="' + profName(i, m).replace(/"/g, '&quot;') + L('" aria-label="Имя игрока">') : '<span>' + profName(i, m) + '</span>') +
+      '<small>' + stat + '</small>' + (cur ? L('<button class="btn small" disabled>Сейчас</button>') : '<button class="btn small" data-p="' + i + L('">Играть</button>')) + '</div>';
   }).join('');
   const inp = $('profName');
   if (inp) inp.addEventListener('input', () => { meta.name = inp.value.trim().slice(0, 20); saveMeta(); menuState(); });
@@ -3602,30 +3690,30 @@ async function decodeProgress(code) {
   code = code.trim().replace(/\s+/g, '');
   let json;
   if (code.startsWith('RR1:')) {
-    if (!window.DecompressionStream) throw new Error('Этот браузер не умеет распаковывать сжатый код.');
+    if (!window.DecompressionStream) throw new Error(L('Этот браузер не умеет распаковывать сжатый код.'));
     const st = new Blob([unb64(code.slice(4))]).stream().pipeThrough(new DecompressionStream('gzip'));
     json = await new Response(st).text();
   } else if (code.startsWith('RR0:')) json = decodeURIComponent(escape(atob(code.slice(4))));
-  else throw new Error('Это не код Red Rose: он должен начинаться с RR1: или RR0:.');
+  else throw new Error(L('Это не код Red Rose: он должен начинаться с RR1: или RR0:.'));
   const obj = JSON.parse(json);
-  if (!obj || obj.v !== 1 || !obj.meta || typeof obj.meta !== 'object') throw new Error('Код повреждён или от другой игры.');
+  if (!obj || obj.v !== 1 || !obj.meta || typeof obj.meta !== 'object') throw new Error(L('Код повреждён или от другой игры.'));
   return obj;
 }
 let xConfirm = false;
 async function openXfer() {
   state = 'xfer'; xConfirm = false;
-  $('xMsg').textContent = ''; $('bXLoad').textContent = 'Загрузить прогресс'; $('xIn').value = '';
-  $('xOut').value = 'Готовлю код…';
+  $('xMsg').textContent = ''; $('bXLoad').textContent = L('Загрузить прогресс'); $('xIn').value = '';
+  $('xOut').value = L('Готовлю код…');
   show('xferS');
-  try { $('xOut').value = await encodeProgress(); } catch (e) { $('xOut').value = ''; $('xMsg').textContent = 'Не получилось собрать код: ' + e.message; }
+  try { $('xOut').value = await encodeProgress(); } catch (e) { $('xOut').value = ''; $('xMsg').textContent = L('Не получилось собрать код: ') + e.message; }
 }
 $('bXfer').onclick = openXfer;
 $('bXClose').onclick = () => { state = 'setS'; syncSettings(); show('setS'); };
 $('bXCopy').onclick = () => {
   const v = $('xOut').value;
-  const done = () => { $('xMsg').textContent = 'Код скопирован. Вставь его на другом устройстве в «Настройки → Перенести прогресс».'; };
-  try { navigator.clipboard.writeText(v).then(done, () => { $('xOut').select(); $('xMsg').textContent = 'Код выделен: скопируй его вручную.'; }); }
-  catch (e) { $('xOut').select(); $('xMsg').textContent = 'Код выделен: скопируй его вручную.'; }
+  const done = () => { $('xMsg').textContent = L('Код скопирован. Вставь его на другом устройстве в «Настройки → Перенести прогресс».'); };
+  try { navigator.clipboard.writeText(v).then(done, () => { $('xOut').select(); $('xMsg').textContent = L('Код выделен: скопируй его вручную.'); }); }
+  catch (e) { $('xOut').select(); $('xMsg').textContent = L('Код выделен: скопируй его вручную.'); }
 };
 $('bXFile').onclick = () => {
   const blob = new Blob([$('xOut').value], { type: 'text/plain' }), url = URL.createObjectURL(blob);
@@ -3634,22 +3722,22 @@ $('bXFile').onclick = () => {
 };
 $('xFileIn').addEventListener('change', e => {
   const f = e.target.files && e.target.files[0]; if (!f) return;
-  const r = new FileReader(); r.onload = () => { $('xIn').value = String(r.result || ''); $('xMsg').textContent = 'Файл прочитан. Нажми «Загрузить прогресс».'; }; r.readAsText(f);
+  const r = new FileReader(); r.onload = () => { $('xIn').value = String(r.result || ''); $('xMsg').textContent = L('Файл прочитан. Нажми «Загрузить прогресс».'); }; r.readAsText(f);
 });
 $('bXLoad').onclick = async () => {
   const code = $('xIn').value;
-  if (!code.trim()) { $('xMsg').textContent = 'Сначала вставь код или выбери файл.'; return; }
+  if (!code.trim()) { $('xMsg').textContent = L('Сначала вставь код или выбери файл.'); return; }
   let obj;
-  try { obj = await decodeProgress(code); } catch (e) { $('xMsg').textContent = e.message || 'Код не читается.'; return; }
+  try { obj = await decodeProgress(code); } catch (e) { $('xMsg').textContent = e.message || L('Код не читается.'); return; }
   if (!xConfirm) {
-    xConfirm = true; $('bXLoad').textContent = 'Да, заменить прогресс';
-    $('xMsg').textContent = 'В коде: этаж ' + roman(obj.meta.best || 1) + ' (рекорд), записок ' + (obj.meta.notes || []).length + '. Текущий прогресс игрока «' + profName(PROFILE, meta) + '» заменится. Нажми ещё раз, чтобы подтвердить.';
+    xConfirm = true; $('bXLoad').textContent = L('Да, заменить прогресс');
+    $('xMsg').textContent = L('В коде: этаж ') + roman(obj.meta.best || 1) + L(' (рекорд), записок ') + (obj.meta.notes || []).length + L('. Текущий прогресс игрока «') + profName(PROFILE, meta) + L('» заменится. Нажми ещё раз, чтобы подтвердить.');
     return;
   }
   try {
     localStorage.setItem(META_KEY, JSON.stringify(obj.meta));
     if (obj.save) localStorage.setItem(SAVE_KEY, JSON.stringify(obj.save)); else localStorage.removeItem(SAVE_KEY);
-  } catch (e) { $('xMsg').textContent = 'Не получилось сохранить: хранилище браузера недоступно.'; return; }
+  } catch (e) { $('xMsg').textContent = L('Не получилось сохранить: хранилище браузера недоступно.'); return; }
   location.reload();
 };
 let descMode = 'floor';
@@ -3659,7 +3747,7 @@ function startNew() {
   const offer = startGifts();
   if (offer.length) {
     descMode = 'start';
-    openDescend('Дар на дорогу', 'Пройденные испытания не забыты. Роза позволяет взять с собой одну силу с самого начала.', offer);
+    openDescend(L('Дар на дорогу'), L('Пройденные испытания не забыты. Роза позволяет взять с собой одну силу с самого начала.'), offer);
     return;
   }
   begin();
@@ -3667,7 +3755,7 @@ function startNew() {
 function begin() {
   descMode = 'floor'; stat('runs');
   save(); play(); floorCard();
-  toast('Найди пять лепестков Красной Розы. Береги огонь.', 5);
+  toast(L('Найди пять лепестков Красной Розы. Береги огонь.'), 5);
 }
 $('bNew').onclick = startNew;
 $('bAgainL').onclick = startNew;
@@ -3679,27 +3767,130 @@ $('bJournal').onclick = () => openJournal('menu');
 $('bJClose').onclick = closeJournal;
 $('bNoteClose').onclick = closeNote;
 $('bCraftClose').onclick = closeOverlay;
+/* ---------- Режимы забега: обычный, замок дня, по коду ---------- */
+function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function dailyBase(key) { let h = 2166136261; for (const ch of 'redrose:' + key) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) % 100000000; }
+function castleCode(b) { const n = String(((b >>> 0) % 100000000)).padStart(8, '0'); return (LANG === 'en' ? 'ROSE-' : L('РОЗА-')) + n.slice(0, 4) + '-' + n.slice(4); }
+function parseCode(str) { const d = String(str || '').replace(/\D/g, ''); return d.length === 8 ? +d : null; }
+function isEasy() { return !!meta.set.easy; }
+function copyCode(btn) {
+  const code = castleCode(BASE), old = btn.textContent;
+  const done = ok => { btn.textContent = ok ? L('Скопировано') : code; setTimeout(() => { btn.textContent = old; }, 2000); };
+  try { navigator.clipboard.writeText(code).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+}
+function startDaily() {
+  const key = todayKey();
+  newGame({ base: dailyBase(key), mode: 'daily', daily: key });
+  begin();
+  setTimeout(() => { if (state === 'play') toast(L('Замок дня: сегодня этот лабиринт один для всех. Без улучшений сторожки и стартовых даров.'), 5); }, 5200);
+}
+function startCode(base) {
+  newGame({ base, mode: 'code' });
+  begin();
+  setTimeout(() => { if (state === 'play') toast(L('Ты вошёл в замок ') + castleCode(base) + L('. Без улучшений сторожки и стартовых даров.'), 5); }, 5200);
+}
+let codeFrom = 'menu';
+$('bDaily').onclick = startDaily;
+$('bCode').onclick = () => {
+  codeFrom = state; state = 'code'; $('codeIn').value = ''; $('codeIn').placeholder = castleCode(0).replace(/0/g, '0');
+  $('codeMsg').textContent = loadSave() ? L('Текущий забег будет заменён новым.') : '';
+  show('codeS'); setTimeout(() => $('codeIn').focus(), 50);
+};
+$('bCodeClose').onclick = () => { state = codeFrom === 'pause' ? 'pause' : 'menu'; menuState(); show('menu'); };
+$('bCodeGo').onclick = () => {
+  const b = parseCode($('codeIn').value);
+  if (b == null) { $('codeMsg').textContent = L('В коде должно быть 8 цифр, например ') + castleCode(48172093) + '.'; return; }
+  startCode(b);
+};
+$('codeIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('bCodeGo').click(); e.stopPropagation(); });
+function dailyLine() {
+  const cur = meta.dailyBest && meta.dailyBest[todayKey()];
+  return L('Замок дня') + (cur ? L(' · рекорд: этаж ') + roman(cur.f) + ', ' + fmt(cur.t) : '');
+}
+
+/* ---------- Значки для режима дальтоников ---------- */
+const CBC = { petal: '#D55E00', thorn: '#D55E00', oil: '#E69F00', keypart: '#F0E442', note: '#56B4E9', chest: '#CC79A7', altar: '#F0E442', exit: '#ffffff' };
+function glyph(g, kind, x, y, r) {
+  g.fillStyle = CBC[kind] || '#cccccc'; g.strokeStyle = '#000'; g.lineWidth = 1;
+  g.beginPath();
+  if (kind === 'petal' || kind === 'thorn' || kind === 'exit') { g.moveTo(x, y - r * 1.3); g.lineTo(x + r, y); g.lineTo(x, y + r * 1.3); g.lineTo(x - r, y); g.closePath(); }
+  else if (kind === 'keypart' || kind === 'chest') g.rect(x - r, y - r, r * 2, r * 2);
+  else if (kind === 'note') { g.moveTo(x, y - r * 1.2); g.lineTo(x + r * 1.1, y + r); g.lineTo(x - r * 1.1, y + r); g.closePath(); }
+  else g.arc(x, y, r, 0, 7);
+  g.fill(); g.stroke();
+}
+
+/* ---------- Редкие события ---------- */
+let evT = 70;
+function sideWord(x, y) {
+  let rel = Math.atan2(y - P.y, x - P.x) - P.a; rel = Math.atan2(Math.sin(rel), Math.cos(rel));
+  return Math.abs(rel) < 0.7 ? L('спереди') : Math.abs(rel) > 2.4 ? L('сзади') : rel > 0 ? L('справа') : L('слева');
+}
+function farPoint(d) { const a = Math.random() * 6.283; return { x: P.x + Math.cos(a) * d, y: P.y + Math.sin(a) * d }; }
+function chalkByStranger() {
+  const px = Math.floor(P.x), py = Math.floor(P.y), opts = [];
+  for (let y = py - 6; y <= py + 6; y++) for (let x = px - 6; x <= px + 6; x++) {
+    if (tile(x, y) !== 0 || Math.hypot(x - px, y - py) < 3) continue;
+    [[1, 0, 0], [-1, 0, 1], [0, 1, 2], [0, -1, 3]].forEach(([ox, oy, f]) => { const t = tile(x + ox, y + oy); if (t >= 1 && t <= 4) opts.push([x + ox, y + oy, f]); });
+  }
+  if (!opts.length) return false;
+  const [x, y, f] = opts[(Math.random() * opts.length) | 0];
+  const key = x + ',' + y + ',' + f; if (marks.has(key)) return false;
+  marks.set(key, { x, y, f, s: 2, n: 0 });
+  getChunk(x >> 4, y >> 4).marks.set(((((y & 15) << 4) | (x & 15)) << 2) | f, maskFor(2, 0));
+  return true;
+}
+function rareEvent() {
+  const near = (SH.on && Math.hypot(SH.x - P.x, SH.y - P.y) < 7) || (MON.on && Math.hypot(MON.x - P.x, MON.y - P.y) < 7);
+  if (near || hidden || blackDur > 0) { evT = 15; return; }
+  const kinds = ['bell', 'wind', 'steps', 'scream', 'door', 'whisper'], k = kinds[(Math.random() * kinds.length) | 0];
+  if (k === 'bell') {
+    const p = farPoint(18); [0, 1.6, 3.2].forEach(d => setTimeout(() => Snd.tone(98, 97, 'sawtooth', 0.05, 3, 0.9, 0, p), d * 1000));
+    cap(L('Колокол'), p); toast(L('Где-то далеко ударил колокол. Раз, другой, третий… и тишина.'), 4);
+  } else if (k === 'wind') {
+    const p = exit ? { x: exit.x, y: exit.y } : farPoint(10);
+    Snd.noise(500, 0.7, 0.4, 2.2, 0.5, 'bandpass', { x: P.x + (p.x - P.x) * 0.3, y: P.y + (p.y - P.y) * 0.3 }); flick *= 0.8;
+    cap(L('Сквозняк'), p); toast(L('Потянуло холодом ') + sideWord(p.x, p.y) + (exit ? L(', со стороны Розы.') : L('. Где-то там есть проход.')), 4);
+  } else if (k === 'steps') {
+    const a = Math.random() * 6.283, d = 7, dir = Math.random() < 0.5 ? 1 : -1;
+    for (let i = 0; i < 9; i++) setTimeout(() => { const aa = a + dir * i * 0.09; Snd.step(); const p = { x: P.x + Math.cos(aa) * d, y: P.y + Math.sin(aa) * d }; Snd.noise(300 + Math.random() * 150, 1.2, 0.35, 0.09, 0.4, 'bandpass', p); if (i === 4) cap(L('Шаги'), p); }, i * 520);
+    const mark = Math.random() < 0.35 && chalkByStranger();
+    toast(L('За стеной чьи-то шаги. Неторопливые, человеческие. Ты здесь не один.') + (mark ? L(' А на стене рядом кто-то только что оставил крест мелом.') : ''), 5);
+  } else if (k === 'scream') {
+    const p = farPoint(20); Snd.tone(780, 140, 'sawtooth', 0.04, 1.4, 0.95, 0, p); fearUp(5);
+    cap(L('Крик'), p, true); toast(L('Далеко внизу кто-то закричал. Крик оборвался.'), 4);
+  } else if (k === 'door') {
+    const p = farPoint(14); Snd.grind(p); setTimeout(() => Snd.noise(120, 0.6, 0.9, 0.6, 0.8, 'lowpass', p), 900);
+    cap(L('Дверь'), p); toast(L('Где-то с грохотом захлопнулась тяжёлая дверь. Замок перестраивается.'), 4);
+  } else {
+    const p = { x: P.x - Math.cos(P.a) * 1.5, y: P.y - Math.sin(P.a) * 1.5 };
+    Snd.whisper(0.6, p); setTimeout(() => Snd.whisper(0.4, p), 500);
+    cap(L('Шёпот'), p, true); toast(L('Кто-то шепнул прямо за спиной. Обернёшься?'), 3.5);
+  }
+  evT = 70 + Math.random() * 70;
+}
+
 /* ---------- Достижения ---------- */
 const ACH = [
-  { id: 'floor1', name: 'Первые ступени', desc: 'Пройти этаж I' },
-  { id: 'floor5', name: 'Глубже некуда?', desc: 'Спуститься на этаж V' },
-  { id: 'floor15', name: 'Бездонный', desc: 'Спуститься на этаж XV' },
-  { id: 'heart', name: 'Сердце остановлено', desc: 'Дойти до Сердца замка' },
-  { id: 'truth', name: 'Вся правда', desc: 'Увидеть истинную концовку' },
-  { id: 'reader', name: 'Книжный червь', desc: 'Прочитать 10 записок' },
-  { id: 'binder', name: 'Не моргая', desc: 'Пройти Библиотеку, не попавшись Переплётчику' },
-  { id: 'steady', name: 'Неугасимый', desc: 'Пройти этаж, ни разу не опустив факел ниже четверти' },
-  { id: 'chests', name: 'Кладоискатель', desc: 'Найти 10 тайников', stat: 'chests', n: 10 },
-  { id: 'sconces', name: 'Фонарщик', desc: 'Зажечь 20 настенных факелов', stat: 'sconces', n: 20 },
-  { id: 'burn', name: 'Огнём по тьме', desc: 'Сжечь Тень светом или огнём 5 раз', stat: 'burn', n: 5 },
-  { id: 'craft', name: 'Подмастерье', desc: 'Смастерить 30 предметов', stat: 'craft', n: 30 },
-  { id: 'gates', name: 'Ключник', desc: 'Открыть 15 решёток', stat: 'gates', n: 15 },
-  { id: 'altars', name: 'Хранитель огня', desc: 'Заново зажечь 5 алтарей', stat: 'altars', n: 5 },
-  { id: 'rats', name: 'Крысолов', desc: 'Разогнать крыс 5 раз', stat: 'rats', n: 5 },
-  { id: 'rope', name: 'Короткий путь', desc: 'Спуститься по верёвке', stat: 'rope', n: 1 },
-  { id: 'runs', name: 'Упрямец', desc: 'Начать 10 забегов', stat: 'runs', n: 10 },
-  { id: 'garden', name: 'Садовник', desc: 'Собрать 100 лепестков за всё время', stat: 'petals', n: 100 },
-  { id: 'keeper', name: 'Хозяин сторожки', desc: 'Купить все улучшения в сторожке' }
+  { id: 'floor1', name: L('Первые ступени'), desc: L('Пройти этаж I') },
+  { id: 'floor5', name: L('Глубже некуда?'), desc: L('Спуститься на этаж V') },
+  { id: 'floor15', name: L('Бездонный'), desc: L('Спуститься на этаж XV') },
+  { id: 'heart', name: L('Сердце остановлено'), desc: L('Дойти до Сердца замка') },
+  { id: 'truth', name: L('Вся правда'), desc: L('Увидеть истинную концовку') },
+  { id: 'reader', name: L('Книжный червь'), desc: L('Прочитать 10 записок') },
+  { id: 'binder', name: L('Не моргая'), desc: L('Пройти Библиотеку, не попавшись Переплётчику') },
+  { id: 'steady', name: L('Неугасимый'), desc: L('Пройти этаж, ни разу не опустив факел ниже четверти') },
+  { id: 'chests', name: L('Кладоискатель'), desc: L('Найти 10 тайников'), stat: 'chests', n: 10 },
+  { id: 'sconces', name: L('Фонарщик'), desc: L('Зажечь 20 настенных факелов'), stat: 'sconces', n: 20 },
+  { id: 'burn', name: L('Огнём по тьме'), desc: L('Сжечь Тень светом или огнём 5 раз'), stat: 'burn', n: 5 },
+  { id: 'craft', name: L('Подмастерье'), desc: L('Смастерить 30 предметов'), stat: 'craft', n: 30 },
+  { id: 'gates', name: L('Ключник'), desc: L('Открыть 15 решёток'), stat: 'gates', n: 15 },
+  { id: 'altars', name: L('Хранитель огня'), desc: L('Заново зажечь 5 алтарей'), stat: 'altars', n: 5 },
+  { id: 'rats', name: L('Крысолов'), desc: L('Разогнать крыс 5 раз'), stat: 'rats', n: 5 },
+  { id: 'rope', name: L('Короткий путь'), desc: L('Спуститься по верёвке'), stat: 'rope', n: 1 },
+  { id: 'runs', name: L('Упрямец'), desc: L('Начать 10 забегов'), stat: 'runs', n: 10 },
+  { id: 'garden', name: L('Садовник'), desc: L('Собрать 100 лепестков за всё время'), stat: 'petals', n: 100 },
+  { id: 'keeper', name: L('Хозяин сторожки'), desc: L('Купить все улучшения в сторожке') }
 ];
 const achQ = []; let achT = 0;
 function stat(k, n) {
@@ -3722,10 +3913,10 @@ function updAchPop(dt) {
 function openAch() {
   achFrom = state; state = 'ach';
   const got = ACH.filter(a => meta.ach && meta.ach[a.id]).length;
-  $('achCount').textContent = 'Получено ' + got + ' из ' + ACH.length;
+  $('achCount').textContent = L('Получено ') + got + L(' из ') + ACH.length;
   $('achList').innerHTML = ACH.map(a => {
     const ok = meta.ach && meta.ach[a.id], v = a.stat ? Math.min(a.n, (meta.stat && meta.stat[a.stat]) || 0) : 0;
-    return '<div class="' + (ok ? 'done' : '') + '"><i>' + (ok ? '✦' : '·') + '</i><b>' + a.name + '</b><small>' + a.desc + (a.stat && !ok ? ' · ' + v + ' из ' + a.n : '') + '</small></div>';
+    return '<div class="' + (ok ? 'done' : '') + '"><i>' + (ok ? '✦' : '·') + '</i><b>' + a.name + '</b><small>' + a.desc + (a.stat && !ok ? ' · ' + v + L(' из ') + a.n : '') + '</small></div>';
   }).join('');
   show('achS');
 }
@@ -3735,26 +3926,26 @@ $('bAchClose').onclick = () => { state = achFrom === 'pause' ? 'pause' : 'menu';
 
 /* ---------- Сторожка у ворот ---------- */
 const UPG = [
-  { id: 'torch', name: 'Просмолённый факел', desc: 'Масло расходуется на 8% медленнее за уровень.', cost: [8, 16, 28] },
-  { id: 'nerve', name: 'Крепкие нервы', desc: 'Страх растёт на 8% медленнее за уровень.', cost: [10, 20, 32] },
-  { id: 'boots', name: 'Разношенные сапоги', desc: 'Шаг на 4% быстрее за уровень.', cost: [12, 24] },
-  { id: 'chalk', name: 'Мешочек мела', desc: 'В начале забега ещё 5 мела за уровень.', cost: [4, 8, 14] },
-  { id: 'oil', name: 'Фляга масла', desc: 'В начале забега склянка масла за уровень.', cost: [10, 22] },
-  { id: 'bag', name: 'Сумка подмастерья', desc: 'В начале забега тряпка и кость, а на втором уровне ещё воск и фитиль.', cost: [12, 20] },
-  { id: 'key', name: 'Связка ключника', desc: 'В начале забега у тебя есть ключ.', cost: [25] },
-  { id: 'scent', name: 'Чутьё садовника', desc: 'На каждом этаже ближайший лепесток сразу виден на карте.', cost: [30] }
+  { id: 'torch', name: L('Просмолённый факел'), desc: L('Масло расходуется на 8% медленнее за уровень.'), cost: [8, 16, 28] },
+  { id: 'nerve', name: L('Крепкие нервы'), desc: L('Страх растёт на 8% медленнее за уровень.'), cost: [10, 20, 32] },
+  { id: 'boots', name: L('Разношенные сапоги'), desc: L('Шаг на 4% быстрее за уровень.'), cost: [12, 24] },
+  { id: 'chalk', name: L('Мешочек мела'), desc: L('В начале забега ещё 5 мела за уровень.'), cost: [4, 8, 14] },
+  { id: 'oil', name: L('Фляга масла'), desc: L('В начале забега склянка масла за уровень.'), cost: [10, 22] },
+  { id: 'bag', name: L('Сумка подмастерья'), desc: L('В начале забега тряпка и кость, а на втором уровне ещё воск и фитиль.'), cost: [12, 20] },
+  { id: 'key', name: L('Связка ключника'), desc: L('В начале забега у тебя есть ключ.'), cost: [25] },
+  { id: 'scent', name: L('Чутьё садовника'), desc: L('На каждом этаже ближайший лепесток сразу виден на карте.'), cost: [30] }
 ];
-function upLv(id) { return (meta.up && meta.up[id]) || 0; }
+function upLv(id) { if (P.mode && P.mode !== 'normal') return 0; return (meta.up && meta.up[id]) || 0; }
 function bankAdd(n) { if (DEV) return; meta.bank = (meta.bank || 0) + n; saveMeta(); }
-function petalWord(n) { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? 'лепесток' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'лепестка' : 'лепестков'; }
+function petalWord(n) { if (LANG === 'en') return n === 1 ? 'petal' : 'petals'; const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? L('лепесток') : a >= 2 && a <= 4 && (b < 12 || b > 14) ? L('лепестка') : L('лепестков'); }
 let shopFrom = 'menu';
 function renderShop() {
   const bank = meta.bank || 0;
-  $('shopBank').textContent = 'В копилке: ' + bank + ' ' + petalWord(bank);
+  $('shopBank').textContent = L('В копилке: ') + bank + ' ' + petalWord(bank);
   $('shopList').innerHTML = UPG.map(u => {
     const lv = upLv(u.id), max = lv >= u.cost.length, price = max ? 0 : u.cost[lv];
-    return '<div class="' + (max ? 'max' : '') + '"><b>' + u.name + '</b><small>' + u.desc + '</small><em>уровень ' + lv + ' из ' + u.cost.length + '</em>' +
-      '<button class="btn small" data-up="' + u.id + '"' + (max || bank < price ? ' disabled' : '') + '>' + (max ? 'Изучено' : 'Купить · ' + price) + '</button></div>';
+    return '<div class="' + (max ? 'max' : '') + '"><b>' + u.name + '</b><small>' + u.desc + L('</small><em>уровень ') + lv + L(' из ') + u.cost.length + '</em>' +
+      '<button class="btn small" data-up="' + u.id + '"' + (max || bank < price ? ' disabled' : '') + '>' + (max ? L('Изучено') : L('Купить · ') + price) + '</button></div>';
   }).join('');
 }
 function openShop() { shopFrom = state; state = 'shop'; renderShop(); show('shopS'); }
@@ -3797,12 +3988,12 @@ $('buildN').addEventListener('click', () => {
   const now = performance.now(); devTaps = devTaps.filter(t => now - t < 2500); devTaps.push(now);
   if (devTaps.length >= 5) {
     devTaps = []; setDev(!DEV);
-    const b = $('best'); b.hidden = false; b.textContent = DEV ? 'Тестовый режим включён. Кнопка внизу меню.' : 'Тестовый режим выключен.';
+    const b = $('best'); b.hidden = false; b.textContent = DEV ? L('Тестовый режим включён. Кнопка внизу меню.') : L('Тестовый режим выключен.');
   }
 });
 let devFrom = 'menu';
 function devStateText() {
-  return 'Сейчас: этаж ' + roman(FLOOR) + ' · ' + TH.name + ' · бессмертие ' + (DEVI ? 'вкл' : 'выкл') + ' · в сторожке ' + (meta.bank || 0) + ' ' + petalWord(meta.bank || 0);
+  return L('Сейчас: этаж ') + roman(FLOOR) + ' · ' + TH.name + L(' · бессмертие ') + (DEVI ? L('вкл') : L('выкл')) + L(' · в сторожке ') + (meta.bank || 0) + ' ' + petalWord(meta.bank || 0);
 }
 function openDev() { devFrom = state; state = 'dev'; $('devFloor').value = FLOOR; $('devState').textContent = devStateText(); show('devS'); }
 $('bDev').onclick = openDev;
@@ -3830,7 +4021,7 @@ $('devBtns').addEventListener('click', e => {
   else if (a === 'bank') { meta.bank = (meta.bank || 0) + 50; saveMeta(); }
   else if (a === 'immortal') DEVI = !DEVI;
   else {
-    if (!devRunActive()) { $('devState').textContent = 'Сначала начни забег или перейди на этаж.'; return; }
+    if (!devRunActive()) { $('devState').textContent = L('Сначала начни забег или перейди на этаж.'); return; }
     if (a === 'items') { for (const k of ['oil', 'rag', 'bone', 'wax', 'wick', 'keys', 'pick', 'bomb', 'torch', 'candle', 'bell', 'rope']) inv[k] += 5; inv.chalk += 20; inv.parts = inv.parts.map(v => v + 5); }
     else if (a === 'petals') { P.petals = NEED; if (!exit && !isFinale()) spawnExit(); }
     else if (a === 'thorns') { for (const th of thorns) th.got = true; if (isFinale() && !exit) spawnExit(); }
@@ -3842,7 +4033,7 @@ $('devBtns').addEventListener('click', e => {
     else if (a === 'fuel') P.fuel = 100;
     save();
   }
-  $('devState').textContent = devStateText() + ' · готово: ' + b.textContent.toLowerCase();
+  $('devState').textContent = devStateText() + L(' · готово: ') + b.textContent.toLowerCase();
 });
 
 /* ---------- Полная карта этажа ---------- */
@@ -3851,7 +4042,7 @@ let mapPan = { x: 0, y: 0 }, mapDrag = null;
 function openBigMap() {
   if (state !== 'play') return;
   state = 'map'; releaseInput(); mapPan = { x: 0, y: 0 };
-  $('mapTitle').textContent = 'Этаж ' + roman(FLOOR) + ' · ' + (isFinale() ? 'Сердце замка' : TH.name);
+  $('mapTitle').textContent = L('Этаж ') + roman(FLOOR) + ' · ' + (isFinale() ? L('Сердце замка') : TH.name);
   show('mapS'); requestAnimationFrame(drawBigMap);
 }
 $('bMapClose').onclick = closeOverlay;
@@ -3881,7 +4072,7 @@ function drawBigMap() {
     if (!isSeen(x, y)) continue;
     const t = tile(x, y), X = ox + x * c, Y = oy + y * c;
     if (t === 0) { g.fillStyle = nicheAt(x, y) ? 'rgba(74,90,122,0.55)' : 'rgba(250,240,215,0.35)'; g.fillRect(X, Y, c, c); continue; }
-    g.fillStyle = t === 5 ? '#a0602e' : t === 6 ? '#6a2a1c' : t === 7 ? (litSc.has(x + ',' + y) ? '#c99a2a' : '#4a3a2a') : t === 8 ? '#5a4a3a' : '#3a2a1a';
+    g.fillStyle = t === 5 ? (meta.set.cb ? '#0072B2' : '#a0602e') : t === 6 ? '#6a2a1c' : t === 7 ? (litSc.has(x + ',' + y) ? '#c99a2a' : '#4a3a2a') : t === 8 ? '#5a4a3a' : '#3a2a1a';
     g.fillRect(X, Y, c + 0.5, c + 0.5);
   }
   // метки мела
@@ -3895,11 +4086,12 @@ function drawBigMap() {
     for (const it of chunks.get(i + ',' + j).items) {
       if (collected.has(it.id) || !isSeen(Math.floor(it.x), Math.floor(it.y))) continue;
       const col = { petal: '#c8213a', oil: '#c9781e', keypart: '#b08a2a', note: '#6d5636', chest: '#7a5a2a', altar: deadAlt.has(it.id) ? '#6a665e' : '#e8b030', candle: '#e8b030' }[it.t];
-      if (col) dot(it.x, it.y, it.t === 'altar' ? r * 1.3 : r, col);
+      if (col && meta.set.cb && CBC[it.t]) glyph(g, it.t, ox + it.x * c, oy + it.y * c, it.t === 'altar' ? r * 1.3 : r * 1.1);
+      else if (col) dot(it.x, it.y, it.t === 'altar' ? r * 1.3 : r, col);
     }
   }
   for (const b of beacons) dot(b.x, b.y, r * 1.2, '#e8b030');
-  for (const th of thorns) if (!th.got && (isSeen(Math.floor(th.x), Math.floor(th.y)) || hasGift('petalsight'))) dot(th.x, th.y, r * 1.3, '#c8213a');
+  for (const th of thorns) if (!th.got && (isSeen(Math.floor(th.x), Math.floor(th.y)) || hasGift('petalsight'))) { if (meta.set.cb) glyph(g, 'thorn', ox + th.x * c, oy + th.y * c, r * 1.3); else dot(th.x, th.y, r * 1.3, '#c8213a'); }
   if (exit) { dot(exit.x, exit.y, r * 2, 'rgba(200,20,45,0.35)'); dot(exit.x, exit.y, r * 1.2, '#c8213a'); }
   // игрок
   g.save(); g.translate(ox + px * c, oy + py * c); g.rotate(P.a);
@@ -3908,7 +4100,7 @@ function drawBigMap() {
   g.restore();
   // роза ветров и рамка
   g.strokeStyle = 'rgba(60,40,20,0.55)'; g.lineWidth = 2; g.strokeRect(6, 6, cw - 12, ch - 12);
-  g.fillStyle = 'rgba(60,40,20,0.7)'; g.font = '13px Georgia, serif'; g.textAlign = 'left'; g.fillText('С', cw - 28, 22);
+  g.fillStyle = 'rgba(60,40,20,0.7)'; g.font = '13px Georgia, serif'; g.textAlign = 'left'; g.fillText(L('С'), cw - 28, 22);
   g.beginPath(); g.moveTo(cw - 24, 30); g.lineTo(cw - 20, 44); g.lineTo(cw - 28, 44); g.fill();
 }
 bigMap.addEventListener('pointerdown', e => { mapDrag = { x: e.clientX, y: e.clientY, px: mapPan.x, py: mapPan.y }; bigMap.setPointerCapture(e.pointerId); });
@@ -3959,9 +4151,10 @@ let setFrom = 'menu';
 function syncSettings() {
   const s = meta.set;
   $('sSens').value = s.sens; $('sFx').value = s.fx; $('sAmb').value = s.amb; $('sMus').value = s.mus;
-  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0', sCaps: s.caps ? '1' : '0', sMini: s.mini ? '1' : '0' };
+  const segs = { sQ: s.q, sJoy: s.joy, sInv: s.invY ? '1' : '0', sVib: s.vib ? '1' : '0', sTips: s.tips ? '1' : '0', sCaps: s.caps ? '1' : '0', sMini: s.mini ? '1' : '0', sEasy: s.easy ? '1' : '0', sTimer: s.timer ? '1' : '0', sBig: s.big ? '1' : '0', sHc: s.hc ? '1' : '0', sCb: s.cb ? '1' : '0', sLang: LANG };
   for (const id in segs) for (const b of $(id).children) b.classList.toggle('on', b.dataset.v === segs[id]);
   document.body.classList.toggle('joyR', s.joy === 'right');
+  document.body.classList.toggle('big', !!s.big); document.body.classList.toggle('hc', !!s.hc);
   showMap = s.mini !== false; mini.style.display = showMap ? '' : 'none';
   if (Snd.c) { Snd.m.gain.value = s.fx; Snd.amb.gain.value = s.amb; Snd.mus.gain.value = s.mus * musDuck; }
 }
@@ -3973,22 +4166,25 @@ $('sSens').addEventListener('input', e => { meta.set.sens = +e.target.value; });
 $('sFx').addEventListener('input', e => { meta.set.fx = +e.target.value; syncSettings(); });
 $('sAmb').addEventListener('input', e => { meta.set.amb = +e.target.value; syncSettings(); });
 $('sMus').addEventListener('input', e => { meta.set.mus = +e.target.value; syncSettings(); });
-$('sMus').addEventListener('change', () => { Snd.init(); const m = MUSIC[TH.name] || MUSIC['Покои графа']; Snd.musNote(m.notes ? m.notes[2] : 220, m.wave === 'bell' ? 'sine' : m.wave, 1.2, 0.06); });
+$('sMus').addEventListener('change', () => { Snd.init(); const m = MUSIC[TH.name] || MUSIC[L('Покои графа')]; Snd.musNote(m.notes ? m.notes[2] : 220, m.wave === 'bell' ? 'sine' : m.wave, 1.2, 0.06); });
 $('sFx').addEventListener('change', () => { Snd.init(); Snd.chime(); });
 const SEG = { sQ: v => { meta.set.q = v; resize(); }, sJoy: v => { meta.set.joy = v; }, sInv: v => { meta.set.invY = v === '1'; },
-  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; }, sCaps: v => { meta.set.caps = v === '1'; }, sMini: v => { meta.set.mini = v === '1'; } };
+  sVib: v => { meta.set.vib = v === '1'; if (meta.set.vib) buzz(40); }, sTips: v => { meta.set.tips = v === '1'; }, sCaps: v => { meta.set.caps = v === '1'; }, sMini: v => { meta.set.mini = v === '1'; },
+  sEasy: v => { meta.set.easy = v === '1'; if (meta.set.easy) P.easyUsed = true; }, sTimer: v => { meta.set.timer = v === '1'; },
+  sBig: v => { meta.set.big = v === '1'; }, sHc: v => { meta.set.hc = v === '1'; }, sCb: v => { meta.set.cb = v === '1'; },
+  sLang: v => { if (v !== LANG) { saveMeta(); setLang(v); } } };
 for (const id in SEG) $(id).addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; SEG[id](b.dataset.v); saveMeta(); syncSettings(); });
-$('bTipsReset').onclick = () => { meta.tips = {}; meta.set.tips = true; saveMeta(); syncSettings(); $('bTipsReset').textContent = 'Подсказки покажутся снова'; };
+$('bTipsReset').onclick = () => { meta.tips = {}; meta.set.tips = true; saveMeta(); syncSettings(); $('bTipsReset').textContent = L('Подсказки покажутся снова'); };
 
 /* ---------- Экран испытаний ---------- */
 let chalFrom = 'menu';
 function openChal() {
   chalFrom = state; state = 'chal';
   const done = CHALLENGES.filter(c => meta.ch && meta.ch[c.id]).length;
-  $('chalCount').textContent = 'Пройдено ' + done + ' из ' + CHALLENGES.length;
+  $('chalCount').textContent = L('Пройдено ') + done + L(' из ') + CHALLENGES.length;
   $('chalList').innerHTML = CHALLENGES.map(c => {
     const ok = meta.ch && meta.ch[c.id], g = GIFTS.find(x => x.id === c.gift);
-    return '<div class="' + (ok ? 'done' : '') + '"><i>' + (ok ? '✓' : '○') + '</i><b>' + c.name + '</b><small>Дар на старте: ' + g.name + '</small></div>';
+    return '<div class="' + (ok ? 'done' : '') + '"><i>' + (ok ? '✓' : '○') + '</i><b>' + c.name + L('</b><small>Дар на старте: ') + g.name + '</small></div>';
   }).join('');
   show('chalS');
 }
@@ -4021,7 +4217,7 @@ let fsFailed = false;
 function enterFs(auto) {
   const fn = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
   if (!fn) return;
-  const fail = () => { fsFailed = true; updFs(); if (!auto) toast('Браузер не дал развернуть игру. Открой её с сайта kryukovmikhail.github.io/redrose.', 4); };
+  const fail = () => { fsFailed = true; updFs(); if (!auto) toast(L('Браузер не дал развернуть игру. Открой её с сайта kryukovmikhail.github.io/redrose.'), 4); };
   try { const r = fn.call(docEl, { navigationUI: 'hide' }); if (r && r.catch) r.catch(fail); } catch (e) { fail(); }
 }
 function exitFs() {
@@ -4038,7 +4234,7 @@ function updFs() {
   const hb = $('bFs'), mb = $('bFsMenu');
   hb.hidden = !can || (fsFailed && !fs); mb.hidden = !can || fs || (fsFailed && !isIOS);
   hb.innerHTML = fs ? FS_OUT : FS_IN;
-  const lbl = fs ? 'Выйти из полноэкранного режима' : 'На весь экран';
+  const lbl = fs ? L('Выйти из полноэкранного режима') : L('На весь экран');
   hb.setAttribute('aria-label', lbl); hb.title = lbl;
 }
 document.addEventListener('fullscreenchange', () => { updFs(); resize(); });
@@ -4068,9 +4264,9 @@ async function onWaiting(w) {
   if (v === 'redrose-' + BUILD) { w.postMessage('skipWaiting'); return; }   // страница уже новая, просто включаем новый кэш
   updWorker = w;
   const nb = v ? v.replace('redrose-', '') : '';
-  $('updText').textContent = 'Вышла новая версия игры' + (nb ? ' ' + nb : '') + '. Прогресс сохранится.';
+  $('updText').textContent = L('Вышла новая версия игры') + (nb ? ' ' + nb : '') + L('. Прогресс сохранится.');
   $('updBox').hidden = false; $('updPill').hidden = false;
-  if (state === 'play') toast('Вышла новая версия игры. Нажми «Обновить» вверху.', 4);
+  if (state === 'play') toast(L('Вышла новая версия игры. Нажми «Обновить» вверху.'), 4);
 }
 function applyUpdate() {
   save(); reloading = true;
@@ -4095,7 +4291,7 @@ try {
     document.addEventListener('visibilitychange', () => { if (!document.hidden && swReg) swReg.update().catch(() => {}); });
   }
 } catch (e) {}
-try { if (sessionStorage.getItem('redrose_updated')) { sessionStorage.removeItem('redrose_updated'); setTimeout(() => { const b = $('best'); b.hidden = false; b.textContent = 'Игра обновлена до ' + BUILD + '. Нажми «Продолжить».'; }, 0); } } catch (e) {}
+try { if (sessionStorage.getItem('redrose_updated')) { sessionStorage.removeItem('redrose_updated'); setTimeout(() => { const b = $('best'); b.hidden = false; b.textContent = L('Игра обновлена до ') + BUILD + L('. Нажми «Продолжить».'); }, 0); } } catch (e) {}
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pause(); });
 
 /* ================= Цикл ================= */
@@ -4112,7 +4308,7 @@ function frame(now) {
 }
 function boot(data) {
   const s = (data && data.save) || loadSave();
-  if (s) { restore(s); $('bCont').hidden = false; $('bNew').textContent = 'Новый замок'; }
+  if (s) { restore(s); $('bCont').hidden = false; $('bNew').textContent = L('Новый замок'); }
   else newGame();
   menuState();
   requestAnimationFrame(frame);
